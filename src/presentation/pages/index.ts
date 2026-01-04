@@ -1,3 +1,3 @@
 export { IntroPage } from './IntroPage';
-export { TestPage } from './TestPage';
+export { GamePage } from './GamePage';
 export { ResultPage } from './ResultPage';

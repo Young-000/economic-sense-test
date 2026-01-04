@@ -1,2 +1,1 @@
-export { calculateScores } from './calculateScores';
-export { determineType } from './determineType';
+export * from './gameEngine';
