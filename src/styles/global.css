@@ -130,6 +130,31 @@ body {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: all 0.3s ease;
+}
+
+.progress-dot.completed {
+  background: var(--positive);
+}
+
+.progress-dot.current {
+  background: var(--primary);
+  animation: pulse 1.5s infinite;
 }
 
 .balance-display {
@@ -181,6 +206,9 @@ body {
 }
 
 .choice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 16px;
 }
 
@@ -188,6 +216,23 @@ body {
   font-size: 18px;
   font-weight: 700;
   color: var(--text);
+}
+
+.expected-value {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.expected-value.positive {
+  color: var(--positive);
+  background: var(--positive-bg);
+}
+
+.expected-value.negative {
+  color: var(--negative);
+  background: var(--negative-bg);
 }
 
 .outcomes-list {
@@ -516,6 +561,170 @@ body {
   margin-top: 6px;
 }
 
+/* ==================== Ranking Section ==================== */
+.ranking-section {
+  background: var(--card);
+  padding: 24px;
+  border-radius: 24px;
+  margin-bottom: 16px;
+  animation: slideUp 0.5s ease-out 0.15s backwards;
+}
+
+.ranking-form {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.nickname-input {
+  flex: 1;
+  padding: 14px 16px;
+  font-size: 16px;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.nickname-input:focus {
+  border-color: var(--primary);
+}
+
+.nickname-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.submit-ranking-btn {
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  background: var(--primary);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.submit-ranking-btn:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.submit-ranking-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ranking-result {
+  text-align: center;
+  padding: 8px 0;
+}
+
+.my-rank {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+.my-rank strong {
+  color: var(--positive);
+  font-size: 24px;
+}
+
+.toggle-rankings-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-rankings-btn:hover {
+  background: var(--card-hover);
+  color: var(--text);
+}
+
+.toss-leaderboard-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #3182f6, #6366f1);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toss-leaderboard-btn:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.toss-ads-container {
+  margin-top: 24px;
+  min-height: 50px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.rankings-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: slideUp 0.3s ease-out;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg);
+  border-radius: 12px;
+  gap: 12px;
+}
+
+.ranking-position {
+  font-size: 18px;
+  font-weight: 700;
+  min-width: 32px;
+  text-align: center;
+}
+
+.ranking-nickname {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranking-return {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.ranking-return.positive {
+  color: var(--positive);
+}
+
+.ranking-return.negative {
+  color: var(--negative);
+}
+
 .action-buttons {
   display: flex;
   flex-direction: column;
@@ -555,4 +764,263 @@ body {
 .retry-button:active {
   transform: scale(0.98);
   background: var(--card-hover);
+}
+
+/* ==================== Animations ==================== */
+
+/* 페이지 등장 애니메이션 */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(49, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(49, 130, 246, 0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* 인트로 페이지 애니메이션 */
+.intro-content {
+  animation: slideUp 0.6s ease-out;
+}
+
+.intro-title {
+  animation: scaleIn 0.5s ease-out;
+}
+
+.feature {
+  animation: slideUp 0.5s ease-out backwards;
+}
+
+.feature:nth-child(1) { animation-delay: 0.1s; }
+.feature:nth-child(2) { animation-delay: 0.2s; }
+.feature:nth-child(3) { animation-delay: 0.3s; }
+
+.start-button {
+  animation: slideUp 0.5s ease-out 0.4s backwards;
+}
+
+.start-button:hover {
+  animation: pulse 1.5s infinite;
+  background: var(--primary-dark);
+}
+
+/* 게임 페이지 애니메이션 */
+.question-container {
+  animation: slideUp 0.4s ease-out;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.situation-card {
+  animation: scaleIn 0.4s ease-out;
+}
+
+.choice-card {
+  animation: slideUp 0.4s ease-out backwards;
+}
+
+.choice-card:nth-child(1) { animation-delay: 0.1s; }
+.choice-card:nth-child(3) { animation-delay: 0.2s; }
+
+.choice-card:hover {
+  border-color: var(--primary);
+  background: var(--card-hover);
+  transform: translateY(-2px);
+}
+
+.vs-badge {
+  animation: fadeIn 0.3s ease-out 0.15s backwards;
+}
+
+/* 게임 헤더 애니메이션 */
+.game-header {
+  animation: slideUp 0.3s ease-out;
+}
+
+.balance-amount {
+  transition: all 0.3s ease;
+}
+
+/* 결과 오버레이 개선 */
+.result-popup {
+  animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.result-amount {
+  animation: countUp 0.5s ease-out 0.2s backwards;
+}
+
+.result-luck {
+  animation: fadeIn 0.4s ease-out 0.4s backwards;
+}
+
+/* 결과 페이지 애니메이션 */
+.investor-type-card {
+  animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.type-emoji {
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.final-balance-card {
+  animation: slideUp 0.5s ease-out 0.1s backwards;
+}
+
+.description-card {
+  animation: slideUp 0.5s ease-out 0.2s backwards;
+}
+
+.analysis-section {
+  animation: slideUp 0.5s ease-out 0.3s backwards;
+}
+
+.action-buttons {
+  animation: slideUp 0.5s ease-out 0.4s backwards;
+}
+
+/* 통계 바 애니메이션 */
+.stat-fill {
+  animation: growWidth 0.8s ease-out 0.5s backwards;
+}
+
+@keyframes growWidth {
+  from {
+    width: 0 !important;
+  }
+}
+
+/* 버튼 호버 효과 */
+.share-button:hover,
+.next-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(49, 130, 246, 0.4);
+}
+
+.retry-button:hover {
+  border-color: var(--text-secondary);
+  transform: translateY(-1px);
+}
+
+/* 프로그레스 인디케이터 */
+.round-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.round-badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--primary);
+  opacity: 0.2;
+  transition: width 0.3s ease;
+}
+
+/* 카드 그라데이션 테두리 효과 */
+.investor-type-card {
+  position: relative;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+}
+
+.investor-type-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 28px;
+  padding: 2px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* 모바일 터치 피드백 */
+@media (hover: none) {
+  .choice-card:active {
+    transform: scale(0.98);
+    border-color: var(--primary);
+    background: var(--card-hover);
+  }
+
+  .start-button:active,
+  .share-button:active,
+  .next-btn:active {
+    transform: scale(0.98);
+    background: var(--primary-dark);
+  }
+}
+
+/* 스크롤바 스타일링 */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }

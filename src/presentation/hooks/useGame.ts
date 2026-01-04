@@ -3,16 +3,16 @@
  */
 
 import { useState, useCallback, useMemo } from 'react';
-import type { GameState, Choice, RoundResult, FinalResult } from '@domain/entities';
+import type { GameState, Choice, RoundResult, FinalResult, Question } from '@domain/entities';
 import { GAME_CONFIG } from '@domain/entities';
 import { processRound, calculateFinalResult } from '@domain/usecases';
-import { questions } from '@data/questions';
+import { generateQuestions } from '@data/questionGenerator';
 
 export interface UseGameReturn {
   /** 현재 게임 상태 */
   gameState: GameState;
   /** 현재 질문 */
-  currentQuestion: typeof questions[0] | null;
+  currentQuestion: Question | null;
   /** 마지막 라운드 결과 (애니메이션용) */
   lastResult: RoundResult | null;
   /** 선택하기 */
@@ -25,6 +25,8 @@ export interface UseGameReturn {
   reset: () => void;
   /** 결과 대기 중 (애니메이션) */
   isWaitingResult: boolean;
+  /** 현재 게임의 질문들 */
+  questions: Question[];
 }
 
 const initialState: GameState = {
@@ -38,11 +40,13 @@ export function useGame(): UseGameReturn {
   const [gameState, setGameState] = useState<GameState>(initialState);
   const [lastResult, setLastResult] = useState<RoundResult | null>(null);
   const [isWaitingResult, setIsWaitingResult] = useState(false);
+  // 게임 시작 시 랜덤 질문 생성
+  const [questions, setQuestions] = useState<Question[]>(() => generateQuestions());
 
   const currentQuestion = useMemo(() => {
     if (gameState.currentRound >= GAME_CONFIG.TOTAL_ROUNDS) return null;
     return questions[gameState.currentRound];
-  }, [gameState.currentRound]);
+  }, [gameState.currentRound, questions]);
 
   const makeChoice = useCallback((choice: Choice) => {
     if (!currentQuestion || isWaitingResult) return;
@@ -82,12 +86,14 @@ export function useGame(): UseGameReturn {
   const finalResult = useMemo(() => {
     if (!gameState.isComplete) return null;
     return calculateFinalResult(gameState.results, questions);
-  }, [gameState.isComplete, gameState.results]);
+  }, [gameState.isComplete, gameState.results, questions]);
 
   const reset = useCallback(() => {
     setGameState(initialState);
     setLastResult(null);
     setIsWaitingResult(false);
+    // 새 게임 시작 시 질문 재생성
+    setQuestions(generateQuestions());
   }, []);
 
   return {
@@ -99,5 +105,6 @@ export function useGame(): UseGameReturn {
     finalResult,
     reset,
     isWaitingResult,
+    questions,
   };
 }

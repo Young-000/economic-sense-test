@@ -1,0 +1,39 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0a"/>
+      <stop offset="100%" style="stop-color:#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="50%" style="stop-color:#8b5cf6"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Decorative circles -->
+  <circle cx="100" cy="100" r="200" fill="#3182f6" opacity="0.1"/>
+  <circle cx="1100" cy="530" r="250" fill="#8b5cf6" opacity="0.1"/>
+
+  <!-- Main card -->
+  <rect x="100" y="165" width="1000" height="300" rx="40" fill="url(#card)"/>
+
+  <!-- Emoji -->
+  <text x="200" y="350" font-size="120" font-family="Apple Color Emoji, Segoe UI Emoji">💰</text>
+
+  <!-- Title -->
+  <text x="360" y="290" font-size="52" font-weight="800" fill="white" font-family="-apple-system, BlinkMacSystemFont, sans-serif">경제감각 시뮬레이션</text>
+
+  <!-- Subtitle -->
+  <text x="360" y="360" font-size="28" fill="rgba(255,255,255,0.9)" font-family="-apple-system, BlinkMacSystemFont, sans-serif">가상의 1,000만원으로 10번의 투자 결정!</text>
+
+  <!-- Tag -->
+  <rect x="360" y="390" width="200" height="40" rx="20" fill="rgba(255,255,255,0.2)"/>
+  <text x="410" y="418" font-size="18" fill="white" font-family="-apple-system, BlinkMacSystemFont, sans-serif">나의 투자 성향은?</text>
+
+  <!-- Bottom text -->
+  <text x="600" y="580" font-size="20" fill="#888888" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif">실제 확률로 결과가 결정되는 시뮬레이션 게임</text>
+</svg>

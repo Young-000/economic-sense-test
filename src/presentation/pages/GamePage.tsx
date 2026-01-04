@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../hooks/useGame';
 import { GAME_CONFIG } from '@domain/entities';
+import { calculateExpectedValue } from '@domain/usecases/gameEngine';
 
 export function GamePage() {
   const navigate = useNavigate();
@@ -12,14 +13,17 @@ export function GamePage() {
     makeChoice,
     nextRound,
     isWaitingResult,
+    questions,
   } = useGame();
 
   useEffect(() => {
     if (gameState.isComplete) {
-      const resultsParam = encodeURIComponent(JSON.stringify(gameState.results));
-      navigate(`/result?data=${resultsParam}`, { replace: true });
+      // URL 길이 제한 문제 해결: sessionStorage 사용
+      sessionStorage.setItem('gameResults', JSON.stringify(gameState.results));
+      sessionStorage.setItem('gameQuestions', JSON.stringify(questions));
+      navigate('/result', { replace: true });
     }
-  }, [gameState.isComplete, gameState.results, navigate]);
+  }, [gameState.isComplete, gameState.results, questions, navigate]);
 
   if (gameState.isComplete || !currentQuestion) return null;
 
@@ -29,15 +33,15 @@ export function GamePage() {
     if (absValue >= 100_000_000) {
       return `${sign}${(absValue / 100_000_000).toFixed(1)}억`;
     }
-    if (absValue >= 10_000) {
-      return `${sign}${Math.round(absValue / 10_000)}만`;
-    }
-    return `${sign}${absValue.toLocaleString()}`;
+    // 모든 수치를 만원 단위로 표시
+    const inMan = Math.round(absValue / 10_000);
+    if (inMan === 0) return `${sign}0만`;
+    return `${sign}${inMan.toLocaleString()}만`;
   };
 
   const formatBalance = (value: number) => {
     if (value >= 100_000_000) {
-      return `${(value / 100_000_000).toFixed(2)}억`;
+      return `${(value / 100_000_000).toFixed(1)}억원`;
     }
     return `${Math.round(value / 10_000).toLocaleString()}만원`;
   };
@@ -64,7 +68,18 @@ export function GamePage() {
       {/* 상단 헤더 */}
       <div className="game-header">
         <div className="round-badge">
-          {gameState.currentRound + 1}/{GAME_CONFIG.TOTAL_ROUNDS}
+          <span>{gameState.currentRound + 1}/{GAME_CONFIG.TOTAL_ROUNDS}</span>
+          <div className="progress-dots">
+            {Array.from({ length: GAME_CONFIG.TOTAL_ROUNDS }, (_, i) => (
+              <div
+                key={i}
+                className={`progress-dot ${
+                  i < gameState.currentRound ? 'completed' :
+                  i === gameState.currentRound ? 'current' : ''
+                }`}
+              />
+            ))}
+          </div>
         </div>
         <div className="balance-display">
           <span className="balance-amount">{formatBalance(gameState.balance)}</span>
@@ -89,7 +104,7 @@ export function GamePage() {
           </div>
         </div>
       ) : (
-        <>
+        <div key={currentQuestion.id} className="question-container">
           {/* 상황 카드 */}
           <div className="situation-card">
             <span className="situation-text">{currentQuestion.situation}</span>
@@ -100,6 +115,9 @@ export function GamePage() {
             <button className="choice-card" onClick={() => makeChoice('A')}>
               <div className="choice-header">
                 <span className="choice-label">{currentQuestion.optionA.label}</span>
+                <span className={`expected-value ${calculateExpectedValue(currentQuestion.optionA) >= 0 ? 'positive' : 'negative'}`}>
+                  기대수익 {formatMoney(calculateExpectedValue(currentQuestion.optionA))}
+                </span>
               </div>
               <div className="outcomes-list">
                 {renderOutcomes(currentQuestion.optionA.outcomes)}
@@ -111,13 +129,16 @@ export function GamePage() {
             <button className="choice-card" onClick={() => makeChoice('B')}>
               <div className="choice-header">
                 <span className="choice-label">{currentQuestion.optionB.label}</span>
+                <span className={`expected-value ${calculateExpectedValue(currentQuestion.optionB) >= 0 ? 'positive' : 'negative'}`}>
+                  기대수익 {formatMoney(calculateExpectedValue(currentQuestion.optionB))}
+                </span>
               </div>
               <div className="outcomes-list">
                 {renderOutcomes(currentQuestion.optionB.outcomes)}
               </div>
             </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

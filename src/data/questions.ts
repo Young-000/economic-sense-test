@@ -140,18 +140,18 @@ export const questions: Question[] = [
     situation: '🎰 로또 vs 저축',
     optionA: {
       label: '매주 로또 5천원',
-      description: '월 2만원, 1등 확률 1/800만',
+      description: '월 2만원, 1등 확률 1/814만',
       outcomes: [
-        { probability: 0.0000001, value: 20_000_000_00 },  // 20억
-        { probability: 0.9999999, value: -20_000 },
+        { probability: 0.00000012, value: 1_000_000_000 },  // 10억 (실제 평균 당첨금)
+        { probability: 0.99999988, value: -20_000 },
       ],
-      // 기대값: 약 0 (실제론 마이너스)
+      // 기대값: 약 +100 (실제론 세금/분배로 마이너스)
     },
     optionB: {
       label: '그냥 저축',
       description: '월 2만원 적금, 연 4%',
-      outcomes: [{ probability: 1, value: 20_800 }],
-      // 기대값: +20,800 (B가 나음)
+      outcomes: [{ probability: 1, value: 20_000 }],
+      // 기대값: +20,000 (B가 나음)
     },
   },
   {

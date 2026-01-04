@@ -9,6 +9,7 @@ export default defineConfig({
       '@domain': resolve(__dirname, './src/domain'),
       '@data': resolve(__dirname, './src/data'),
       '@presentation': resolve(__dirname, './src/presentation'),
+      '@lib': resolve(__dirname, './src/lib'),
     },
   },
 });

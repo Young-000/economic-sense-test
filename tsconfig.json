@@ -19,7 +19,8 @@
     "paths": {
       "@domain/*": ["src/domain/*"],
       "@data/*": ["src/data/*"],
-      "@presentation/*": ["src/presentation/*"]
+      "@presentation/*": ["src/presentation/*"],
+      "@lib/*": ["src/lib/*"]
     }
   },
   "include": ["src"],
