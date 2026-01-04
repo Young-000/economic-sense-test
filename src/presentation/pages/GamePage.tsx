@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../hooks/useGame';
 import { GAME_CONFIG } from '@domain/entities';
@@ -13,24 +14,25 @@ export function GamePage() {
     isWaitingResult,
   } = useGame();
 
-  // 게임 완료 시 결과 페이지로
-  if (gameState.isComplete) {
-    const resultsParam = encodeURIComponent(JSON.stringify(gameState.results));
-    navigate(`/result?data=${resultsParam}`);
-    return null;
-  }
+  useEffect(() => {
+    if (gameState.isComplete) {
+      const resultsParam = encodeURIComponent(JSON.stringify(gameState.results));
+      navigate(`/result?data=${resultsParam}`, { replace: true });
+    }
+  }, [gameState.isComplete, gameState.results, navigate]);
 
-  if (!currentQuestion) return null;
+  if (gameState.isComplete || !currentQuestion) return null;
 
-  const formatMoney = (value: number) => {
+  const formatMoney = (value: number, showSign = true) => {
     const absValue = Math.abs(value);
+    const sign = showSign ? (value >= 0 ? '+' : '-') : '';
     if (absValue >= 100_000_000) {
-      return `${value >= 0 ? '+' : '-'}${(absValue / 100_000_000).toFixed(1)}억`;
+      return `${sign}${(absValue / 100_000_000).toFixed(1)}억`;
     }
     if (absValue >= 10_000) {
-      return `${value >= 0 ? '+' : '-'}${Math.round(absValue / 10_000)}만원`;
+      return `${sign}${Math.round(absValue / 10_000)}만`;
     }
-    return `${value >= 0 ? '+' : '-'}${absValue.toLocaleString()}원`;
+    return `${sign}${absValue.toLocaleString()}`;
   };
 
   const formatBalance = (value: number) => {
@@ -40,65 +42,79 @@ export function GamePage() {
     return `${Math.round(value / 10_000).toLocaleString()}만원`;
   };
 
+  const renderOutcomes = (outcomes: typeof currentQuestion.optionA.outcomes) => {
+    return outcomes.map((outcome, idx) => (
+      <div key={idx} className="outcome-row">
+        <span className={`outcome-value ${outcome.value >= 0 ? 'positive' : 'negative'}`}>
+          {formatMoney(outcome.value)}
+        </span>
+        <div className="probability-bar-container">
+          <div
+            className={`probability-bar ${outcome.value >= 0 ? 'positive' : 'negative'}`}
+            style={{ width: `${outcome.probability * 100}%` }}
+          />
+        </div>
+        <span className="probability-text">{Math.round(outcome.probability * 100)}%</span>
+      </div>
+    ));
+  };
+
   return (
     <div className="game-page">
-      {/* 상단 정보 */}
+      {/* 상단 헤더 */}
       <div className="game-header">
-        <div className="round-info">
-          <span className="round-label">ROUND</span>
-          <span className="round-number">{gameState.currentRound + 1}/{GAME_CONFIG.TOTAL_ROUNDS}</span>
+        <div className="round-badge">
+          {gameState.currentRound + 1}/{GAME_CONFIG.TOTAL_ROUNDS}
         </div>
-        <div className="balance-info">
-          <span className="balance-label">내 자산</span>
+        <div className="balance-display">
           <span className="balance-amount">{formatBalance(gameState.balance)}</span>
         </div>
       </div>
 
-      {/* 결과 표시 (선택 후) */}
+      {/* 결과 오버레이 */}
       {isWaitingResult && lastResult ? (
         <div className="result-overlay">
-          <div className="result-card">
-            <div className={`result-value ${lastResult.actualOutcome >= 0 ? 'positive' : 'negative'}`}>
+          <div className="result-popup">
+            <div className={`result-amount ${lastResult.actualOutcome >= 0 ? 'positive' : 'negative'}`}>
               {formatMoney(lastResult.actualOutcome)}
             </div>
-            <p className="result-message">
-              {lastResult.actualOutcome >= 0 ? '수익 발생!' : '손실 발생...'}
-            </p>
-            <p className="result-expected">
-              기대값: {formatMoney(lastResult.expectedValue)}
-              {lastResult.actualOutcome > lastResult.expectedValue && ' (운 좋음! 🍀)'}
-              {lastResult.actualOutcome < lastResult.expectedValue && ' (운 나쁨 😢)'}
-            </p>
-            <button className="next-button" onClick={nextRound}>
-              {gameState.currentRound + 1 >= GAME_CONFIG.TOTAL_ROUNDS ? '결과 보기' : '다음 라운드'}
+            <div className="result-luck">
+              {lastResult.actualOutcome > lastResult.expectedValue && '🍀 Lucky!'}
+              {lastResult.actualOutcome < lastResult.expectedValue && '😢 Unlucky'}
+              {lastResult.actualOutcome === lastResult.expectedValue && '📊 Expected'}
+            </div>
+            <button className="next-btn" onClick={nextRound}>
+              {gameState.currentRound + 1 >= GAME_CONFIG.TOTAL_ROUNDS ? '결과 보기 →' : '다음 →'}
             </button>
           </div>
         </div>
       ) : (
         <>
-          {/* 상황 설명 */}
+          {/* 상황 카드 */}
           <div className="situation-card">
-            <h2 className="situation-text">{currentQuestion.situation}</h2>
+            <span className="situation-text">{currentQuestion.situation}</span>
           </div>
 
-          {/* 선택지 */}
-          <div className="choices-container">
-            <button
-              className="choice-button"
-              onClick={() => makeChoice('A')}
-            >
-              <span className="choice-label">{currentQuestion.optionA.label}</span>
-              <span className="choice-description">{currentQuestion.optionA.description}</span>
+          {/* 선택지 카드들 */}
+          <div className="choices">
+            <button className="choice-card" onClick={() => makeChoice('A')}>
+              <div className="choice-header">
+                <span className="choice-label">{currentQuestion.optionA.label}</span>
+              </div>
+              <div className="outcomes-list">
+                {renderOutcomes(currentQuestion.optionA.outcomes)}
+              </div>
             </button>
 
-            <div className="vs-divider">VS</div>
+            <div className="vs-badge">VS</div>
 
-            <button
-              className="choice-button"
-              onClick={() => makeChoice('B')}
-            >
-              <span className="choice-label">{currentQuestion.optionB.label}</span>
-              <span className="choice-description">{currentQuestion.optionB.description}</span>
+            <button className="choice-card" onClick={() => makeChoice('B')}>
+              <div className="choice-header">
+                <span className="choice-label">{currentQuestion.optionB.label}</span>
+              </div>
+              <div className="outcomes-list">
+                {renderOutcomes(currentQuestion.optionB.outcomes)}
+              </div>
             </button>
           </div>
         </>
