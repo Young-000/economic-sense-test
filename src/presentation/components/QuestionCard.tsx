@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Question, AnswerChoice } from '@domain/entities';
 
 interface QuestionCardProps {

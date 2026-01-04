@@ -48,6 +48,9 @@ export interface CharacterType {
   advice: string;
 }
 
+/** Character alias for backwards compatibility */
+export type Character = CharacterType;
+
 /** 최종 결과 */
 export interface Result {
   scores: Scores;

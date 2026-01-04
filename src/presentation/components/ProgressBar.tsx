@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface ProgressBarProps {
   /** 진행률 (0-100) */
   progress: number;

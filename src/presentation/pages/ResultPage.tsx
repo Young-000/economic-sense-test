@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useResult } from '../hooks/useResult';
 import { ShareButton } from '../components/ShareButton';
@@ -49,7 +48,7 @@ export function ResultPage() {
           <div className="trait-box strength">
             <h3>강점</h3>
             <ul>
-              {character.strengths.map((s, i) => (
+              {character.strengths.map((s: string, i: number) => (
                 <li key={i}>{s}</li>
               ))}
             </ul>
@@ -57,7 +56,7 @@ export function ResultPage() {
           <div className="trait-box weakness">
             <h3>약점</h3>
             <ul>
-              {character.weaknesses.map((w, i) => (
+              {character.weaknesses.map((w: string, i: number) => (
                 <li key={i}>{w}</li>
               ))}
             </ul>

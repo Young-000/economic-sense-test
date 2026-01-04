@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { IntroPage, TestPage, ResultPage } from '@presentation/pages';
 import './styles/global.css';

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTest } from '../hooks/useTest';
 import { ProgressBar } from '../components/ProgressBar';
