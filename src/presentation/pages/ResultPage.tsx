@@ -1,13 +1,56 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import type { RoundResult } from '@domain/entities';
 import { GAME_CONFIG } from '@domain/entities';
 import { calculateFinalResult } from '@domain/usecases';
 import { questions } from '@data/questions';
 
+interface RankingEntry {
+  name: string;
+  returnRate: number;
+  timestamp: number;
+}
+
+const RANKING_STORAGE_KEY = 'economic_sense_ranking';
+const MAX_RANKING_ENTRIES = 100;
+
+function loadRankings(): RankingEntry[] {
+  try {
+    const data = localStorage.getItem(RANKING_STORAGE_KEY);
+    if (!data) return [];
+    return JSON.parse(data);
+  } catch {
+    return [];
+  }
+}
+
+function saveRanking(entry: RankingEntry): RankingEntry[] {
+  const rankings = loadRankings();
+  rankings.push(entry);
+  rankings.sort((a, b) => b.returnRate - a.returnRate);
+  const trimmed = rankings.slice(0, MAX_RANKING_ENTRIES);
+  localStorage.setItem(RANKING_STORAGE_KEY, JSON.stringify(trimmed));
+  return trimmed;
+}
+
+function getRank(returnRate: number, rankings: RankingEntry[]): number {
+  const sorted = [...rankings].sort((a, b) => b.returnRate - a.returnRate);
+  for (let i = 0; i < sorted.length; i++) {
+    if (sorted[i].returnRate === returnRate) {
+      return i + 1;
+    }
+  }
+  return sorted.length + 1;
+}
+
 export function ResultPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [rankings, setRankings] = useState<RankingEntry[]>([]);
+  const [userRank, setUserRank] = useState<number>(0);
+  const [showRanking, setShowRanking] = useState(true);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [userName, setUserName] = useState('');
 
   const finalResult = useMemo(() => {
     try {
@@ -22,6 +65,26 @@ export function ResultPage() {
       return null;
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    const loadedRankings = loadRankings();
+    setRankings(loadedRankings);
+  }, []);
+
+  const handleRegisterRanking = useCallback(() => {
+    if (!finalResult || !userName.trim()) return;
+
+    const entry: RankingEntry = {
+      name: userName.trim(),
+      returnRate: finalResult.totalReturn,
+      timestamp: Date.now(),
+    };
+
+    const updatedRankings = saveRanking(entry);
+    setRankings(updatedRankings);
+    setUserRank(getRank(finalResult.totalReturn, updatedRankings));
+    setIsRegistered(true);
+  }, [finalResult, userName]);
 
   if (!finalResult) {
     return (
@@ -114,6 +177,68 @@ export function ResultPage() {
         {/* 설명 */}
         <div className="description-card">
           <p>{profile.description}</p>
+        </div>
+
+        {/* 랭킹 섹션 */}
+        <div className="ranking-section">
+          {!isRegistered ? (
+            <div className="ranking-register">
+              <h2 className="ranking-title">랭킹에 등록하기</h2>
+              <div className="ranking-input-group">
+                <input
+                  type="text"
+                  className="ranking-input"
+                  placeholder="닉네임을 입력하세요"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  maxLength={10}
+                />
+                <button
+                  className="ranking-register-btn"
+                  onClick={handleRegisterRanking}
+                  disabled={!userName.trim()}
+                >
+                  등록하기
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="ranking-registered">
+              <div className="ranking-success">
+                <span className="ranking-success-icon">🎉</span>
+                <span className="ranking-success-text">랭킹 등록 완료!</span>
+              </div>
+              <div className="ranking-current">
+                현재 순위: <span className="ranking-number">{userRank}위</span>
+              </div>
+            </div>
+          )}
+
+          <button
+            className="ranking-toggle"
+            onClick={() => setShowRanking(!showRanking)}
+          >
+            랭킹 {showRanking ? '숨기기' : '보기'} {showRanking ? '▲' : '▼'}
+          </button>
+
+          {showRanking && rankings.length > 0 && (
+            <div className="ranking-list">
+              {rankings.slice(0, 10).map((entry, index) => (
+                <div
+                  key={`${entry.name}-${entry.timestamp}`}
+                  className={`ranking-item ${isRegistered && entry.returnRate === totalReturn && entry.name === userName ? 'current-user' : ''}`}
+                >
+                  <span className="ranking-position">
+                    {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`}
+                  </span>
+                  <span className="ranking-name">{entry.name}</span>
+                  <span className={`ranking-return ${entry.returnRate >= 0 ? 'positive' : 'negative'}`}>
+                    {entry.returnRate >= 0 ? '+' : ''}{entry.returnRate.toFixed(1)}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 상세 분석 */}

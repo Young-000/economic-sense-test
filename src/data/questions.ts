@@ -11,20 +11,21 @@ import type { Question } from '@domain/entities';
 export const questions: Question[] = [
   {
     id: 1,
-    situation: '💰 보너스 200만원이 들어왔다!',
+    situation: '✈️ 제주도 비행기 예약해야 해',
     optionA: {
-      label: '적금 넣기',
-      description: '연 4% 이자 (1년 후 +8만원 확정)',
-      outcomes: [{ probability: 1, value: 80_000 }],
+      label: '환불가능 티켓',
+      description: '일정 바뀌면 100% 환불',
+      outcomes: [{ probability: 1, value: 260_000 }],
+      // 기대값: +26만 (안전한 선택)
     },
     optionB: {
-      label: '주식 투자',
-      description: '50% 확률로 2배, 50% 확률로 반토막',
+      label: '환불불가 저가',
+      description: '90% 확률 절약, 10% 일정 변경시 손실',
       outcomes: [
-        { probability: 0.5, value: 2_000_000 },
-        { probability: 0.5, value: -1_000_000 },
+        { probability: 0.9, value: 390_000 },
+        { probability: 0.1, value: -510_000 },
       ],
-      // 기대값: +500,000 (B가 더 높음 - 합리적 공격)
+      // 기대값: +30만 (B가 높음 - 합리적 공격)
     },
   },
   {
@@ -57,8 +58,8 @@ export const questions: Question[] = [
       label: '존버하기',
       description: '40% 확률 본전, 60% 확률 -50%',
       outcomes: [
-        { probability: 0.4, value: 300_000 },   // 본전 회복
-        { probability: 0.6, value: -200_000 },  // 추가 하락
+        { probability: 0.4, value: 300_000 },
+        { probability: 0.6, value: -200_000 },
       ],
       // 기대값: 0 (A가 -30만원이니 B가 나음)
     },
@@ -69,16 +70,17 @@ export const questions: Question[] = [
     optionA: {
       label: '8천원 단골집',
       description: '맛 보장, 빠름',
-      outcomes: [{ probability: 1, value: 0 }],
+      outcomes: [{ probability: 1, value: 300_000 }],
+      // 기대값: +30만 (안정적)
     },
     optionB: {
       label: '1.5만원 신상 맛집',
-      description: '50% 대박, 50% 실망 (-7천원 손해 느낌)',
+      description: '50% 대박, 50% 실망',
       outcomes: [
-        { probability: 0.5, value: 50_000 },    // 맛집 발견 행복
-        { probability: 0.5, value: -70_000 },   // 비싸고 별로
+        { probability: 0.5, value: 600_000 },
+        { probability: 0.5, value: -300_000 },
       ],
-      // 기대값: -10,000 (A가 나음 - 보수 합리)
+      // 기대값: +15만 (A가 나음 - 보수 합리)
     },
   },
   {
@@ -119,39 +121,39 @@ export const questions: Question[] = [
   },
   {
     id: 7,
-    situation: '✈️ 제주도 비행기 예약',
+    situation: '💰 보너스 200만원이 들어왔다!',
     optionA: {
-      label: '환불가능 12만원',
-      description: '일정 바뀌면 100% 환불',
-      outcomes: [{ probability: 1, value: -20_000 }],  // 5만원 더 비쌈
+      label: '적금 넣기',
+      description: '연 4% 이자 (1년 후 +8만원 확정)',
+      outcomes: [{ probability: 1, value: 80_000 }],
     },
     optionB: {
-      label: '환불불가 7만원',
-      description: '90% 확률 OK, 10% 일정 변경시 날림',
+      label: '주식 투자',
+      description: '50% 확률로 2배, 50% 확률로 반토막',
       outcomes: [
-        { probability: 0.9, value: 50_000 },   // 5만원 절약
-        { probability: 0.1, value: -70_000 },  // 7만원 날림
+        { probability: 0.5, value: 2_000_000 },
+        { probability: 0.5, value: -1_000_000 },
       ],
-      // 기대값: +38,000 (B가 높음)
+      // 기대값: +500,000 (B가 더 높음 - 합리적 공격)
     },
   },
   {
     id: 8,
     situation: '🎰 로또 vs 저축',
     optionA: {
-      label: '매주 로또 5천원',
-      description: '월 2만원, 1등 확률 1/800만',
-      outcomes: [
-        { probability: 0.0000001, value: 20_000_000_00 },  // 20억
-        { probability: 0.9999999, value: -20_000 },
-      ],
-      // 기대값: 약 0 (실제론 마이너스)
-    },
-    optionB: {
       label: '그냥 저축',
       description: '월 2만원 적금, 연 4%',
       outcomes: [{ probability: 1, value: 20_800 }],
-      // 기대값: +20,800 (B가 나음)
+      // 기대값: +20,800 (A가 나음)
+    },
+    optionB: {
+      label: '매주 로또 5천원',
+      description: '월 2만원, 1등 확률 1/800만',
+      outcomes: [
+        { probability: 0.0000001, value: 2_000_000_000 },
+        { probability: 0.9999999, value: -20_000 },
+      ],
+      // 기대값: 약 0 (실제론 마이너스)
     },
   },
   {
@@ -181,7 +183,7 @@ export const questions: Question[] = [
       label: '500만원 투자',
       description: '10% 확률 10배, 90% 확률 전액 손실',
       outcomes: [
-        { probability: 0.1, value: 45_000_000 },  // 10배 (5000만-500만)
+        { probability: 0.1, value: 45_000_000 },
         { probability: 0.9, value: -5_000_000 },
       ],
       // 기대값: 0 (고위험 고수익)

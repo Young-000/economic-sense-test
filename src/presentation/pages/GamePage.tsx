@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../hooks/useGame';
 import { GAME_CONFIG } from '@domain/entities';
+import { calculateExpectedValue } from '@domain/usecases';
 
 export function GamePage() {
   const navigate = useNavigate();
@@ -100,6 +101,9 @@ export function GamePage() {
             <button className="choice-card" onClick={() => makeChoice('A')}>
               <div className="choice-header">
                 <span className="choice-label">{currentQuestion.optionA.label}</span>
+                <span className="expected-value-badge">
+                  기대수익 {formatMoney(calculateExpectedValue(currentQuestion.optionA))}
+                </span>
               </div>
               <div className="outcomes-list">
                 {renderOutcomes(currentQuestion.optionA.outcomes)}
@@ -111,6 +115,9 @@ export function GamePage() {
             <button className="choice-card" onClick={() => makeChoice('B')}>
               <div className="choice-header">
                 <span className="choice-label">{currentQuestion.optionB.label}</span>
+                <span className="expected-value-badge">
+                  기대수익 {formatMoney(calculateExpectedValue(currentQuestion.optionB))}
+                </span>
               </div>
               <div className="outcomes-list">
                 {renderOutcomes(currentQuestion.optionB.outcomes)}
