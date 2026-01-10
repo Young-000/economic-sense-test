@@ -5,13 +5,31 @@ import { GAME_CONFIG } from '@domain/entities';
 import { calculateFinalResult } from '@domain/usecases';
 import { submitRanking, getTopRankings, type RankingEntry } from '@data/rankingService';
 import {
+  getBestPerformance,
+  updateBestPerformance,
+  createAssetHistory,
+} from '@data/bestPerformanceService';
+import {
+  checkAndUnlockAchievements,
+  getAchievementStatus,
+  calculateGameStats,
+  type Achievement,
+} from '@data/achievementService';
+import { AssetProgressChart, Confetti, NewAchievementsPopup, AchievementList } from '@presentation/components';
+import {
   isAppsInToss,
   submitToGameLeaderboard,
   openGameLeaderboard,
   initTossAds,
   attachBannerAd,
   removeBannerAd,
+  trackPageView,
+  trackClick,
+  trackImpression,
+  triggerHapticFeedback,
+  setClipboardText,
 } from '@lib/appsInToss';
+import { formatBalance } from '@lib/formatUtils';
 
 export function ResultPage() {
   const navigate = useNavigate();
@@ -23,6 +41,10 @@ export function ResultPage() {
   const [showRankings, setShowRankings] = useState(false);
   const [inTossApp, setInTossApp] = useState(false);
   const [tossLeaderboardSubmitted, setTossLeaderboardSubmitted] = useState(false);
+  const [isNewRecord, setIsNewRecord] = useState(false);
+  const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
+  const [showAchievementPopup, setShowAchievementPopup] = useState(false);
+  const [showAchievementList, setShowAchievementList] = useState(false);
   const adContainerRef = useRef<HTMLDivElement>(null);
   const adSlotIdRef = useRef<string | null>(null);
 
@@ -44,10 +66,85 @@ export function ResultPage() {
     }
   }, []);
 
-  // 랭킹 로드
-  useEffect(() => {
-    getTopRankings(10).then(setTopRankings);
+  // 안전한 JSON 파싱 헬퍼
+  const safeParseResults = (): RoundResult[] => {
+    try {
+      const stored = sessionStorage.getItem('gameResults');
+      if (!stored) return [];
+      const parsed = JSON.parse(stored);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+
+  // 결과 데이터에서 라운드별 히스토리 생성 (한 번만 파싱)
+  const { assetHistory, bestPerformance, gameResults } = useMemo(() => {
+    const results = safeParseResults();
+    const history = createAssetHistory(results);
+    const best = getBestPerformance();
+    return { assetHistory: history, bestPerformance: best, gameResults: results };
   }, []);
+
+  // 랭킹 로드 및 최고 기록 체크
+  useEffect(() => {
+    let isMounted = true;
+
+    getTopRankings(10)
+      .then((rankings) => {
+        if (isMounted) setTopRankings(rankings);
+      })
+      .catch(() => {
+        // 랭킹 로드 실패 시 빈 배열 유지 (이미 기본값)
+      });
+
+    // 최고 기록 업데이트 확인
+    if (finalResult) {
+      const wasNewRecord = updateBestPerformance(
+        assetHistory,
+        finalResult.totalReturn,
+        finalResult.investorType
+      );
+      if (isMounted) setIsNewRecord(wasNewRecord);
+
+      // 업적 체크 (이미 파싱된 gameResults 재사용)
+      const totalGamesPlayed = parseInt(localStorage.getItem('economic-sense-total-games') || '0', 10) + 1;
+      localStorage.setItem('economic-sense-total-games', String(totalGamesPlayed));
+
+      const gameStats = calculateGameStats(
+        gameResults.map((r) => ({ actualOutcome: r.actualOutcome, expectedValue: r.expectedValue })),
+        finalResult.riskScore,
+        finalResult.rationalityScore,
+        finalResult.luckScore,
+        totalGamesPlayed
+      );
+
+      const unlocked = checkAndUnlockAchievements(gameStats);
+      if (unlocked.length > 0 && isMounted) {
+        setNewAchievements(unlocked);
+        setShowAchievementPopup(true);
+        triggerHapticFeedback('heavy');
+        // 업적 노출 추적
+        unlocked.forEach((achievement) => {
+          trackImpression(`achievement_${achievement.id}`, {
+            achievement_name: achievement.name,
+          });
+        });
+      }
+
+      // 페이지뷰 및 결과 추적
+      trackPageView('result_page', {
+        total_return: finalResult.totalReturn,
+        investor_type: finalResult.investorType,
+        is_new_record: wasNewRecord,
+        new_achievements: unlocked.length,
+      });
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [finalResult, assetHistory, gameResults]);
 
   // Apps in Toss 환경 체크 및 광고 초기화
   useEffect(() => {
@@ -66,8 +163,8 @@ export function ResultPage() {
     if (!inTossApp || !adContainerRef.current) return;
 
     const slotId = attachBannerAd(adContainerRef.current, {
-      onLoad: () => console.log('TossAds loaded'),
-      onError: (error) => console.error('TossAds error:', error),
+      onLoad: () => {},
+      onError: () => {},
     });
 
     if (slotId) {
@@ -97,27 +194,21 @@ export function ResultPage() {
 
   const { profile, finalBalance, totalReturn, riskScore, rationalityScore, luckScore, investorType } = finalResult;
 
-  const formatBalance = (value: number) => {
-    if (value >= 100_000_000) {
-      return `${(value / 100_000_000).toFixed(1)}억원`;
-    }
-    return `${Math.round(value / 10_000).toLocaleString()}만원`;
-  };
-
-  const getReturnClass = () => {
+  // CSS 클래스 매핑 (공통 유틸 함수는 다른 패턴 사용)
+  const returnClassName = (() => {
     if (totalReturn >= 50) return 'return-great';
     if (totalReturn >= 0) return 'return-good';
     if (totalReturn >= -30) return 'return-bad';
     return 'return-terrible';
-  };
+  })();
 
-  const getLuckLabel = () => {
+  const luckLabel = (() => {
     if (luckScore >= 50) return '대박 행운! 🍀🍀';
     if (luckScore >= 20) return '운 좋았어요 🍀';
     if (luckScore >= -20) return '평균적인 운';
     if (luckScore >= -50) return '운이 없었네요 😢';
     return '극심한 불운 😭';
-  };
+  })();
 
   const handleSubmitRanking = async () => {
     if (!nickname.trim() || isSubmitting) return;
@@ -161,24 +252,26 @@ export function ResultPage() {
   };
 
   const handleOpenTossLeaderboard = async () => {
-    const result = await openGameLeaderboard();
-    if (!result.success) {
-      console.warn('Failed to open Toss leaderboard:', result.error);
-    }
+    trackClick('toss_leaderboard');
+    await openGameLeaderboard();
   };
 
   const handleShare = async () => {
-    const shareText = `🎯 경제감각 시뮬레이션 결과\n\n` +
-      `${profile.emoji} ${profile.name}\n` +
-      `💰 최종 자산: ${formatBalance(finalBalance)}\n` +
-      `📈 수익률: ${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}%\n` +
-      `"${profile.tag}"\n\n` +
-      `나도 해보기 👉`;
+    triggerHapticFeedback('light');
+    trackClick('share_result');
+    const returnEmoji = totalReturn >= 50 ? '🚀' : totalReturn >= 0 ? '📈' : totalReturn >= -30 ? '📉' : '💸';
+    const shareText = `💸 돈 감각 테스트 결과\n\n` +
+      `${profile.emoji} 나는 "${profile.name}"\n` +
+      `${returnEmoji} 수익률: ${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}%\n` +
+      `💰 1,000만원 → ${formatBalance(finalBalance)}\n\n` +
+      `#${profile.tag}\n` +
+      `#돈감각테스트 #금손흙손\n\n` +
+      `너의 돈 감각은? 👉`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: '경제감각 테스트',
+          title: '돈 감각 테스트',
           text: shareText,
           url: window.location.origin,
         });
@@ -188,17 +281,48 @@ export function ResultPage() {
       }
     }
 
+    // Apps in Toss 환경에서는 네이티브 클립보드 API 사용
+    const fullShareText = shareText + ' ' + window.location.origin;
+    if (inTossApp) {
+      const success = await setClipboardText(fullShareText);
+      if (success) {
+        alert('결과가 복사되었습니다!');
+        return;
+      }
+    }
+
+    // 웹 기본 클립보드 API
     try {
-      await navigator.clipboard.writeText(shareText + ' ' + window.location.origin);
+      await navigator.clipboard.writeText(fullShareText);
       alert('결과가 복사되었습니다!');
     } catch {
       alert(shareText);
     }
   };
 
+  // 업적 현황 가져오기
+  // 업적 현황은 컴포넌트 마운트 시 한 번만 로드 (showAchievementPopup 의존성 불필요)
+  const achievementStatus = useMemo(() => getAchievementStatus(), []);
+
   return (
     <div className="result-page">
+      {/* 컨페티 효과 */}
+      <Confetti active={isNewRecord || newAchievements.length > 0} count={60} duration={3500} />
+
+      {/* 업적 달성 팝업 */}
+      {showAchievementPopup && (
+        <NewAchievementsPopup
+          achievements={newAchievements}
+          onClose={() => setShowAchievementPopup(false)}
+        />
+      )}
+
       <div className="result-content">
+        {/* 신기록 배지 */}
+        {isNewRecord && (
+          <div className="new-record-badge">신기록 달성!</div>
+        )}
+
         {/* 투자자 유형 */}
         <div className="investor-type-card">
           <span className="type-emoji">{profile.emoji}</span>
@@ -210,7 +334,7 @@ export function ResultPage() {
         <div className="final-balance-card">
           <span className="balance-label">최종 자산</span>
           <span className="balance-value">{formatBalance(finalBalance)}</span>
-          <span className={`return-value ${getReturnClass()}`}>
+          <span className={`return-value ${returnClassName}`}>
             {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(1)}%
           </span>
           <p className="initial-note">
@@ -284,6 +408,15 @@ export function ResultPage() {
           )}
         </div>
 
+        {/* 자산 변화 그래프 */}
+        <AssetProgressChart
+          results={gameResults}
+          currentBalance={finalBalance}
+          bestPerformance={bestPerformance?.history}
+          height={180}
+          animate={true}
+        />
+
         {/* 설명 */}
         <div className="description-card">
           <p>{profile.description}</p>
@@ -324,7 +457,7 @@ export function ResultPage() {
           <div className="stat-item">
             <div className="stat-header">
               <span className="stat-label">운</span>
-              <span className="stat-value">{getLuckLabel()}</span>
+              <span className="stat-value">{luckLabel}</span>
             </div>
             <div className="stat-bar luck-bar">
               <div
@@ -341,6 +474,22 @@ export function ResultPage() {
               <span>행운</span>
             </div>
           </div>
+        </div>
+
+        {/* 업적 섹션 */}
+        <div className="achievements-section">
+          <button
+            className="toggle-achievements-btn"
+            onClick={() => setShowAchievementList(!showAchievementList)}
+          >
+            🏅 업적 ({achievementStatus.unlocked}/{achievementStatus.total}) {showAchievementList ? '▲' : '▼'}
+          </button>
+          {showAchievementList && (
+            <AchievementList
+              achievements={achievementStatus.achievements}
+              showLocked={true}
+            />
+          )}
         </div>
 
         {/* 버튼 */}

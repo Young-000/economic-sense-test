@@ -2,6 +2,8 @@
  * Apps in Toss 연동 서비스
  * - 게임 리더보드
  * - 배너 광고
+ * - 뒤로가기/종료 처리
+ * - Safe Area
  */
 
 // Apps in Toss SDK 타입 정의 (런타임에서 로드됨)
@@ -39,6 +41,26 @@ declare global {
         }) => { slotId: string };
         destroy: (slotId: string) => void;
       };
+      graniteEvent?: {
+        addEventListener: (
+          eventType: 'backEvent',
+          handlers: {
+            onEvent: () => void;
+            onError?: (error: Error) => void;
+          }
+        ) => () => void;
+      };
+      setIosSwipeGestureEnabled?: (enabled: boolean) => void;
+      getSafeAreaInsets?: () => { top: number; bottom: number; left: number; right: number };
+      closeView?: () => Promise<void>;
+      Analytics?: {
+        click: (params: { button_name: string; [key: string]: unknown }) => void;
+        impression: (params: { item_id: string; [key: string]: unknown }) => void;
+        pageView: (params: { page_name: string; [key: string]: unknown }) => void;
+      };
+      generateHapticFeedback?: (options: { style: 'light' | 'medium' | 'heavy' }) => Promise<void>;
+      getClipboardText?: () => Promise<string>;
+      setClipboardText?: (text: string) => Promise<void>;
     };
   }
 }
@@ -209,5 +231,182 @@ export function removeBannerAd(slotId: string): void {
     window.AppsInToss.TossAds.destroy(slotId);
   } catch (err) {
     console.error('Failed to remove banner ad:', err);
+  }
+}
+
+/**
+ * 뒤로가기 이벤트 리스너 등록
+ * @param onBack 뒤로가기 시 호출될 콜백 (기본 뒤로가기 동작은 차단됨)
+ * @returns cleanup 함수
+ */
+export function addBackEventListener(onBack: () => void): () => void {
+  if (!isAppsInToss() || !window.AppsInToss?.graniteEvent) {
+    return () => {};
+  }
+
+  try {
+    const unsubscribe = window.AppsInToss.graniteEvent.addEventListener('backEvent', {
+      onEvent: onBack,
+      onError: (error) => {
+        console.error('Back event error:', error);
+      },
+    });
+    return unsubscribe;
+  } catch (err) {
+    console.error('Failed to add back event listener:', err);
+    return () => {};
+  }
+}
+
+/**
+ * iOS 스와이프 뒤로가기 제스처 활성화/비활성화
+ */
+export function setIosSwipeGestureEnabled(enabled: boolean): void {
+  if (!isAppsInToss() || !window.AppsInToss?.setIosSwipeGestureEnabled) {
+    return;
+  }
+
+  try {
+    window.AppsInToss.setIosSwipeGestureEnabled(enabled);
+  } catch (err) {
+    console.error('Failed to set iOS swipe gesture:', err);
+  }
+}
+
+/**
+ * Safe Area Insets 가져오기
+ */
+export function getSafeAreaInsets(): { top: number; bottom: number; left: number; right: number } {
+  if (!isAppsInToss() || !window.AppsInToss?.getSafeAreaInsets) {
+    return { top: 0, bottom: 0, left: 0, right: 0 };
+  }
+
+  try {
+    return window.AppsInToss.getSafeAreaInsets();
+  } catch (err) {
+    console.error('Failed to get safe area insets:', err);
+    return { top: 0, bottom: 0, left: 0, right: 0 };
+  }
+}
+
+/**
+ * 앱 종료 (미니앱 닫기)
+ */
+export async function closeApp(): Promise<void> {
+  if (!isAppsInToss() || !window.AppsInToss?.closeView) {
+    return;
+  }
+
+  try {
+    await window.AppsInToss.closeView();
+  } catch (err) {
+    console.error('Failed to close app:', err);
+  }
+}
+
+/**
+ * Analytics - 클릭 이벤트 로깅
+ */
+export function trackClick(buttonName: string, extraParams?: Record<string, unknown>): void {
+  if (!isAppsInToss() || !window.AppsInToss?.Analytics) {
+    return;
+  }
+
+  try {
+    window.AppsInToss.Analytics.click({
+      button_name: buttonName,
+      ...extraParams,
+    });
+  } catch (err) {
+    console.error('Failed to track click:', err);
+  }
+}
+
+/**
+ * Analytics - 노출 이벤트 로깅
+ */
+export function trackImpression(itemId: string, extraParams?: Record<string, unknown>): void {
+  if (!isAppsInToss() || !window.AppsInToss?.Analytics) {
+    return;
+  }
+
+  try {
+    window.AppsInToss.Analytics.impression({
+      item_id: itemId,
+      ...extraParams,
+    });
+  } catch (err) {
+    console.error('Failed to track impression:', err);
+  }
+}
+
+/**
+ * Analytics - 페이지뷰 이벤트 로깅
+ */
+export function trackPageView(pageName: string, extraParams?: Record<string, unknown>): void {
+  if (!isAppsInToss() || !window.AppsInToss?.Analytics) {
+    return;
+  }
+
+  try {
+    window.AppsInToss.Analytics.pageView({
+      page_name: pageName,
+      ...extraParams,
+    });
+  } catch (err) {
+    console.error('Failed to track page view:', err);
+  }
+}
+
+/**
+ * 햅틱 피드백 (진동)
+ * @param style 진동 강도: light, medium, heavy
+ */
+export async function triggerHapticFeedback(
+  style: 'light' | 'medium' | 'heavy' = 'medium'
+): Promise<boolean> {
+  if (!isAppsInToss() || !window.AppsInToss?.generateHapticFeedback) {
+    return false;
+  }
+
+  try {
+    await window.AppsInToss.generateHapticFeedback({ style });
+    return true;
+  } catch (err) {
+    console.error('Failed to trigger haptic feedback:', err);
+    return false;
+  }
+}
+
+/**
+ * 클립보드 텍스트 읽기
+ */
+export async function getClipboardText(): Promise<string | null> {
+  if (!isAppsInToss() || !window.AppsInToss?.getClipboardText) {
+    return null;
+  }
+
+  try {
+    return await window.AppsInToss.getClipboardText();
+  } catch (err) {
+    console.error('Failed to get clipboard text:', err);
+    return null;
+  }
+}
+
+/**
+ * 클립보드에 텍스트 쓰기
+ */
+export async function setClipboardText(text: string): Promise<boolean> {
+  if (!isAppsInToss() || !window.AppsInToss?.setClipboardText) {
+    return false;
+  }
+
+  try {
+    await window.AppsInToss.setClipboardText(text);
+    return true;
+  } catch (err) {
+    console.error('Failed to set clipboard text:', err);
+    return false;
   }
 }

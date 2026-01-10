@@ -1,0 +1,39 @@
+<svg width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="300" cy="300" r="300" fill="#0a0a0a"/>
+
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="greenGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981"/>
+      <stop offset="100%" style="stop-color:#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="goldShine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="50%" style="stop-color:#fef3c7"/>
+      <stop offset="100%" style="stop-color:#fbbf24"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Inner Circle Glow -->
+  <circle cx="300" cy="300" r="250" fill="#1a1a1a" stroke="url(#greenGold)" stroke-width="4"/>
+
+  <!-- Money Symbol (Won) -->
+  <text x="300" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="180" font-weight="bold" fill="url(#greenGold)">
+    ₩
+  </text>
+
+  <!-- Arrow Up (Growth) -->
+  <path d="M300 320 L340 380 L320 380 L320 440 L280 440 L280 380 L260 380 Z" fill="url(#goldShine)" transform="rotate(180, 300, 380)"/>
+
+  <!-- Sparkles -->
+  <circle cx="180" cy="180" r="12" fill="#fbbf24" opacity="0.8"/>
+  <circle cx="420" cy="200" r="8" fill="#10B981" opacity="0.8"/>
+  <circle cx="450" cy="400" r="10" fill="#fbbf24" opacity="0.6"/>
+  <circle cx="150" cy="380" r="6" fill="#10B981" opacity="0.6"/>
+
+  <!-- Bottom Text -->
+  <text x="300" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#ffffff">
+    돈 감각
+  </text>
+</svg>

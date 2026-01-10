@@ -1,10 +1,19 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GAME_CONFIG } from '@domain/entities';
+import { trackPageView, trackClick, triggerHapticFeedback } from '@lib/appsInToss';
 
 export function IntroPage() {
   const navigate = useNavigate();
 
+  // 페이지 진입 시 애널리틱스 추적
+  useEffect(() => {
+    trackPageView('intro_page');
+  }, []);
+
   const handleStart = () => {
+    triggerHapticFeedback('medium');
+    trackClick('start_game');
     navigate('/game');
   };
 
@@ -13,33 +22,47 @@ export function IntroPage() {
   };
 
   return (
-    <div className="intro-page">
+    <main className="intro-page" role="main" aria-labelledby="intro-title">
       <div className="intro-content">
-        <h1 className="intro-title">💰 경제감각 시뮬레이션</h1>
+        <div className="intro-badge" aria-hidden="true">MZ 필수 테스트</div>
+        <h1 id="intro-title" className="intro-title">💸 돈 감각 테스트</h1>
         <p className="intro-subtitle">
-          가상의 {formatBalance(GAME_CONFIG.INITIAL_BALANCE)}으로<br />
-          {GAME_CONFIG.TOTAL_ROUNDS}번의 선택을 해보세요!
+          {formatBalance(GAME_CONFIG.INITIAL_BALANCE)} 받았다.<br />
+          <strong>{GAME_CONFIG.TOTAL_ROUNDS}번 선택</strong> 후 얼마 남을까?
         </p>
 
-        <div className="intro-features">
-          <div className="feature">
-            <span className="feature-icon">🎮</span>
-            <span className="feature-text">실제 확률 기반 시뮬레이션</span>
-          </div>
-          <div className="feature">
-            <span className="feature-icon">📊</span>
-            <span className="feature-text">투자 성향 + 운 분석</span>
-          </div>
-          <div className="feature">
-            <span className="feature-icon">🏆</span>
-            <span className="feature-text">친구와 수익률 비교</span>
-          </div>
+        <div className="intro-hook" aria-hidden="true">
+          <span className="hook-emoji">🤔</span>
+          <span className="hook-text">당신은 금손? 흙손?</span>
         </div>
 
-        <button className="start-button" onClick={handleStart}>
-          시뮬레이션 시작
+        <ul className="intro-features" aria-label="게임 특징">
+          <li className="feature">
+            <span className="feature-icon" aria-hidden="true">🎲</span>
+            <span className="feature-text">진짜 확률로 결과 결정</span>
+          </li>
+          <li className="feature">
+            <span className="feature-icon" aria-hidden="true">🧠</span>
+            <span className="feature-text">투자 성향 + 운빨 분석</span>
+          </li>
+          <li className="feature">
+            <span className="feature-icon" aria-hidden="true">🔥</span>
+            <span className="feature-text">친구랑 수익률 배틀</span>
+          </li>
+        </ul>
+
+        <button
+          className="start-button"
+          onClick={handleStart}
+          aria-label="게임 시작하기"
+        >
+          돈 불려보기
         </button>
+
+        <p className="intro-disclaimer" role="note">
+          * 실제 돈이 아닙니다. 재미로만 즐겨주세요!
+        </p>
       </div>
-    </div>
+    </main>
   );
 }

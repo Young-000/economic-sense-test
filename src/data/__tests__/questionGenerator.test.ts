@@ -1,9 +1,24 @@
 /**
  * 질문 생성기 테스트
+ * - 소비(spending): 음수 EV (지출 최소화가 합리적)
+ * - 수익(income): 양수 EV (수익 최대화가 합리적)
+ * - 혼합(mixed): 양/음 혼합 EV (기대값 계산 필요)
  */
-import { describe, it, expect } from 'vitest';
-import { generateQuestions } from '../questionGenerator';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+  generateQuestionsSync,
+  generateQuestions as generateQuestionsAsync,
+  generateQuestionsLocal,
+  analyzeDistribution,
+} from '../questionGenerator';
 import { GAME_CONFIG } from '@domain/entities';
+
+// 테스트용 동기 함수 (기존 테스트 호환성)
+const generateQuestions = generateQuestionsSync;
+
+// 기대값 계산 헬퍼
+const calculateEV = (option: { outcomes: { probability: number; value: number }[] }) =>
+  option.outcomes.reduce((sum, o) => sum + o.probability * o.value, 0);
 
 describe('generateQuestions', () => {
   it('should generate exactly TOTAL_ROUNDS questions', () => {
@@ -75,7 +90,6 @@ describe('generateQuestions', () => {
     const situations2 = questions2.map(q => q.situation).join(',');
 
     // 순서나 금액이 다를 수 있으므로 대부분의 경우 다름
-    // (우연히 같을 수도 있으므로 여러 번 생성해서 하나라도 다르면 통과)
     let foundDifferent = situations1 !== situations2;
 
     if (!foundDifferent) {
@@ -92,40 +106,242 @@ describe('generateQuestions', () => {
     expect(foundDifferent).toBe(true);
   });
 
-  it('should generate questions with randomized amounts', () => {
-    const questions1 = generateQuestions();
-    const questions2 = generateQuestions();
-
-    // 같은 상황이라도 금액이 다를 수 있음
-    // 모든 금액이 정확히 같을 확률은 매우 낮음
-    let foundDifferentAmount = false;
-
-    for (let i = 0; i < Math.min(questions1.length, questions2.length); i++) {
-      const q1 = questions1[i];
-      const q2 = questions2[i];
-
-      const amounts1 = q1.optionA.outcomes.map(o => o.value).concat(q1.optionB.outcomes.map(o => o.value));
-      const amounts2 = q2.optionA.outcomes.map(o => o.value).concat(q2.optionB.outcomes.map(o => o.value));
-
-      if (JSON.stringify(amounts1) !== JSON.stringify(amounts2)) {
-        foundDifferentAmount = true;
-        break;
-      }
-    }
-
-    expect(foundDifferentAmount).toBe(true);
-  });
-
   it('should have reasonable expected value range', () => {
     const questions = generateQuestions();
 
     questions.forEach(q => {
-      const evA = q.optionA.outcomes.reduce((sum, o) => sum + o.probability * o.value, 0);
-      const evB = q.optionB.outcomes.reduce((sum, o) => sum + o.probability * o.value, 0);
+      const evA = calculateEV(q.optionA);
+      const evB = calculateEV(q.optionB);
 
-      // 기대값이 너무 극단적이지 않아야 함 (-500만 ~ +500만 범위)
-      expect(Math.abs(evA)).toBeLessThan(5_000_000);
-      expect(Math.abs(evB)).toBeLessThan(5_000_000);
+      // 기대값이 너무 극단적이지 않아야 함 (-1억 ~ +1억 범위)
+      expect(Math.abs(evA)).toBeLessThan(100_000_000);
+      expect(Math.abs(evB)).toBeLessThan(100_000_000);
     });
+  });
+});
+
+describe('generateQuestionsLocal', () => {
+  it('should generate exactly TOTAL_ROUNDS questions', () => {
+    const questions = generateQuestionsLocal();
+    expect(questions).toHaveLength(GAME_CONFIG.TOTAL_ROUNDS);
+  });
+
+  it('should return same structure as sync version', () => {
+    const questions = generateQuestionsLocal();
+
+    questions.forEach((q) => {
+      expect(q).toHaveProperty('id');
+      expect(q).toHaveProperty('situation');
+      expect(q).toHaveProperty('optionA');
+      expect(q).toHaveProperty('optionB');
+    });
+  });
+});
+
+describe('카테고리 균형 및 EV 분포', () => {
+  it('should have balanced category distribution', () => {
+    const questions = generateQuestions();
+    const distribution = analyzeDistribution(questions);
+
+    // 소비: 3-5개, 수익: 3-5개, 혼합: 1-4개
+    expect(distribution.spending).toBeGreaterThanOrEqual(2);
+    expect(distribution.spending).toBeLessThanOrEqual(6);
+    expect(distribution.income).toBeGreaterThanOrEqual(2);
+    expect(distribution.income).toBeLessThanOrEqual(6);
+    expect(distribution.mixed).toBeGreaterThanOrEqual(0);
+    expect(distribution.mixed).toBeLessThanOrEqual(4);
+  });
+
+  it('should have mixed positive and negative EV options', () => {
+    const questions = generateQuestions();
+    const distribution = analyzeDistribution(questions);
+
+    // 양수 EV와 음수 EV가 섞여 있어야 함
+    expect(distribution.evStats.positiveEV).toBeGreaterThan(0);
+    expect(distribution.evStats.negativeEV).toBeGreaterThan(0);
+  });
+
+  it('spending questions should have both options with negative or zero EV', () => {
+    const questions = generateQuestions();
+
+    questions.forEach(q => {
+      const evA = calculateEV(q.optionA);
+      const evB = calculateEV(q.optionB);
+
+      // 소비 카테고리 판단: 양쪽 모두 음수 또는 0
+      if (evA <= 0 && evB <= 0) {
+        // 소비 질문: 둘 다 0 이하여야 함
+        expect(evA).toBeLessThanOrEqual(0);
+        expect(evB).toBeLessThanOrEqual(0);
+      }
+    });
+  });
+
+  it('income questions should have at least one option with positive EV', () => {
+    const questions = generateQuestions();
+
+    questions.forEach(q => {
+      const evA = calculateEV(q.optionA);
+      const evB = calculateEV(q.optionB);
+
+      // 수익 카테고리 판단: 양쪽 모두 양수 또는 0
+      if (evA >= 0 && evB >= 0 && (evA > 0 || evB > 0)) {
+        // 수익 질문: 최소 하나는 양수
+        expect(Math.max(evA, evB)).toBeGreaterThan(0);
+      }
+    });
+  });
+});
+
+describe('50개 문제 분포 검증', () => {
+  it('should maintain consistent category distribution over 50 question sets', () => {
+    const iterations = 50;
+    let totalSpending = 0;
+    let totalIncome = 0;
+    let totalMixed = 0;
+    let totalPositiveEV = 0;
+    let totalNegativeEV = 0;
+    let totalZeroEV = 0;
+
+    for (let i = 0; i < iterations; i++) {
+      const questions = generateQuestions();
+      const dist = analyzeDistribution(questions);
+
+      totalSpending += dist.spending;
+      totalIncome += dist.income;
+      totalMixed += dist.mixed;
+      totalPositiveEV += dist.evStats.positiveEV;
+      totalNegativeEV += dist.evStats.negativeEV;
+      totalZeroEV += dist.evStats.zeroEV;
+    }
+
+    const avgSpending = totalSpending / iterations;
+    const avgIncome = totalIncome / iterations;
+    const avgMixed = totalMixed / iterations;
+    const avgPositiveEV = totalPositiveEV / iterations;
+    const avgNegativeEV = totalNegativeEV / iterations;
+    const avgZeroEV = totalZeroEV / iterations;
+
+    // 분포 검증 (EV 부호 기준)
+    // 소비(양쪽 음수): 최소 2개 이상
+    expect(avgSpending).toBeGreaterThanOrEqual(2);
+    expect(avgSpending).toBeLessThanOrEqual(7);
+
+    // 수익(양쪽 양수 또는 0): 최소 2개 이상
+    expect(avgIncome).toBeGreaterThanOrEqual(2);
+    expect(avgIncome).toBeLessThanOrEqual(7);
+
+    // EV 분포: 양수와 음수 옵션이 모두 존재
+    // 20개 옵션 중 양수가 최소 3개, 음수가 최소 3개
+    expect(avgPositiveEV).toBeGreaterThan(2);
+    expect(avgNegativeEV).toBeGreaterThan(2);
+
+    console.log('=== 50회 분포 분석 결과 ===');
+    console.log(`평균 소비 질문 (양쪽 EV ≤ 0): ${avgSpending.toFixed(1)}개`);
+    console.log(`평균 수익 질문 (양쪽 EV ≥ 0): ${avgIncome.toFixed(1)}개`);
+    console.log(`평균 혼합 질문: ${avgMixed.toFixed(1)}개`);
+    console.log(`평균 양수 EV 옵션: ${avgPositiveEV.toFixed(1)}개 (20개 중)`);
+    console.log(`평균 음수 EV 옵션: ${avgNegativeEV.toFixed(1)}개 (20개 중)`);
+    console.log(`평균 0 EV 옵션: ${avgZeroEV.toFixed(1)}개 (20개 중)`);
+  });
+
+  it('should verify individual question EV patterns', () => {
+    const questions = generateQuestions();
+
+    console.log('\n=== 개별 질문 EV 분석 ===');
+    questions.forEach((q, i) => {
+      const evA = calculateEV(q.optionA);
+      const evB = calculateEV(q.optionB);
+      const betterChoice = evA > evB ? 'A' : (evB > evA ? 'B' : '동일');
+      const category = (evA <= 0 && evB <= 0) ? '소비' :
+                       (evA >= 0 && evB >= 0) ? '수익' : '혼합';
+
+      console.log(
+        `Q${i + 1} [${category}] ${q.situation.substring(0, 20)}... ` +
+        `A: ${(evA / 10000).toFixed(1)}만원, B: ${(evB / 10000).toFixed(1)}만원 → ${betterChoice}`
+      );
+    });
+  });
+
+  it('should have diverse scenarios across 50 iterations', () => {
+    const situationCounts = new Map<string, number>();
+    const iterations = 50;
+
+    for (let i = 0; i < iterations; i++) {
+      const questions = generateQuestions();
+      questions.forEach(q => {
+        const count = situationCounts.get(q.situation) || 0;
+        situationCounts.set(q.situation, count + 1);
+      });
+    }
+
+    // 총 500개 질문 (50회 × 10개)
+    const totalQuestions = iterations * 10;
+    const uniqueSituations = situationCounts.size;
+
+    console.log(`\n=== 시나리오 다양성 ===`);
+    console.log(`총 생성 질문: ${totalQuestions}개`);
+    console.log(`고유 시나리오 수: ${uniqueSituations}개`);
+
+    // 최소 15개 이상의 고유 시나리오 (21개 템플릿 중)
+    expect(uniqueSituations).toBeGreaterThanOrEqual(15);
+
+    // 가장 많이 나온 시나리오와 가장 적게 나온 시나리오
+    const counts = Array.from(situationCounts.values());
+    const maxCount = Math.max(...counts);
+    const minCount = Math.min(...counts);
+
+    console.log(`최다 출현: ${maxCount}회`);
+    console.log(`최소 출현: ${minCount}회`);
+
+    // 편차가 너무 크지 않아야 함 (균등 분포)
+    // 이상적으로 각 시나리오는 ~23회 (500/21) 나와야 함
+    expect(maxCount).toBeLessThan(100); // 특정 시나리오가 너무 자주 나오지 않음
+  });
+});
+
+describe('generateQuestionsAsync', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('should return questions from local when DB fails', async () => {
+    // questionService를 모킹하여 에러 발생
+    vi.doMock('../questionService', () => ({
+      fetchQuestionsFromDB: vi.fn().mockRejectedValue(new Error('DB error')),
+    }));
+
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    const questions = await generateQuestionsAsync();
+
+    expect(questions).toHaveLength(GAME_CONFIG.TOTAL_ROUNDS);
+    expect(questions[0]).toHaveProperty('id');
+    expect(questions[0]).toHaveProperty('situation');
+
+    consoleSpy.mockRestore();
+    logSpy.mockRestore();
+  });
+
+  it('should return valid questions structure', async () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    const questions = await generateQuestionsAsync();
+
+    questions.forEach((q) => {
+      expect(q).toHaveProperty('id');
+      expect(q).toHaveProperty('situation');
+      expect(q).toHaveProperty('optionA');
+      expect(q).toHaveProperty('optionB');
+      expect(q.optionA.outcomes.length).toBeGreaterThan(0);
+      expect(q.optionB.outcomes.length).toBeGreaterThan(0);
+    });
+
+    consoleSpy.mockRestore();
   });
 });

@@ -118,6 +118,26 @@ describe('rollOutcome', () => {
 
     vi.restoreAllMocks();
   });
+
+  it('should return last outcome when probabilities do not sum to 1', () => {
+    // 확률 합이 1 미만인 경우 (0.3 + 0.3 = 0.6)
+    vi.spyOn(Math, 'random').mockReturnValue(0.9); // 0.9 > 0.6이므로 fallback
+
+    const option: Option = {
+      label: 'Test',
+      description: 'Test',
+      outcomes: [
+        { probability: 0.3, value: 100_000 },
+        { probability: 0.3, value: 50_000 },
+      ],
+    };
+
+    const result = rollOutcome(option);
+    // 확률 합이 1이 아닐 때 마지막 outcome 반환
+    expect(result.value).toBe(50_000);
+
+    vi.restoreAllMocks();
+  });
 });
 
 describe('processRound', () => {
@@ -305,6 +325,16 @@ describe('determineInvestorType', () => {
 
   it('should return balanced_investor for middle scores', () => {
     expect(determineInvestorType(50, 50, 0)).toBe('balanced_investor');
+  });
+
+  it('should return lucky_gambler for aggressive with neutral luck (fallback)', () => {
+    // 공격적(70) + 비합리적(40) + 중간 운(0) = lucky_gambler 기본값
+    expect(determineInvestorType(70, 40, 0)).toBe('lucky_gambler');
+  });
+
+  it('should return careful_realist for conservative with neutral luck (fallback)', () => {
+    // 보수적(30) + 중간 운(0) = careful_realist 기본값
+    expect(determineInvestorType(30, 50, 0)).toBe('careful_realist');
   });
 });
 
