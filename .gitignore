@@ -5,3 +5,8 @@ dist/
 .env
 .env.local
 .vercel
+
+# Generated files
+coverage/
+.playwright-mcp/
+.claude/
