@@ -5,7 +5,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { GamePage } from '../GamePage';
-import { GAME_CONFIG } from '@domain/entities';
+import { GAME_MODE_CONFIG } from '@domain/entities';
+
+const normalConfig = GAME_MODE_CONFIG.normal;
 
 // react-router-dom 모킹
 const mockNavigate = vi.fn();
@@ -43,7 +45,7 @@ const mockQuestions = [mockQuestion];
 
 const defaultGameState = {
   currentRound: 0,
-  balance: GAME_CONFIG.INITIAL_BALANCE,
+  balance: normalConfig.initialBalance,
   results: [],
   isComplete: false,
 };
@@ -86,7 +88,7 @@ describe('GamePage', () => {
 
   const renderGamePage = () => {
     return render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={['/game?mode=normal']}>
         <GamePage />
       </MemoryRouter>
     );
@@ -349,7 +351,7 @@ describe('GamePage', () => {
       const { container } = renderGamePage();
 
       const dots = container.querySelectorAll('.round-dot');
-      expect(dots.length).toBe(GAME_CONFIG.TOTAL_ROUNDS);
+      expect(dots.length).toBe(normalConfig.totalRounds);
     });
 
     it('should show positive dot for positive outcome', () => {
@@ -447,7 +449,7 @@ describe('GamePage', () => {
         gameState: {
           ...defaultGameState,
           currentRound: 2,
-          balance: GAME_CONFIG.INITIAL_BALANCE + 300_000,
+          balance: normalConfig.initialBalance + 300_000,
           results: mockResults,
         },
         currentQuestion: mockQuestion,
@@ -479,6 +481,57 @@ describe('GamePage', () => {
       const { container } = renderGamePage();
 
       expect(container.querySelector('.game-page')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Extreme 모드', () => {
+    const extremeConfig = GAME_MODE_CONFIG.extreme;
+
+    const renderExtremeGamePage = () => {
+      return render(
+        <MemoryRouter initialEntries={['/game?mode=extreme']}>
+          <GamePage />
+        </MemoryRouter>
+      );
+    };
+
+    it('should render with extreme mode balance', () => {
+      (useGame as ReturnType<typeof vi.fn>).mockReturnValue({
+        gameState: {
+          ...defaultGameState,
+          balance: extremeConfig.initialBalance,
+        },
+        currentQuestion: mockQuestion,
+        lastResult: null,
+        makeChoice: mockMakeChoice,
+        nextRound: mockNextRound,
+        isWaitingResult: false,
+        questions: mockQuestions,
+      });
+
+      renderExtremeGamePage();
+
+      expect(screen.getByText('5,000만원')).toBeInTheDocument();
+    });
+
+    it('should use extreme mode config for progress bar', () => {
+      (useGame as ReturnType<typeof vi.fn>).mockReturnValue({
+        gameState: {
+          ...defaultGameState,
+          balance: extremeConfig.initialBalance,
+        },
+        currentQuestion: mockQuestion,
+        lastResult: null,
+        makeChoice: mockMakeChoice,
+        nextRound: mockNextRound,
+        isWaitingResult: false,
+        questions: mockQuestions,
+      });
+
+      renderExtremeGamePage();
+
+      const progressBar = screen.getByRole('progressbar', { name: '게임 진행률' });
+      expect(progressBar).toHaveAttribute('aria-valuemax', String(extremeConfig.totalRounds));
     });
   });
 });

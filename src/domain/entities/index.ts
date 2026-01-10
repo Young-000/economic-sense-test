@@ -75,8 +75,38 @@ export interface FinalResult {
   profile: InvestorProfile;
 }
 
-/** 게임 설정 */
+/** 게임 모드 */
+export type GameMode = 'normal' | 'extreme';
+
+/** 게임 모드별 설정 */
+export const GAME_MODE_CONFIG = {
+  normal: {
+    name: '일반 모드',
+    emoji: '💰',
+    description: '현실적인 경제 선택',
+    initialBalance: 10_000_000,  // 1,000만원
+    totalRounds: 10,
+  },
+  extreme: {
+    name: '극한 모드',
+    emoji: '🔥',
+    description: '하이리스크 하이리턴',
+    initialBalance: 50_000_000,  // 5,000만원
+    totalRounds: 10,
+  },
+} as const;
+
+/** 게임 설정 (기본값 - 일반 모드) */
 export const GAME_CONFIG = {
   INITIAL_BALANCE: 10_000_000,  // 1,000만원
   TOTAL_ROUNDS: 10,
 } as const;
+
+/** 모드별 게임 설정 가져오기 */
+export function getGameConfig(mode: GameMode) {
+  const config = GAME_MODE_CONFIG[mode];
+  return {
+    INITIAL_BALANCE: config.initialBalance,
+    TOTAL_ROUNDS: config.totalRounds,
+  };
+}

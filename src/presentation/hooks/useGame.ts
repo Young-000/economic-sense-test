@@ -3,10 +3,15 @@
  */
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import type { GameState, Choice, RoundResult, FinalResult, Question } from '@domain/entities';
-import { GAME_CONFIG } from '@domain/entities';
+import type { GameState, Choice, RoundResult, FinalResult, Question, GameMode } from '@domain/entities';
+import { getGameConfig } from '@domain/entities';
 import { processRound, calculateFinalResult } from '@domain/usecases';
 import { generateQuestions, generateQuestionsSync } from '@data/questionGenerator';
+
+export interface UseGameOptions {
+  /** 게임 모드 */
+  mode?: GameMode;
+}
 
 export interface UseGameReturn {
   /** 현재 게임 상태 */
@@ -29,31 +34,38 @@ export interface UseGameReturn {
   questions: Question[];
   /** 질문 로딩 중 */
   isLoadingQuestions: boolean;
+  /** 현재 게임 모드 */
+  mode: GameMode;
 }
 
-const initialState: GameState = {
-  currentRound: 0,
-  balance: GAME_CONFIG.INITIAL_BALANCE,
-  results: [],
-  isComplete: false,
-};
+function createInitialState(mode: GameMode): GameState {
+  const config = getGameConfig(mode);
+  return {
+    currentRound: 0,
+    balance: config.INITIAL_BALANCE,
+    results: [],
+    isComplete: false,
+  };
+}
 
-export function useGame(): UseGameReturn {
-  const [gameState, setGameState] = useState<GameState>(initialState);
+export function useGame(options: UseGameOptions = {}): UseGameReturn {
+  const { mode = 'normal' } = options;
+  const config = getGameConfig(mode);
+  const [gameState, setGameState] = useState<GameState>(() => createInitialState(mode));
   const [lastResult, setLastResult] = useState<RoundResult | null>(null);
   const [isWaitingResult, setIsWaitingResult] = useState(false);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
   // 게임 시작 시 로컬 질문으로 초기화, 이후 DB에서 로드
-  const [questions, setQuestions] = useState<Question[]>(() => generateQuestionsSync());
+  const [questions, setQuestions] = useState<Question[]>(() => generateQuestionsSync(mode));
 
-  // 비동기로 DB에서 질문 로드
+  // 비동기로 DB에서 질문 로드 (모드에 따라)
   useEffect(() => {
     let mounted = true;
 
     const loadQuestions = async () => {
       setIsLoadingQuestions(true);
       try {
-        const dbQuestions = await generateQuestions();
+        const dbQuestions = await generateQuestions(mode);
         if (mounted) {
           setQuestions(dbQuestions);
         }
@@ -72,12 +84,12 @@ export function useGame(): UseGameReturn {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [mode]);
 
   const currentQuestion = useMemo(() => {
-    if (gameState.currentRound >= GAME_CONFIG.TOTAL_ROUNDS) return null;
+    if (gameState.currentRound >= config.TOTAL_ROUNDS) return null;
     return questions[gameState.currentRound];
-  }, [gameState.currentRound, questions]);
+  }, [gameState.currentRound, questions, config.TOTAL_ROUNDS]);
 
   const makeChoice = useCallback((choice: Choice) => {
     if (!currentQuestion || isWaitingResult) return;
@@ -100,7 +112,7 @@ export function useGame(): UseGameReturn {
       const newResults = [...prev.results, lastResult];
       const newBalance = prev.balance + lastResult.actualOutcome;
       const newRound = prev.currentRound + 1;
-      const isComplete = newRound >= GAME_CONFIG.TOTAL_ROUNDS;
+      const isComplete = newRound >= config.TOTAL_ROUNDS;
 
       return {
         currentRound: newRound,
@@ -112,7 +124,7 @@ export function useGame(): UseGameReturn {
 
     setLastResult(null);
     setIsWaitingResult(false);
-  }, [lastResult]);
+  }, [lastResult, config.TOTAL_ROUNDS]);
 
   const finalResult = useMemo(() => {
     if (!gameState.isComplete) return null;
@@ -120,22 +132,22 @@ export function useGame(): UseGameReturn {
   }, [gameState.isComplete, gameState.results, questions]);
 
   const reset = useCallback(async () => {
-    setGameState(initialState);
+    setGameState(createInitialState(mode));
     setLastResult(null);
     setIsWaitingResult(false);
     setIsLoadingQuestions(true);
 
     // 새 게임 시작 시 질문 재생성
     try {
-      const newQuestions = await generateQuestions();
+      const newQuestions = await generateQuestions(mode);
       setQuestions(newQuestions);
     } catch (error) {
       console.error('Failed to load questions on reset:', error);
-      setQuestions(generateQuestionsSync());
+      setQuestions(generateQuestionsSync(mode));
     } finally {
       setIsLoadingQuestions(false);
     }
-  }, []);
+  }, [mode]);
 
   return {
     gameState,
@@ -148,5 +160,6 @@ export function useGame(): UseGameReturn {
     isWaitingResult,
     questions,
     isLoadingQuestions,
+    mode,
   };
 }

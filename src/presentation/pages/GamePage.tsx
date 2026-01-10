@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGame } from '../hooks/useGame';
-import { GAME_CONFIG, type Outcome } from '@domain/entities';
+import { getGameConfig, type Outcome, type GameMode } from '@domain/entities';
 import { calculateExpectedValue } from '@domain/usecases/gameEngine';
 import { AssetProgressChart } from '@presentation/components';
 import { triggerHapticFeedback, trackClick } from '@lib/appsInToss';
@@ -39,6 +39,10 @@ const renderOutcomes = (outcomes: Outcome[]): JSX.Element[] => {
 
 export function GamePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const mode = (searchParams.get('mode') as GameMode) || 'normal';
+  const gameConfig = getGameConfig(mode);
+
   const {
     gameState,
     currentQuestion,
@@ -47,7 +51,7 @@ export function GamePage() {
     nextRound,
     isWaitingResult,
     questions,
-  } = useGame();
+  } = useGame({ mode });
 
   useEffect(() => {
     if (gameState.isComplete) {
@@ -103,18 +107,18 @@ export function GamePage() {
       {/* 상단 헤더 */}
       <div className="game-header">
         <div className="round-badge">
-          <span>{gameState.currentRound + 1}/{GAME_CONFIG.TOTAL_ROUNDS}</span>
+          <span>{gameState.currentRound + 1}/{gameConfig.TOTAL_ROUNDS}</span>
           <div
             className="progress-bar-wrapper"
             role="progressbar"
             aria-valuenow={gameState.currentRound + 1}
             aria-valuemin={1}
-            aria-valuemax={GAME_CONFIG.TOTAL_ROUNDS}
+            aria-valuemax={gameConfig.TOTAL_ROUNDS}
             aria-label="게임 진행률"
           >
             <div
               className="progress-bar-fill"
-              style={{ width: `${((gameState.currentRound + 1) / GAME_CONFIG.TOTAL_ROUNDS) * 100}%` }}
+              style={{ width: `${((gameState.currentRound + 1) / gameConfig.TOTAL_ROUNDS) * 100}%` }}
             />
           </div>
         </div>
@@ -134,7 +138,7 @@ export function GamePage() {
               />
             ))}
             {/* 남은 라운드 표시 */}
-            {Array.from({ length: GAME_CONFIG.TOTAL_ROUNDS - roundSummary.length }).map((_, i) => (
+            {Array.from({ length: gameConfig.TOTAL_ROUNDS - roundSummary.length }).map((_, i) => (
               <div
                 key={`remaining-${i}`}
                 className={`round-dot ${i === 0 ? 'current' : ''}`}
@@ -170,9 +174,9 @@ export function GamePage() {
                 winStreak: currentStreak.type === 'win' ? currentStreak.count : 0,
                 loseStreak: currentStreak.type === 'lose' ? currentStreak.count : 0,
                 roundNumber: gameState.currentRound,
-                totalRounds: GAME_CONFIG.TOTAL_ROUNDS,
+                totalRounds: gameConfig.TOTAL_ROUNDS,
                 currentBalance: gameState.balance,
-                initialBalance: GAME_CONFIG.INITIAL_BALANCE,
+                initialBalance: gameConfig.INITIAL_BALANCE,
               })}
             </div>
             {/* 연속 스트릭 표시 */}
@@ -182,7 +186,7 @@ export function GamePage() {
               </div>
             )}
             <button className="next-btn" onClick={handleNextRound}>
-              {gameState.currentRound + 1 >= GAME_CONFIG.TOTAL_ROUNDS ? '결과 보기 →' : '다음 →'}
+              {gameState.currentRound + 1 >= gameConfig.TOTAL_ROUNDS ? '결과 보기 →' : '다음 →'}
             </button>
           </div>
         </div>
