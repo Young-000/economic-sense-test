@@ -67,18 +67,21 @@ export function Confetti({
   duration = 3000,
   onComplete,
 }: ConfettiProps) {
-  // active가 true가 되면 visible 상태로 시작
+  // active 상태와 동기화된 visible 상태
+  // active가 true로 변경되면 visible도 true로 설정
   const [isVisible, setIsVisible] = useState(active);
+  const [prevActive, setPrevActive] = useState(active);
 
   // count에 따라 미리 계산된 pieces (pure function)
   const pieces = useMemo<ConfettiPiece[]>(() => generatePieces(count), [count]);
 
-  // active 상태 변화에 동기화
-  useEffect(() => {
-    if (active) {
-      setIsVisible(true);
-    }
-  }, [active]);
+  // active 상태 변화 감지 (렌더링 중 동기적으로 처리)
+  if (active && !prevActive) {
+    setIsVisible(true);
+    setPrevActive(active);
+  } else if (!active && prevActive) {
+    setPrevActive(active);
+  }
 
   // 타이머로 duration 후 숨김
   useEffect(() => {
