@@ -312,7 +312,7 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByPlaceholderText('닉네임 입력')).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)')).toBeInTheDocument();
       });
     });
 
@@ -337,10 +337,10 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByPlaceholderText('닉네임 입력')).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)')).toBeInTheDocument();
       });
 
-      const input = screen.getByPlaceholderText('닉네임 입력');
+      const input = screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)');
       fireEvent.change(input, { target: { value: '테스트유저' } });
 
       await waitFor(() => {
@@ -591,10 +591,10 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByPlaceholderText('닉네임 입력')).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)')).toBeInTheDocument();
       });
 
-      const input = screen.getByPlaceholderText('닉네임 입력');
+      const input = screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)');
       fireEvent.change(input, { target: { value: '테스트유저' } });
 
       const submitBtn = screen.getByText('등록하기');
@@ -612,10 +612,10 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByPlaceholderText('닉네임 입력')).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)')).toBeInTheDocument();
       });
 
-      const input = screen.getByPlaceholderText('닉네임 입력');
+      const input = screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)');
       fireEvent.change(input, { target: { value: '테스트유저' } });
 
       const submitBtn = screen.getByText('등록하기');
@@ -633,10 +633,10 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByPlaceholderText('닉네임 입력')).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)')).toBeInTheDocument();
       });
 
-      const input = screen.getByPlaceholderText('닉네임 입력');
+      const input = screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)');
       fireEvent.change(input, { target: { value: '엔터유저' } });
       fireEvent.keyDown(input, { key: 'Enter' });
 
@@ -653,10 +653,10 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByPlaceholderText('닉네임 입력')).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)')).toBeInTheDocument();
       });
 
-      const input = screen.getByPlaceholderText('닉네임 입력');
+      const input = screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)');
       fireEvent.change(input, { target: { value: '실패유저' } });
 
       const submitBtn = screen.getByText('등록하기');
@@ -677,10 +677,10 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByPlaceholderText('닉네임 입력')).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)')).toBeInTheDocument();
       });
 
-      const input = screen.getByPlaceholderText('닉네임 입력');
+      const input = screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)');
       fireEvent.change(input, { target: { value: '에러유저' } });
 
       const submitBtn = screen.getByText('등록하기');
@@ -825,10 +825,10 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByPlaceholderText('닉네임 입력')).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)')).toBeInTheDocument();
       });
 
-      const input = screen.getByPlaceholderText('닉네임 입력');
+      const input = screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)');
       fireEvent.change(input, { target: { value: '토스유저' } });
 
       const submitBtn = screen.getByText('등록하기');

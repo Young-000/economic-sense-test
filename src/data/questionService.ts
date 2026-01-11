@@ -35,6 +35,33 @@ interface DBOutcome {
   value: number;  // 천원 단위 (e.g., -8 = -8,000원)
 }
 
+// Supabase 조인 결과 타입 (question_scenarios + amount_ranges + question_categories)
+interface QuestionScenarioRow {
+  id: number;
+  situation: string;
+  option_a_label: string;
+  option_a_description: string;
+  option_a_outcomes: DBOutcome[];
+  option_b_label: string;
+  option_b_description: string;
+  option_b_outcomes: DBOutcome[];
+  normalized_max_ev: number;
+  is_active: boolean;
+  amount_ranges: {
+    size: 'small' | 'medium' | 'large';
+    min_amount: number;
+    max_amount: number;
+    typical_amount: number;
+    label_ko: string;
+    question_categories: {
+      type: 'earning' | 'spending';
+      code: string;
+      name_ko: string;
+      emoji: string;
+    };
+  };
+}
+
 // DB 값은 천원 단위로 저장됨 (value * 1000 = 원)
 const BASE_SCALE = 1_000;
 
@@ -137,8 +164,8 @@ export async function fetchQuestionsFromDB(): Promise<Question[] | null> {
       return null;
     }
 
-    // 데이터 변환
-    const scenarios: DBScenario[] = data.map((row: any) => ({
+    // 데이터 변환 (타입 안전한 매핑)
+    const scenarios: DBScenario[] = (data as QuestionScenarioRow[]).map((row) => ({
       id: row.id,
       type: row.amount_ranges.question_categories.type,
       category_code: row.amount_ranges.question_categories.code,

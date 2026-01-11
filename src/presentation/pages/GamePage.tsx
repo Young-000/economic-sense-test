@@ -58,9 +58,10 @@ export function GamePage() {
       // URL 길이 제한 문제 해결: sessionStorage 사용
       sessionStorage.setItem('gameResults', JSON.stringify(gameState.results));
       sessionStorage.setItem('gameQuestions', JSON.stringify(questions));
+      sessionStorage.setItem('gameMode', mode);
       navigate('/result', { replace: true });
     }
-  }, [gameState.isComplete, gameState.results, questions, navigate]);
+  }, [gameState.isComplete, gameState.results, questions, navigate, mode]);
 
   // 라운드별 결과 요약 (미니 차트용)
   const roundSummary = useMemo(() => {

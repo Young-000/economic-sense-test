@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useMemo, useState, useEffect, useRef } from 'react';
-import type { RoundResult, Question } from '@domain/entities';
-import { GAME_CONFIG } from '@domain/entities';
+import type { RoundResult, Question, GameMode } from '@domain/entities';
+import { getGameConfig } from '@domain/entities';
 import { calculateFinalResult } from '@domain/usecases';
 import { submitRanking, getTopRankings, type RankingEntry } from '@data/rankingService';
 import {
@@ -48,42 +48,78 @@ export function ResultPage() {
   const adContainerRef = useRef<HTMLDivElement>(null);
   const adSlotIdRef = useRef<string | null>(null);
 
-  const finalResult = useMemo(() => {
+  // 모든 게임 데이터를 한 번에 파싱 (sessionStorage 접근 최소화)
+  const {
+    finalResult,
+    gameResults,
+    assetHistory,
+    bestPerformance,
+    gameMode,
+    initialBalance,
+  } = useMemo(() => {
     try {
       const storedResults = sessionStorage.getItem('gameResults');
       const storedQuestions = sessionStorage.getItem('gameQuestions');
-      if (!storedResults || !storedQuestions) return null;
+      const mode = (sessionStorage.getItem('gameMode') as GameMode) || 'normal';
+      const config = getGameConfig(mode);
+
+      if (!storedResults || !storedQuestions) {
+        return {
+          finalResult: null,
+          gameResults: [],
+          assetHistory: [],
+          bestPerformance: getBestPerformance(),
+          gameMode: mode,
+          initialBalance: config.INITIAL_BALANCE,
+        };
+      }
 
       const results: RoundResult[] = JSON.parse(storedResults);
       const questions: Question[] = JSON.parse(storedQuestions);
 
-      if (!results || results.length !== GAME_CONFIG.TOTAL_ROUNDS) return null;
-      if (!questions || questions.length !== GAME_CONFIG.TOTAL_ROUNDS) return null;
+      // 유효성 검증
+      if (!Array.isArray(results) || !Array.isArray(questions)) {
+        return {
+          finalResult: null,
+          gameResults: [],
+          assetHistory: [],
+          bestPerformance: getBestPerformance(),
+          gameMode: mode,
+          initialBalance: config.INITIAL_BALANCE,
+        };
+      }
 
-      return calculateFinalResult(results, questions);
+      if (results.length !== config.TOTAL_ROUNDS || questions.length !== config.TOTAL_ROUNDS) {
+        return {
+          finalResult: null,
+          gameResults: results,
+          assetHistory: createAssetHistory(results),
+          bestPerformance: getBestPerformance(),
+          gameMode: mode,
+          initialBalance: config.INITIAL_BALANCE,
+        };
+      }
+
+      return {
+        finalResult: calculateFinalResult(results, questions),
+        gameResults: results,
+        assetHistory: createAssetHistory(results),
+        bestPerformance: getBestPerformance(),
+        gameMode: mode,
+        initialBalance: config.INITIAL_BALANCE,
+      };
     } catch {
-      return null;
+      const mode = 'normal' as GameMode;
+      const config = getGameConfig(mode);
+      return {
+        finalResult: null,
+        gameResults: [],
+        assetHistory: [],
+        bestPerformance: getBestPerformance(),
+        gameMode: mode,
+        initialBalance: config.INITIAL_BALANCE,
+      };
     }
-  }, []);
-
-  // 안전한 JSON 파싱 헬퍼
-  const safeParseResults = (): RoundResult[] => {
-    try {
-      const stored = sessionStorage.getItem('gameResults');
-      if (!stored) return [];
-      const parsed = JSON.parse(stored);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  };
-
-  // 결과 데이터에서 라운드별 히스토리 생성 (한 번만 파싱)
-  const { assetHistory, bestPerformance, gameResults } = useMemo(() => {
-    const results = safeParseResults();
-    const history = createAssetHistory(results);
-    const best = getBestPerformance();
-    return { assetHistory: history, bestPerformance: best, gameResults: results };
   }, []);
 
   // 랭킹 로드 및 최고 기록 체크
@@ -116,7 +152,8 @@ export function ResultPage() {
         finalResult.riskScore,
         finalResult.rationalityScore,
         finalResult.luckScore,
-        totalGamesPlayed
+        totalGamesPlayed,
+        initialBalance
       );
 
       const unlocked = checkAndUnlockAchievements(gameStats);
@@ -144,7 +181,7 @@ export function ResultPage() {
     return () => {
       isMounted = false;
     };
-  }, [finalResult, assetHistory, gameResults]);
+  }, [finalResult, assetHistory, gameResults, initialBalance]);
 
   // Apps in Toss 환경 체크 및 광고 초기화
   useEffect(() => {
@@ -210,8 +247,26 @@ export function ResultPage() {
     return '극심한 불운 😭';
   })();
 
+  // 닉네임 유효성 검사: 한글, 영문, 숫자, 공백, 언더스코어만 허용
+  const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9_\s]+$/;
+  const MAX_NICKNAME_LENGTH = 20;
+
+  const validateNickname = (name: string): { valid: boolean; error?: string } => {
+    const trimmed = name.trim();
+    if (!trimmed) return { valid: false, error: '닉네임을 입력해주세요' };
+    if (trimmed.length > MAX_NICKNAME_LENGTH) {
+      return { valid: false, error: `${MAX_NICKNAME_LENGTH}자 이하로 입력해주세요` };
+    }
+    if (!NICKNAME_REGEX.test(trimmed)) {
+      return { valid: false, error: '한글, 영문, 숫자만 사용 가능해요' };
+    }
+    return { valid: true };
+  };
+
+  const nicknameValidation = validateNickname(nickname);
+
   const handleSubmitRanking = async () => {
-    if (!nickname.trim() || isSubmitting) return;
+    if (!nicknameValidation.valid || isSubmitting) return;
 
     setIsSubmitting(true);
     try {
@@ -338,7 +393,7 @@ export function ResultPage() {
             {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(1)}%
           </span>
           <p className="initial-note">
-            (시작: {formatBalance(GAME_CONFIG.INITIAL_BALANCE)})
+            (시작: {formatBalance(initialBalance)})
           </p>
         </div>
 
@@ -348,19 +403,28 @@ export function ResultPage() {
             <>
               <h2 className="section-title">🏆 랭킹 등록</h2>
               <div className="ranking-form">
-                <input
-                  type="text"
-                  className="nickname-input"
-                  placeholder="닉네임 입력"
-                  maxLength={20}
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSubmitRanking()}
-                />
+                <div className="nickname-input-wrapper">
+                  <input
+                    type="text"
+                    className={`nickname-input ${nickname && !nicknameValidation.valid ? 'invalid' : ''}`}
+                    placeholder="닉네임 입력 (한글/영문/숫자)"
+                    maxLength={MAX_NICKNAME_LENGTH}
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && nicknameValidation.valid && handleSubmitRanking()}
+                    aria-invalid={nickname && !nicknameValidation.valid ? 'true' : 'false'}
+                    aria-describedby={nickname && !nicknameValidation.valid ? 'nickname-error' : undefined}
+                  />
+                  {nickname && !nicknameValidation.valid && (
+                    <span id="nickname-error" className="nickname-error" role="alert">
+                      {nicknameValidation.error}
+                    </span>
+                  )}
+                </div>
                 <button
                   className="submit-ranking-btn"
                   onClick={handleSubmitRanking}
-                  disabled={!nickname.trim() || isSubmitting}
+                  disabled={!nicknameValidation.valid || isSubmitting}
                 >
                   {isSubmitting ? '등록 중...' : '등록하기'}
                 </button>

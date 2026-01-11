@@ -3,8 +3,7 @@
  */
 
 import type { Option, Outcome, RoundResult, FinalResult, InvestorType } from '../entities';
-import { GAME_CONFIG } from '../entities';
-import { investorProfiles } from '@data/investors';
+import { GAME_CONFIG, investorProfiles } from '../entities';
 
 /**
  * 옵션의 기대값 계산
@@ -28,20 +27,47 @@ export function calculateVariance(option: Option): number {
 }
 
 /**
+ * 확률 합계 검증 (1.0 ± 허용 오차)
+ */
+export function validateProbabilities(option: Option, tolerance = 0.001): boolean {
+  const sum = option.outcomes.reduce((acc, o) => acc + o.probability, 0);
+  return Math.abs(sum - 1.0) <= tolerance;
+}
+
+/**
+ * 확률 정규화 (합계가 1.0이 되도록 조정)
+ */
+function normalizeProbabilities(outcomes: Outcome[]): Outcome[] {
+  const sum = outcomes.reduce((acc, o) => acc + o.probability, 0);
+  if (sum === 0 || Math.abs(sum - 1.0) < 0.001) return outcomes;
+
+  return outcomes.map(o => ({
+    ...o,
+    probability: o.probability / sum,
+  }));
+}
+
+/**
  * 확률 기반 결과 뽑기
+ * 확률 합이 1.0이 아닌 경우 자동 정규화
  */
 export function rollOutcome(option: Option): Outcome {
+  // 확률 정규화 (안전성 확보)
+  const normalizedOutcomes = normalizeProbabilities(option.outcomes);
+
   const random = Math.random();
   let cumulative = 0;
 
-  for (const outcome of option.outcomes) {
+  for (const outcome of normalizedOutcomes) {
     cumulative += outcome.probability;
     if (random < cumulative) {
-      return outcome;
+      // 원본 outcome 반환 (value는 동일)
+      const originalIndex = normalizedOutcomes.indexOf(outcome);
+      return option.outcomes[originalIndex];
     }
   }
 
-  // 확률 합이 1이 아닌 경우 대비
+  // 부동소수점 오차 대비 (거의 발생하지 않음)
   return option.outcomes[option.outcomes.length - 1];
 }
 

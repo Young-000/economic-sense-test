@@ -178,13 +178,15 @@ export function clearAchievements(): void {
 
 /**
  * 게임 결과에서 스탯 계산
+ * @param initialBalance 게임 시작 시 초기 잔액 (모드별로 다름)
  */
 export function calculateGameStats(
   results: Array<{ actualOutcome: number; expectedValue: number }>,
   riskScore: number,
   rationalityScore: number,
   luckScore: number,
-  totalGames: number
+  totalGames: number,
+  initialBalance: number = 10_000_000
 ): GameStats {
   let winStreak = 0;
   let loseStreak = 0;
@@ -210,8 +212,8 @@ export function calculateGameStats(
     }
   }
 
-  // 수익률을 퍼센트로 변환 (초기 자금 1000만원 기준)
-  const returnPercent = (totalReturn / 10_000_000) * 100;
+  // 수익률을 퍼센트로 변환 (모드별 초기 자금 기준)
+  const returnPercent = (totalReturn / initialBalance) * 100;
 
   return {
     totalReturn: returnPercent,
