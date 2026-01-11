@@ -10,5 +10,8 @@ dist/
 coverage/
 .playwright-mcp/
 .claude/
-# Auto-push test
+
+# Playwright test results (generated, not needed in repo)
+playwright-report/
+test-results/
 
