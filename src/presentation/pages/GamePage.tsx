@@ -50,6 +50,7 @@ export function GamePage() {
     makeChoice,
     nextRound,
     isWaitingResult,
+    isLoadingQuestions,
     questions,
   } = useGame({ mode });
 
@@ -100,6 +101,18 @@ export function GamePage() {
     triggerHapticFeedback('medium');
     nextRound();
   }, [nextRound]);
+
+  // 로딩 상태 표시
+  if (isLoadingQuestions && !currentQuestion) {
+    return (
+      <div className="game-page">
+        <div className="loading-state">
+          <span className="loading-emoji">🎲</span>
+          <p>질문을 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (gameState.isComplete || !currentQuestion) return null;
 

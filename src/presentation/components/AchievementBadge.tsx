@@ -16,16 +16,14 @@ export function AchievementBadge({
   isNew = false,
   onAnimationEnd,
 }: AchievementBadgeProps) {
-  const [isVisible, setIsVisible] = useState(false);
+  // 새 업적이 아닌 경우 즉시 visible, 새 업적인 경우 false로 시작
+  const [isVisible, setIsVisible] = useState(!isNew);
 
   useEffect(() => {
-    if (isNew) {
-      // 등장 애니메이션
-      const timer = setTimeout(() => setIsVisible(true), 100);
-      return () => clearTimeout(timer);
-    } else {
-      setIsVisible(true);
-    }
+    if (!isNew) return;
+    // 새 업적인 경우 등장 애니메이션을 위해 지연 후 visible
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
   }, [isNew]);
 
   const handleAnimationEnd = () => {

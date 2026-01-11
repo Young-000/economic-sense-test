@@ -35,39 +35,64 @@ const COLORS = [
   '#F97316', // orange
 ];
 
+// 컴포넌트 외부에서 seed 기반 pseudo-random을 생성하여 pure하게 유지
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
+function generatePieces(count: number): ConfettiPiece[] {
+  return Array.from({ length: count }, (_, i) => {
+    const seed1 = i * 1000 + 1;
+    const seed2 = i * 1000 + 2;
+    const seed3 = i * 1000 + 3;
+    const seed4 = i * 1000 + 4;
+    const seed5 = i * 1000 + 5;
+    const seed6 = i * 1000 + 6;
+    return {
+      id: i,
+      x: seededRandom(seed1) * 100,
+      color: COLORS[Math.floor(seededRandom(seed2) * COLORS.length)],
+      delay: seededRandom(seed3) * 0.5,
+      duration: 2 + seededRandom(seed4) * 1.5,
+      size: 8 + seededRandom(seed5) * 8,
+      rotation: seededRandom(seed6) * 360,
+    };
+  });
+}
+
 export function Confetti({
   active,
   count = 50,
   duration = 3000,
   onComplete,
 }: ConfettiProps) {
-  const [isVisible, setIsVisible] = useState(false);
+  // active가 true가 되면 visible 상태로 시작
+  const [isVisible, setIsVisible] = useState(active);
 
-  const pieces = useMemo<ConfettiPiece[]>(() => {
-    return Array.from({ length: count }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      delay: Math.random() * 0.5,
-      duration: 2 + Math.random() * 1.5,
-      size: 8 + Math.random() * 8,
-      rotation: Math.random() * 360,
-    }));
-  }, [count]);
+  // count에 따라 미리 계산된 pieces (pure function)
+  const pieces = useMemo<ConfettiPiece[]>(() => generatePieces(count), [count]);
 
+  // active 상태 변화에 동기화
   useEffect(() => {
     if (active) {
       setIsVisible(true);
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-        onComplete?.();
-      }, duration);
-      return () => clearTimeout(timer);
     }
-  }, [active, duration, onComplete]);
+  }, [active]);
+
+  // 타이머로 duration 후 숨김
+  useEffect(() => {
+    if (!isVisible) return;
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+      onComplete?.();
+    }, duration);
+    return () => clearTimeout(timer);
+  }, [isVisible, duration, onComplete]);
 
   if (!isVisible) return null;
 
+  // borderRadius도 seed 기반으로 결정
   return (
     <div className="confetti-container" aria-hidden="true">
       {pieces.map((piece) => (
@@ -82,7 +107,7 @@ export function Confetti({
             animationDelay: `${piece.delay}s`,
             animationDuration: `${piece.duration}s`,
             transform: `rotate(${piece.rotation}deg)`,
-            borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+            borderRadius: piece.id % 2 === 0 ? '50%' : '2px',
           }}
         />
       ))}

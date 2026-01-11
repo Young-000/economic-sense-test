@@ -242,6 +242,27 @@ body {
   width: 100%;
 }
 
+/* 로딩 상태 */
+.loading-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.loading-emoji {
+  font-size: 48px;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
 .game-header {
   display: flex;
   justify-content: space-between;

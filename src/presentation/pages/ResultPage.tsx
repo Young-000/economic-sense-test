@@ -45,6 +45,7 @@ export function ResultPage() {
   const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
   const [showAchievementPopup, setShowAchievementPopup] = useState(false);
   const [showAchievementList, setShowAchievementList] = useState(false);
+  const [achievementStatus, setAchievementStatus] = useState(() => getAchievementStatus());
   const adContainerRef = useRef<HTMLDivElement>(null);
   const adSlotIdRef = useRef<string | null>(null);
 
@@ -54,7 +55,6 @@ export function ResultPage() {
     gameResults,
     assetHistory,
     bestPerformance,
-    gameMode,
     initialBalance,
   } = useMemo(() => {
     try {
@@ -160,6 +160,8 @@ export function ResultPage() {
       if (unlocked.length > 0 && isMounted) {
         setNewAchievements(unlocked);
         setShowAchievementPopup(true);
+        setShowAchievementList(true); // 업적 획득 시 목록 자동 펼침
+        setAchievementStatus(getAchievementStatus()); // 업적 상태 새로고침
         triggerHapticFeedback('heavy');
         // 업적 노출 추적
         unlocked.forEach((achievement) => {
@@ -354,10 +356,6 @@ export function ResultPage() {
       alert(shareText);
     }
   };
-
-  // 업적 현황 가져오기
-  // 업적 현황은 컴포넌트 마운트 시 한 번만 로드 (showAchievementPopup 의존성 불필요)
-  const achievementStatus = useMemo(() => getAchievementStatus(), []);
 
   return (
     <div className="result-page">

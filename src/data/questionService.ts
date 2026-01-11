@@ -35,6 +35,23 @@ interface DBOutcome {
   value: number;  // 천원 단위 (e.g., -8 = -8,000원)
 }
 
+// 중첩 조인 타입 정의
+interface AmountRangeRow {
+  size: 'small' | 'medium' | 'large';
+  min_amount: number;
+  max_amount: number;
+  typical_amount: number;
+  label_ko: string;
+  question_categories: QuestionCategoryRow | QuestionCategoryRow[];
+}
+
+interface QuestionCategoryRow {
+  type: 'earning' | 'spending';
+  code: string;
+  name_ko: string;
+  emoji: string;
+}
+
 // Supabase 조인 결과 타입 (question_scenarios + amount_ranges + question_categories)
 interface QuestionScenarioRow {
   id: number;
@@ -47,19 +64,8 @@ interface QuestionScenarioRow {
   option_b_outcomes: DBOutcome[];
   normalized_max_ev: number;
   is_active: boolean;
-  amount_ranges: {
-    size: 'small' | 'medium' | 'large';
-    min_amount: number;
-    max_amount: number;
-    typical_amount: number;
-    label_ko: string;
-    question_categories: {
-      type: 'earning' | 'spending';
-      code: string;
-      name_ko: string;
-      emoji: string;
-    };
-  };
+  // Supabase !inner 조인 결과는 단일 객체 또는 배열일 수 있음
+  amount_ranges: AmountRangeRow | AmountRangeRow[];
 }
 
 // DB 값은 천원 단위로 저장됨 (value * 1000 = 원)
@@ -165,27 +171,37 @@ export async function fetchQuestionsFromDB(): Promise<Question[] | null> {
     }
 
     // 데이터 변환 (타입 안전한 매핑)
-    const scenarios: DBScenario[] = (data as QuestionScenarioRow[]).map((row) => ({
-      id: row.id,
-      type: row.amount_ranges.question_categories.type,
-      category_code: row.amount_ranges.question_categories.code,
-      category_name: row.amount_ranges.question_categories.name_ko,
-      category_emoji: row.amount_ranges.question_categories.emoji,
-      amount_size: row.amount_ranges.size,
-      min_amount: row.amount_ranges.min_amount,
-      max_amount: row.amount_ranges.max_amount,
-      typical_amount: row.amount_ranges.typical_amount,
-      amount_label: row.amount_ranges.label_ko,
-      situation: row.situation,
-      option_a_label: row.option_a_label,
-      option_a_description: row.option_a_description,
-      option_a_outcomes: row.option_a_outcomes,
-      option_b_label: row.option_b_label,
-      option_b_description: row.option_b_description,
-      option_b_outcomes: row.option_b_outcomes,
-      normalized_max_ev: row.normalized_max_ev,
-      is_active: row.is_active,
-    }));
+    // Supabase 조인 결과가 배열 또는 단일 객체일 수 있으므로 처리
+    const scenarios: DBScenario[] = (data as QuestionScenarioRow[]).map((row) => {
+      const amountRange = Array.isArray(row.amount_ranges)
+        ? row.amount_ranges[0]
+        : row.amount_ranges;
+      const category = Array.isArray(amountRange.question_categories)
+        ? amountRange.question_categories[0]
+        : amountRange.question_categories;
+
+      return {
+        id: row.id,
+        type: category.type,
+        category_code: category.code,
+        category_name: category.name_ko,
+        category_emoji: category.emoji,
+        amount_size: amountRange.size,
+        min_amount: amountRange.min_amount,
+        max_amount: amountRange.max_amount,
+        typical_amount: amountRange.typical_amount,
+        amount_label: amountRange.label_ko,
+        situation: row.situation,
+        option_a_label: row.option_a_label,
+        option_a_description: row.option_a_description,
+        option_a_outcomes: row.option_a_outcomes,
+        option_b_label: row.option_b_label,
+        option_b_description: row.option_b_description,
+        option_b_outcomes: row.option_b_outcomes,
+        normalized_max_ev: row.normalized_max_ev,
+        is_active: row.is_active,
+      };
+    });
 
     // 랜덤으로 10개 선택
     const shuffled = shuffle(scenarios);

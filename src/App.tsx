@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { IntroPage, GamePage, ResultPage } from '@presentation/pages';
 import { ExitConfirmDialog } from '@presentation/components';
@@ -13,17 +13,18 @@ import './styles/global.css';
 
 export function App() {
   const [showExitDialog, setShowExitDialog] = useState(false);
-  const [safeAreaTop, setSafeAreaTop] = useState(0);
+
+  // Safe Area Insets 초기값 계산 (렌더링 전 동기적으로)
+  const safeAreaTop = useMemo(() => {
+    if (!isAppsInToss()) return 0;
+    return getSafeAreaInsets().top;
+  }, []);
 
   useEffect(() => {
     if (!isAppsInToss()) return;
 
     // iOS 스와이프 뒤로가기 비활성화 (게임 중 실수로 종료 방지)
     setIosSwipeGestureEnabled(false);
-
-    // Safe Area Insets 가져오기
-    const insets = getSafeAreaInsets();
-    setSafeAreaTop(insets.top);
 
     // 뒤로가기 이벤트 핸들러 등록 (X 버튼 및 안드로이드 뒤로가기)
     const cleanup = addBackEventListener(() => {

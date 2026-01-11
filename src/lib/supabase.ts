@@ -8,7 +8,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = supabaseUrl && supabaseAnonKey
-  ? createClient(supabaseUrl, supabaseAnonKey)
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      db: {
+        schema: 'economic_sense_test',
+      },
+    })
   : null;
 
 export const isSupabaseConfigured = !!supabase;
