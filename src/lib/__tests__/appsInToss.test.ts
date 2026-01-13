@@ -1,6 +1,10 @@
 /**
  * Apps in Toss SDK 통합 테스트
+ *
+ * 이 테스트 파일은 window 객체에 AppsInToss SDK를 mock으로 주입하기 위해
+ * any 타입을 사용합니다. 테스트 환경에서만 사용되므로 허용합니다.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   isAppsInToss,
