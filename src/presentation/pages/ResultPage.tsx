@@ -272,6 +272,17 @@ export function ResultPage() {
 
     setIsSubmitting(true);
     try {
+      // 라운드별 결과 데이터 생성 (1등 그래프용)
+      let runningBalance = initialBalance;
+      const roundResults = gameResults.map((result, index) => {
+        runningBalance += result.actualOutcome;
+        return {
+          round: index + 1,
+          balance: runningBalance,
+          outcome: result.actualOutcome,
+        };
+      });
+
       // Supabase 랭킹 등록
       const result = await submitRanking({
         nickname: nickname.trim(),
@@ -281,6 +292,7 @@ export function ResultPage() {
         riskScore,
         rationalityScore,
         luckScore,
+        roundResults,
       });
 
       if (result.success) {

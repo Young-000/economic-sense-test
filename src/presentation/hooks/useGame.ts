@@ -4,9 +4,11 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import type { GameState, Choice, RoundResult, FinalResult, Question, GameMode } from '@domain/entities';
-import { getGameConfig } from '@domain/entities';
+import { getGameConfig, GAME_CONFIG } from '@domain/entities';
 import { processRound, calculateFinalResult } from '@domain/usecases';
 import { generateQuestions, generateQuestionsSync } from '@data/questionGenerator';
+import { getTopPlayerRoundResults } from '@data/rankingService';
+import type { AssetDataPoint } from '@presentation/components/AssetProgressChart';
 
 export interface UseGameOptions {
   /** 게임 모드 */
@@ -36,6 +38,8 @@ export interface UseGameReturn {
   isLoadingQuestions: boolean;
   /** 현재 게임 모드 */
   mode: GameMode;
+  /** 1등 플레이어의 라운드별 자산 변화 (그래프 백그라운드용) */
+  topPlayerData: AssetDataPoint[] | null;
 }
 
 function createInitialState(mode: GameMode): GameState {
@@ -57,6 +61,8 @@ export function useGame(options: UseGameOptions = {}): UseGameReturn {
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
   // 게임 시작 시 로컬 질문으로 초기화, 이후 DB에서 로드
   const [questions, setQuestions] = useState<Question[]>(() => generateQuestionsSync(mode));
+  // 1등 플레이어의 라운드별 자산 변화 데이터
+  const [topPlayerData, setTopPlayerData] = useState<AssetDataPoint[] | null>(null);
 
   // 비동기로 DB에서 질문 로드 (모드에 따라)
   useEffect(() => {
@@ -85,6 +91,36 @@ export function useGame(options: UseGameOptions = {}): UseGameReturn {
       mounted = false;
     };
   }, [mode]);
+
+  // 1등 플레이어 데이터 로드 (게임 시작 시 한 번)
+  useEffect(() => {
+    let mounted = true;
+
+    const loadTopPlayerData = async () => {
+      try {
+        const roundResults = await getTopPlayerRoundResults();
+        if (mounted && roundResults && roundResults.length > 0) {
+          // RoundResultData를 AssetDataPoint로 변환
+          const assetData: AssetDataPoint[] = [
+            { round: 0, balance: GAME_CONFIG.INITIAL_BALANCE },
+            ...roundResults.map((r) => ({
+              round: r.round,
+              balance: r.balance,
+            })),
+          ];
+          setTopPlayerData(assetData);
+        }
+      } catch (error) {
+        console.error('Failed to load top player data:', error);
+      }
+    };
+
+    loadTopPlayerData();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const currentQuestion = useMemo(() => {
     if (gameState.currentRound >= config.TOTAL_ROUNDS) return null;
@@ -161,5 +197,6 @@ export function useGame(options: UseGameOptions = {}): UseGameReturn {
     questions,
     isLoadingQuestions,
     mode,
+    topPlayerData,
   };
 }

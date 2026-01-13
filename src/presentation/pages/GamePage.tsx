@@ -52,6 +52,7 @@ export function GamePage() {
     isWaitingResult,
     isLoadingQuestions,
     questions,
+    topPlayerData,
   } = useGame({ mode });
 
   useEffect(() => {
@@ -159,10 +160,11 @@ export function GamePage() {
               />
             ))}
           </div>
-          {/* 미니 자산 변화 차트 */}
+          {/* 미니 자산 변화 차트 (1등 그래프 백그라운드) */}
           <AssetProgressChart
             results={gameState.results}
             currentBalance={gameState.balance}
+            bestPerformance={topPlayerData ?? undefined}
             height={80}
             animate={false}
             compact={true}

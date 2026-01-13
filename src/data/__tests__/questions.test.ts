@@ -6,8 +6,9 @@ import { questions } from '../questions';
 import { GAME_CONFIG } from '@domain/entities';
 
 describe('Questions Data', () => {
-  it('should have exactly TOTAL_ROUNDS questions', () => {
-    expect(questions).toHaveLength(GAME_CONFIG.TOTAL_ROUNDS);
+  it('should have at least TOTAL_ROUNDS questions in the pool', () => {
+    // 질문 풀은 25개, 게임에서 랜덤으로 TOTAL_ROUNDS개 선택
+    expect(questions.length).toBeGreaterThanOrEqual(GAME_CONFIG.TOTAL_ROUNDS);
   });
 
   it('should have unique IDs', () => {

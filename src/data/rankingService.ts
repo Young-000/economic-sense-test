@@ -1,6 +1,13 @@
 import { supabase, isSupabaseConfigured } from '@lib/supabase';
 import type { InvestorType } from '@domain/entities';
 
+/** 라운드별 결과 데이터 */
+export interface RoundResultData {
+  round: number;
+  balance: number;
+  outcome: number;
+}
+
 export interface RankingEntry {
   id: string;
   nickname: string;
@@ -11,6 +18,7 @@ export interface RankingEntry {
   rationality_score: number;
   luck_score: number;
   created_at: string;
+  round_results?: RoundResultData[];
 }
 
 export interface SubmitRankingData {
@@ -21,6 +29,7 @@ export interface SubmitRankingData {
   riskScore: number;
   rationalityScore: number;
   luckScore: number;
+  roundResults?: RoundResultData[];
 }
 
 /**
@@ -42,6 +51,7 @@ export async function submitRanking(data: SubmitRankingData): Promise<{ success:
         risk_score: data.riskScore,
         rationality_score: data.rationalityScore,
         luck_score: data.luckScore,
+        round_results: data.roundResults ?? [],
       });
 
     if (error) throw error;
@@ -100,5 +110,35 @@ export async function getTotalPlayers(): Promise<number> {
   } catch (err) {
     console.error('Failed to get total players:', err);
     return 0;
+  }
+}
+
+/**
+ * 1등 플레이어의 라운드별 결과 조회
+ * GamePage에서 그래프 백그라운드로 표시할 데이터
+ */
+export async function getTopPlayerRoundResults(): Promise<RoundResultData[] | null> {
+  if (!isSupabaseConfigured || !supabase) {
+    return null;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('economic_rankings')
+      .select('round_results')
+      .order('total_return', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error) {
+      // 데이터가 없는 경우
+      if (error.code === 'PGRST116') return null;
+      throw error;
+    }
+
+    return (data?.round_results as RoundResultData[]) ?? null;
+  } catch (err) {
+    console.error('Failed to get top player round results:', err);
+    return null;
   }
 }
