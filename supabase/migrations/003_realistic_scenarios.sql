@@ -1,10 +1,11 @@
 -- =============================================
 -- 질문 시나리오 업데이트 - 현실적인 금액 반영
+-- Schema: economic_sense_test
 -- 값은 천원 단위 (value * 1,000 = 실제 원화)
 -- =============================================
 
 -- 기존 시나리오 삭제 (새로운 구조로 재생성)
-DELETE FROM question_scenarios;
+DELETE FROM economic_sense_test.question_scenarios;
 
 -- ========================================
 -- 소비 시나리오 (SPENDING) - EV가 음수
@@ -12,7 +13,7 @@ DELETE FROM question_scenarios;
 -- ========================================
 
 -- 식비 (food) - small: 점심
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '🍜 점심 메뉴 고민 중',
   '8천원 단골집',
@@ -27,7 +28,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'food' AND ar.size = 'small';
 
 -- 식비 (food) - small: 커피
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '☕ 커피 한 잔의 선택',
   '편의점 커피',
@@ -42,7 +43,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'food' AND ar.size = 'small';
 
 -- 쇼핑 (shopping) - small: 핸드폰 케이스
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '📱 핸드폰 케이스가 깨졌다',
   '1만원 저렴이',
@@ -57,7 +58,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'shopping' AND ar.size = 'small';
 
 -- 쇼핑 (shopping) - medium: 마트 장보기
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '🛒 마트에서 장보기',
   '필수품만 구매',
@@ -72,7 +73,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'shopping' AND ar.size = 'medium';
 
 -- 여행 (travel) - small: 비행기 예약
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '✈️ 제주도 비행기 예약',
   '12만원 환불가능',
@@ -87,7 +88,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'travel' AND ar.size = 'small';
 
 -- 취미 (hobby) - medium: 새 게임
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '🎮 새 게임이 출시됐다',
   '세일까지 기다리기',
@@ -102,7 +103,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'hobby' AND ar.size = 'medium';
 
 -- 건강 (health) - large: 차량 정비 (차량=건강 느낌)
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '🚗 차량 정비소 방문',
   '필수 항목만 정비',
@@ -122,7 +123,7 @@ WHERE c.code = 'health' AND ar.size = 'large';
 -- ========================================
 
 -- 투자 (investment) - medium: 보너스 투자
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '💰 보너스 300만원 지급!',
   '적금에 예치',
@@ -137,7 +138,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'investment' AND ar.size = 'medium';
 
 -- 월급 (salary) - large: 연봉 협상
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '💼 연봉 협상 기회!',
   '확정 200만원 인상',
@@ -152,7 +153,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'salary' AND ar.size = 'large';
 
 -- 부수입 (side_income) - medium: 당근마켓
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '🥕 당근마켓에서 물건 판매',
   '20% 할인 바로 팔기',
@@ -167,7 +168,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'side_income' AND ar.size = 'medium';
 
 -- 부수입 (side_income) - large: 프리랜서 프로젝트
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '💻 프리랜서 프로젝트 제안',
   '작은 프로젝트 수락',
@@ -182,7 +183,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'side_income' AND ar.size = 'large';
 
 -- 월급 (salary) - medium: 회사 공모전
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '🎯 회사 공모전 참가',
   '참가 안 함',
@@ -197,7 +198,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'salary' AND ar.size = 'medium';
 
 -- 부수입 (side_income) - large: 유료강의
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '🏆 재능기부 vs 유료강의',
   '무료 재능기부',
@@ -216,7 +217,7 @@ WHERE c.code = 'side_income' AND ar.size = 'large';
 -- ========================================
 
 -- 투자 (investment) - large: 코인 투자
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '📈 친구가 "이 코인 무조건 오른다"',
   '무시하기',
@@ -231,7 +232,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'investment' AND ar.size = 'large';
 
 -- 취미 (hobby) - small: 로또
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '🎰 월 2만원 로또 vs 적금',
   '매주 로또 구매',
@@ -246,7 +247,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'hobby' AND ar.size = 'small';
 
 -- 투자 (investment) - large: 스타트업 투자
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '🚀 친구 스타트업에 투자 제안',
   '정중히 거절',
@@ -261,7 +262,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'investment' AND ar.size = 'large';
 
 -- 취미 (hobby) - medium: 포커
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '🎲 친구들과 내기 포커',
   '구경만 하기',
@@ -276,7 +277,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'hobby' AND ar.size = 'medium';
 
 -- 투자 (investment) - medium: 주식 손절
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '📉 내 주식이 -30% 됐다...',
   '손절하기',
@@ -291,7 +292,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'investment' AND ar.size = 'medium';
 
 -- 쇼핑 (shopping) - medium: 블프 세일
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '🛒 블프 세일 물건 발견',
   '세일 패스',
@@ -306,7 +307,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'shopping' AND ar.size = 'medium';
 
 -- 주거 (housing) - large: 전세 vs 월세
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '🏠 전세 vs 월세 선택 (연 기준)',
   '월세 10만원',
@@ -321,7 +322,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'housing' AND ar.size = 'large';
 
 -- 쇼핑 (shopping) - large: 리볼빙
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '💳 신용카드 리볼빙 제안',
   '일시불 결제',
@@ -340,7 +341,7 @@ WHERE c.code = 'shopping' AND ar.size = 'large';
 -- ========================================
 
 -- 구독 (subscription) - small: OTT
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '📺 넷플릭스 구독 고민',
   '월정액 1.4만원',
@@ -355,7 +356,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'subscription' AND ar.size = 'small';
 
 -- 여행 (travel) - medium: 해외 숙소
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '🌴 해외여행 숙소 예약',
   '20만원 호텔 예약',
@@ -370,7 +371,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'travel' AND ar.size = 'medium';
 
 -- 건강 (health) - small: 약국
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '🤧 감기 기운이 있다',
   '집에서 쉬기',
@@ -385,7 +386,7 @@ JOIN question_categories c ON ar.category_id = c.id
 WHERE c.code = 'health' AND ar.size = 'small';
 
 -- 월급 (salary) - large: 이직
-INSERT INTO question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
+INSERT INTO economic_sense_test.question_scenarios (amount_range_id, situation, option_a_label, option_a_description, option_a_outcomes, option_b_label, option_b_description, option_b_outcomes, normalized_max_ev)
 SELECT ar.id,
   '💻 이직 제안이 왔다',
   '현 직장 유지',

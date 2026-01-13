@@ -1,5 +1,6 @@
 -- Create rankings table for economic sense test
-CREATE TABLE IF NOT EXISTS economic_rankings (
+-- Schema: economic_sense_test
+CREATE TABLE IF NOT EXISTS economic_sense_test.economic_rankings (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   nickname VARCHAR(50) NOT NULL,
   final_balance BIGINT NOT NULL,
@@ -12,15 +13,15 @@ CREATE TABLE IF NOT EXISTS economic_rankings (
 );
 
 -- Create index for faster ranking queries
-CREATE INDEX IF NOT EXISTS idx_economic_rankings_return ON economic_rankings(total_return DESC);
+CREATE INDEX IF NOT EXISTS idx_economic_rankings_return ON economic_sense_test.economic_rankings(total_return DESC);
 
 -- Enable Row Level Security
-ALTER TABLE economic_rankings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE economic_sense_test.economic_rankings ENABLE ROW LEVEL SECURITY;
 
 -- Allow anyone to read rankings
-CREATE POLICY "Anyone can read rankings" ON economic_rankings
+CREATE POLICY "Anyone can read rankings" ON economic_sense_test.economic_rankings
   FOR SELECT USING (true);
 
 -- Allow anyone to insert rankings
-CREATE POLICY "Anyone can insert rankings" ON economic_rankings
+CREATE POLICY "Anyone can insert rankings" ON economic_sense_test.economic_rankings
   FOR INSERT WITH CHECK (true);
