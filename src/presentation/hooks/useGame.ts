@@ -4,7 +4,7 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import type { GameState, Choice, RoundResult, FinalResult, Question, GameMode } from '@domain/entities';
-import { getGameConfig, GAME_CONFIG } from '@domain/entities';
+import { getGameConfig } from '@domain/entities';
 import { processRound, calculateFinalResult } from '@domain/usecases';
 import { generateQuestions, generateQuestionsSync } from '@data/questionGenerator';
 import { getTopPlayerRoundResults } from '@data/rankingService';
@@ -102,7 +102,7 @@ export function useGame(options: UseGameOptions = {}): UseGameReturn {
         if (mounted && roundResults && roundResults.length > 0) {
           // RoundResultData를 AssetDataPoint로 변환
           const assetData: AssetDataPoint[] = [
-            { round: 0, balance: GAME_CONFIG.INITIAL_BALANCE },
+            { round: 0, balance: config.INITIAL_BALANCE },
             ...roundResults.map((r) => ({
               round: r.round,
               balance: r.balance,
@@ -120,7 +120,7 @@ export function useGame(options: UseGameOptions = {}): UseGameReturn {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [config.INITIAL_BALANCE]);
 
   const currentQuestion = useMemo(() => {
     if (gameState.currentRound >= config.TOTAL_ROUNDS) return null;

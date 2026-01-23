@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { completeGame, closePopupsIfAny } from './fixtures';
 
 /**
  * UI 및 접근성 E2E 테스트
@@ -150,27 +151,12 @@ test.describe('접근성', () => {
 });
 
 test.describe('공유 기능', () => {
-  // 게임 완료 헬퍼
-  async function completeGame(page: import('@playwright/test').Page) {
-    await page.goto('/');
-    await page.locator('.mode-btn').first().click();
-    await page.locator('.start-button').click();
-
-    for (let round = 1; round <= 10; round++) {
-      await expect(page.getByText(`${round}/10`)).toBeVisible({ timeout: 5000 });
-      await page.locator('.choice-card').first().click();
-      await expect(page.locator('.result-overlay')).toBeVisible({ timeout: 5000 });
-      await page.locator('.next-btn').click();
-    }
-
-    await expect(page).toHaveURL(/\/result/, { timeout: 15000 });
-  }
-
   test('공유 버튼이 결과 페이지에 표시됨', async ({ page }) => {
     await completeGame(page);
+    await closePopupsIfAny(page);
 
-    // 공유 버튼 확인
-    const shareButton = page.getByRole('button', { name: /공유|Share|복사/ });
+    // 공유 버튼 확인 (클래스로 찾기)
+    const shareButton = page.locator('.share-button');
     await expect(shareButton).toBeVisible({ timeout: 5000 });
   });
 
@@ -179,8 +165,9 @@ test.describe('공유 기능', () => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
 
     await completeGame(page);
+    await closePopupsIfAny(page);
 
-    const shareButton = page.getByRole('button', { name: /공유|Share|복사/ });
+    const shareButton = page.locator('.share-button');
 
     if (await shareButton.isVisible({ timeout: 5000 }).catch(() => false)) {
       await shareButton.click();
@@ -197,9 +184,10 @@ test.describe('공유 기능', () => {
 
   test('다시하기 버튼으로 인트로 페이지 이동', async ({ page }) => {
     await completeGame(page);
+    await closePopupsIfAny(page);
 
     // 다시하기 버튼 클릭
-    const retryButton = page.getByRole('button', { name: /다시|재도전|처음|시작/ });
+    const retryButton = page.locator('.retry-button');
 
     if (await retryButton.isVisible({ timeout: 5000 }).catch(() => false)) {
       await retryButton.click();
@@ -211,23 +199,9 @@ test.describe('공유 기능', () => {
 });
 
 test.describe('분석 차트', () => {
-  async function completeGame(page: import('@playwright/test').Page) {
-    await page.goto('/');
-    await page.locator('.mode-btn').first().click();
-    await page.locator('.start-button').click();
-
-    for (let round = 1; round <= 10; round++) {
-      await expect(page.getByText(`${round}/10`)).toBeVisible({ timeout: 5000 });
-      await page.locator('.choice-card').first().click();
-      await expect(page.locator('.result-overlay')).toBeVisible({ timeout: 5000 });
-      await page.locator('.next-btn').click();
-    }
-
-    await expect(page).toHaveURL(/\/result/, { timeout: 15000 });
-  }
-
   test('자산 변동 차트가 결과 페이지에 표시됨', async ({ page }) => {
     await completeGame(page);
+    await closePopupsIfAny(page);
 
     // 차트 요소 확인
     const chart = page.locator(
@@ -241,6 +215,7 @@ test.describe('분석 차트', () => {
 
   test('투자 성향 분석 점수가 표시됨', async ({ page }) => {
     await completeGame(page);
+    await closePopupsIfAny(page);
 
     // 분석 점수 섹션 확인
     await expect(page.getByText(/위험|리스크|Risk/)).toBeVisible({ timeout: 5000 }).catch(() => {});

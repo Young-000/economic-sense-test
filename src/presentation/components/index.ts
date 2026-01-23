@@ -4,3 +4,5 @@ export type { AssetDataPoint, AssetProgressChartProps } from './AssetProgressCha
 export { Confetti } from './Confetti';
 export { AchievementBadge, AchievementList, NewAchievementsPopup } from './AchievementBadge';
 export type { AchievementBadgeProps, AchievementListProps, NewAchievementsPopupProps } from './AchievementBadge';
+export { ShareImageCard } from './ShareImageCard';
+export type { ShareImageCardProps } from './ShareImageCard';

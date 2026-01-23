@@ -67,33 +67,31 @@ export function Confetti({
   duration = 3000,
   onComplete,
 }: ConfettiProps) {
-  // active 상태와 동기화된 visible 상태
-  // active가 true로 변경되면 visible도 true로 설정
-  const [isVisible, setIsVisible] = useState(active);
-  const [prevActive, setPrevActive] = useState(active);
+  // active가 true가 된 시점을 추적하여 타이머 기반으로 표시/숨김 제어
+  const [hideAfterDelay, setHideAfterDelay] = useState(false);
 
   // count에 따라 미리 계산된 pieces (pure function)
   const pieces = useMemo<ConfettiPiece[]>(() => generatePieces(count), [count]);
 
-  // active 상태 변화 감지 (렌더링 중 동기적으로 처리)
-  if (active && !prevActive) {
-    setIsVisible(true);
-    setPrevActive(active);
-  } else if (!active && prevActive) {
-    setPrevActive(active);
-  }
-
-  // 타이머로 duration 후 숨김
+  // active가 true일 때 타이머 시작, duration 후 숨김
   useEffect(() => {
-    if (!isVisible) return;
+    if (!active) {
+      // 의도된 동작: active 비활성화 시 상태 리셋 필요
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setHideAfterDelay(false);
+      return;
+    }
+
     const timer = setTimeout(() => {
-      setIsVisible(false);
+      setHideAfterDelay(true);
       onComplete?.();
     }, duration);
-    return () => clearTimeout(timer);
-  }, [isVisible, duration, onComplete]);
 
-  if (!isVisible) return null;
+    return () => clearTimeout(timer);
+  }, [active, duration, onComplete]);
+
+  // active가 true이고 아직 숨김 타이머가 완료되지 않았을 때만 표시
+  if (!active || hideAfterDelay) return null;
 
   // borderRadius도 seed 기반으로 결정
   return (

@@ -63,6 +63,15 @@ export function IntroPage() {
           </button>
         </div>
 
+        {/* 시작 버튼 - 상단으로 이동 */}
+        <button
+          className={`start-button ${selectedMode === 'extreme' ? 'extreme' : ''}`}
+          onClick={handleStart}
+          aria-label={`${currentConfig.name}로 게임 시작하기`}
+        >
+          {selectedMode === 'extreme' ? '🔥 극한 도전!' : '돈 불려보기'}
+        </button>
+
         <div className="intro-hook" aria-hidden="true">
           <span className="hook-emoji">🤔</span>
           <span className="hook-text">
@@ -88,14 +97,6 @@ export function IntroPage() {
             </span>
           </li>
         </ul>
-
-        <button
-          className={`start-button ${selectedMode === 'extreme' ? 'extreme' : ''}`}
-          onClick={handleStart}
-          aria-label={`${currentConfig.name}로 게임 시작하기`}
-        >
-          {selectedMode === 'extreme' ? '🔥 극한 도전!' : '돈 불려보기'}
-        </button>
 
         <p className="intro-disclaimer" role="note">
           * 실제 돈이 아닙니다. 재미로만 즐겨주세요!

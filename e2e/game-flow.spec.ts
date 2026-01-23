@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { closePopupsIfAny } from './fixtures';
 
 /**
  * 게임 플로우 E2E 테스트
@@ -43,10 +44,7 @@ test.describe('게임 완료 플로우', () => {
     await expect(page).toHaveURL(/\/result/, { timeout: 10000 });
 
     // 7. 업적 팝업이 있으면 닫기
-    const confirmButton = page.getByRole('button', { name: '확인' });
-    if (await confirmButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await confirmButton.click();
-    }
+    await closePopupsIfAny(page);
 
     // 8. 결과 페이지 요소 확인 (투자자 타입 카드)
     await expect(page.locator('.result-page, .investor-card, [class*="result"]').first()).toBeVisible({ timeout: 5000 });
@@ -75,6 +73,12 @@ test.describe('게임 완료 플로우', () => {
 
     // 6. 결과 페이지 확인
     await expect(page).toHaveURL(/\/result/, { timeout: 15000 });
+
+    // 7. 업적 팝업이 있으면 닫기
+    await closePopupsIfAny(page);
+
+    // 8. 결과 페이지 요소 확인
+    await expect(page.locator('.result-page, .investor-card, [class*="result"]').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('모드 선택 토글 동작', async ({ page }) => {

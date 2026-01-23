@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import type { RoundResult, Question, GameMode } from '@domain/entities';
 import { getGameConfig } from '@domain/entities';
 import { calculateFinalResult } from '@domain/usecases';
@@ -15,7 +15,7 @@ import {
   calculateGameStats,
   type Achievement,
 } from '@data/achievementService';
-import { AssetProgressChart, Confetti, NewAchievementsPopup, AchievementList } from '@presentation/components';
+import { AssetProgressChart, Confetti, NewAchievementsPopup, AchievementList, ShareImageCard } from '@presentation/components';
 import {
   isAppsInToss,
   submitToGameLeaderboard,
@@ -30,6 +30,33 @@ import {
   setClipboardText,
 } from '@lib/appsInToss';
 import { formatBalance } from '@lib/formatUtils';
+import {
+  elementToBlob,
+  shareImage,
+  downloadBlob,
+  canShareFiles,
+} from '@lib/shareUtils';
+
+// 닉네임 유효성 검사 상수 및 함수 (컴포넌트 외부에 정의하여 리렌더링 시 재생성 방지)
+const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9_\s]+$/;
+const MAX_NICKNAME_LENGTH = 20;
+
+interface NicknameValidationResult {
+  valid: boolean;
+  error?: string;
+}
+
+function validateNickname(name: string): NicknameValidationResult {
+  const trimmed = name.trim();
+  if (!trimmed) return { valid: false, error: '닉네임을 입력해주세요' };
+  if (trimmed.length > MAX_NICKNAME_LENGTH) {
+    return { valid: false, error: `${MAX_NICKNAME_LENGTH}자 이하로 입력해주세요` };
+  }
+  if (!NICKNAME_REGEX.test(trimmed)) {
+    return { valid: false, error: '한글, 영문, 숫자만 사용 가능해요' };
+  }
+  return { valid: true };
+}
 
 export function ResultPage() {
   const navigate = useNavigate();
@@ -46,8 +73,13 @@ export function ResultPage() {
   const [showAchievementPopup, setShowAchievementPopup] = useState(false);
   const [showAchievementList, setShowAchievementList] = useState(false);
   const [achievementStatus, setAchievementStatus] = useState(() => getAchievementStatus());
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareImageUrl, setShareImageUrl] = useState<string | null>(null);
+  const [shareImageBlob, setShareImageBlob] = useState<Blob | null>(null);
   const adContainerRef = useRef<HTMLDivElement>(null);
   const adSlotIdRef = useRef<string | null>(null);
+  const shareCardRef = useRef<HTMLDivElement>(null);
 
   // 모든 게임 데이터를 한 번에 파싱 (sessionStorage 접근 최소화)
   const {
@@ -218,6 +250,20 @@ export function ResultPage() {
     };
   }, [inTossApp]);
 
+  // 공유 텍스트 생성 함수 (Hooks는 조건문 전에 호출되어야 함)
+  const getShareText = useCallback(() => {
+    if (!finalResult) return '';
+    const { profile, totalReturn, finalBalance } = finalResult;
+    const returnEmoji = totalReturn >= 50 ? '🚀' : totalReturn >= 0 ? '📈' : totalReturn >= -30 ? '📉' : '💸';
+    return `💸 돈 감각 테스트 결과\n\n` +
+      `${profile.emoji} 나는 "${profile.name}"\n` +
+      `${returnEmoji} 수익률: ${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}%\n` +
+      `💰 1,000만원 → ${formatBalance(finalBalance)}\n\n` +
+      `#${profile.tag}\n` +
+      `#돈감각테스트 #금손흙손\n\n` +
+      `너의 돈 감각은? 👉`;
+  }, [finalResult]);
+
   if (!finalResult) {
     return (
       <div className="result-page">
@@ -248,22 +294,6 @@ export function ResultPage() {
     if (luckScore >= -50) return '운이 없었네요 😢';
     return '극심한 불운 😭';
   })();
-
-  // 닉네임 유효성 검사: 한글, 영문, 숫자, 공백, 언더스코어만 허용
-  const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9_\s]+$/;
-  const MAX_NICKNAME_LENGTH = 20;
-
-  const validateNickname = (name: string): { valid: boolean; error?: string } => {
-    const trimmed = name.trim();
-    if (!trimmed) return { valid: false, error: '닉네임을 입력해주세요' };
-    if (trimmed.length > MAX_NICKNAME_LENGTH) {
-      return { valid: false, error: `${MAX_NICKNAME_LENGTH}자 이하로 입력해주세요` };
-    }
-    if (!NICKNAME_REGEX.test(trimmed)) {
-      return { valid: false, error: '한글, 영문, 숫자만 사용 가능해요' };
-    }
-    return { valid: true };
-  };
 
   const nicknameValidation = validateNickname(nickname);
 
@@ -325,17 +355,11 @@ export function ResultPage() {
     await openGameLeaderboard();
   };
 
-  const handleShare = async () => {
+  // 텍스트 전용 공유 (기존 기능)
+  const handleShareText = async () => {
     triggerHapticFeedback('light');
-    trackClick('share_result');
-    const returnEmoji = totalReturn >= 50 ? '🚀' : totalReturn >= 0 ? '📈' : totalReturn >= -30 ? '📉' : '💸';
-    const shareText = `💸 돈 감각 테스트 결과\n\n` +
-      `${profile.emoji} 나는 "${profile.name}"\n` +
-      `${returnEmoji} 수익률: ${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}%\n` +
-      `💰 1,000만원 → ${formatBalance(finalBalance)}\n\n` +
-      `#${profile.tag}\n` +
-      `#돈감각테스트 #금손흙손\n\n` +
-      `너의 돈 감각은? 👉`;
+    trackClick('share_result_text');
+    const shareText = getShareText();
 
     if (navigator.share) {
       try {
@@ -367,6 +391,82 @@ export function ResultPage() {
     } catch {
       alert(shareText);
     }
+  };
+
+  // 공유 이미지 생성
+  const handleGenerateShareImage = async () => {
+    if (!shareCardRef.current || isGeneratingImage) return;
+
+    setIsGeneratingImage(true);
+    triggerHapticFeedback('light');
+    trackClick('share_image_generate');
+
+    try {
+      const blob = await elementToBlob(shareCardRef.current, {
+        scale: 2,
+        backgroundColor: '#0a0a0a',
+      });
+
+      setShareImageBlob(blob);
+      const url = URL.createObjectURL(blob);
+      setShareImageUrl(url);
+      setShowShareModal(true);
+    } catch (error) {
+      console.error('이미지 생성 실패:', error);
+      alert('이미지 생성에 실패했습니다.');
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
+  // 이미지 공유
+  const handleShareImageAction = async () => {
+    if (!shareImageBlob) return;
+
+    triggerHapticFeedback('light');
+    trackClick('share_image_share');
+
+    try {
+      const shared = await shareImage(shareImageBlob, {
+        title: '돈 감각 테스트 결과',
+        text: getShareText(),
+      });
+
+      if (shared) {
+        setShowShareModal(false);
+      } else {
+        // 공유 실패 시 다운로드로 폴백
+        handleDownloadImage();
+      }
+    } catch {
+      handleDownloadImage();
+    }
+  };
+
+  // 이미지 다운로드
+  const handleDownloadImage = () => {
+    if (!shareImageBlob) return;
+
+    triggerHapticFeedback('light');
+    trackClick('share_image_download');
+
+    const filename = `돈감각테스트_${profile.name.replace(/\s/g, '_')}.png`;
+    downloadBlob(shareImageBlob, filename);
+    alert('이미지가 저장되었습니다!');
+  };
+
+  // 모달 닫기 시 URL 정리
+  const handleCloseShareModal = () => {
+    setShowShareModal(false);
+    if (shareImageUrl) {
+      URL.revokeObjectURL(shareImageUrl);
+      setShareImageUrl(null);
+    }
+  };
+
+  // 기존 handleShare는 이미지 공유 모달을 여는 것으로 변경
+  const handleShare = async () => {
+    await handleGenerateShareImage();
   };
 
   return (
@@ -568,8 +668,24 @@ export function ResultPage() {
 
         {/* 버튼 */}
         <div className="action-buttons">
-          <button className="share-button" onClick={handleShare}>
-            결과 공유하기
+          <div className="share-buttons">
+            <button
+              className="share-image-button"
+              onClick={handleShare}
+              disabled={isGeneratingImage}
+            >
+              {isGeneratingImage ? (
+                '생성 중...'
+              ) : (
+                <>
+                  <span className="button-icon">📸</span>
+                  이미지로 공유
+                </>
+              )}
+            </button>
+          </div>
+          <button className="share-button" onClick={handleShareText}>
+            텍스트로 공유하기
           </button>
           <button className="retry-button" onClick={() => navigate('/')}>
             다시 도전하기
@@ -581,6 +697,54 @@ export function ResultPage() {
           <div className="toss-ads-container" ref={adContainerRef} />
         )}
       </div>
+
+      {/* 공유용 이미지 카드 (오프스크린 렌더링) */}
+      <div className="share-image-wrapper">
+        <ShareImageCard
+          ref={shareCardRef}
+          profile={profile}
+          finalBalance={finalBalance}
+          initialBalance={initialBalance}
+          totalReturn={totalReturn}
+          riskScore={riskScore}
+          rationalityScore={rationalityScore}
+          luckScore={luckScore}
+        />
+      </div>
+
+      {/* 공유 이미지 모달 */}
+      {showShareModal && shareImageUrl && (
+        <div className="share-modal-overlay" onClick={handleCloseShareModal}>
+          <div className="share-modal" onClick={(e) => e.stopPropagation()}>
+            <h2 className="share-modal-title">공유 이미지 미리보기</h2>
+            <div className="share-modal-preview">
+              <img src={shareImageUrl} alt="공유 이미지" />
+            </div>
+            <div className="share-modal-buttons">
+              {canShareFiles() && (
+                <button
+                  className="share-modal-btn primary"
+                  onClick={handleShareImageAction}
+                >
+                  📤 공유하기
+                </button>
+              )}
+              <button
+                className="share-modal-btn secondary"
+                onClick={handleDownloadImage}
+              >
+                💾 이미지 저장
+              </button>
+              <button
+                className="share-modal-close"
+                onClick={handleCloseShareModal}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

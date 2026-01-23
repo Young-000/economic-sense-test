@@ -40,7 +40,8 @@ const renderOutcomes = (outcomes: Outcome[]): JSX.Element[] => {
 export function GamePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const mode = (searchParams.get('mode') as GameMode) || 'normal';
+  const rawMode = searchParams.get('mode');
+  const mode: GameMode = rawMode === 'extreme' ? 'extreme' : 'normal';
   const gameConfig = getGameConfig(mode);
 
   const {
@@ -142,35 +143,41 @@ export function GamePage() {
         </div>
       </div>
 
-      {/* 라운드별 결과 도트 + 미니 차트 */}
-      {roundSummary.length > 0 && (
-        <div className="round-progress-section">
-          <div className="round-summary">
-            {roundSummary.map((isPositive, i) => (
-              <div
-                key={i}
-                className={`round-dot ${isPositive ? 'positive' : 'negative'}`}
-              />
-            ))}
-            {/* 남은 라운드 표시 */}
-            {Array.from({ length: gameConfig.TOTAL_ROUNDS - roundSummary.length }).map((_, i) => (
-              <div
-                key={`remaining-${i}`}
-                className={`round-dot ${i === 0 ? 'current' : ''}`}
-              />
-            ))}
-          </div>
-          {/* 미니 자산 변화 차트 (1등 그래프 백그라운드) */}
+      {/* 라운드별 결과 도트 + 1등 그래프 비교 차트 */}
+      <div className="round-progress-section">
+        <div className="round-summary">
+          {roundSummary.map((isPositive, i) => (
+            <div
+              key={i}
+              className={`round-dot ${isPositive ? 'positive' : 'negative'}`}
+            />
+          ))}
+          {/* 남은 라운드 표시 */}
+          {Array.from({ length: gameConfig.TOTAL_ROUNDS - roundSummary.length }).map((_, i) => (
+            <div
+              key={`remaining-${i}`}
+              className={`round-dot ${i === 0 ? 'current' : ''}`}
+            />
+          ))}
+        </div>
+        {/* 1등 그래프 비교 차트 - 항상 표시 */}
+        <div className="top-player-chart-wrapper">
+          {topPlayerData && (
+            <div className="top-player-indicator">
+              <span className="top-icon">🏆</span>
+              <span className="top-label">1등 기록</span>
+            </div>
+          )}
           <AssetProgressChart
             results={gameState.results}
             currentBalance={gameState.balance}
             bestPerformance={topPlayerData ?? undefined}
-            height={80}
+            height={100}
             animate={false}
             compact={true}
           />
         </div>
-      )}
+      </div>
 
       {/* 결과 오버레이 */}
       {isWaitingResult && lastResult ? (

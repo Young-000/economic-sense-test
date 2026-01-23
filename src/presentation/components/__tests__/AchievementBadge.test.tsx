@@ -15,6 +15,8 @@ const mockAchievement: Achievement = {
   name: '첫 걸음',
   description: '첫 게임을 완료했어요!',
   emoji: '🎮',
+  category: 'milestone',
+  tier: 'bronze',
   condition: () => true,
 };
 
@@ -108,6 +110,8 @@ describe('AchievementList', () => {
       name: '백만장자',
       description: '백만원 이상 벌기',
       emoji: '💰',
+      category: 'return' as const,
+      tier: 'gold' as const,
       condition: () => true,
       isUnlocked: true,
     },
@@ -116,6 +120,8 @@ describe('AchievementList', () => {
       name: '모험가',
       description: '위험한 선택 5회',
       emoji: '🎲',
+      category: 'strategy' as const,
+      tier: 'silver' as const,
       condition: () => true,
       isUnlocked: false,
     },
@@ -175,6 +181,8 @@ describe('NewAchievementsPopup', () => {
       name: '운빨',
       description: '운 좋게 대박!',
       emoji: '🍀',
+      category: 'luck',
+      tier: 'silver',
       condition: () => true,
     },
   ];

@@ -217,11 +217,23 @@ export function AssetProgressChart({
               d={bestPath}
               fill="none"
               stroke="#FBBF24"
-              strokeWidth="2"
-              strokeDasharray="6,4"
-              opacity="0.7"
+              strokeWidth={compact ? 2.5 : 2}
+              strokeDasharray={compact ? '4,3' : '6,4'}
+              opacity={compact ? 0.9 : 0.7}
               className={animate ? 'chart-line-animate' : ''}
             />
+            {/* 1등 최종 포인트 마커 (compact 모드) */}
+            {compact && bestPerformance.length > 0 && (
+              <circle
+                cx={scaleX(bestPerformance[bestPerformance.length - 1].round)}
+                cy={scaleY(bestPerformance[bestPerformance.length - 1].balance)}
+                r={4}
+                fill="#FBBF24"
+                stroke="white"
+                strokeWidth="1.5"
+                opacity={0.9}
+              />
+            )}
           </>
         )}
 

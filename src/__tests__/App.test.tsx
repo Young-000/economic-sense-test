@@ -2,7 +2,7 @@
  * App 컴포넌트 테스트
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { App } from '../App';
 
 // appsInToss 모킹
@@ -100,10 +100,12 @@ describe('App', () => {
     it('should show exit dialog when back event triggered', async () => {
       render(<App />);
 
-      // 뒤로가기 이벤트 트리거
-      if (mockBackEventCallback) {
-        mockBackEventCallback();
-      }
+      // 뒤로가기 이벤트 트리거 (act로 감싸서 상태 업데이트 처리)
+      await act(async () => {
+        if (mockBackEventCallback) {
+          mockBackEventCallback();
+        }
+      });
 
       await waitFor(() => {
         expect(screen.getByText('돈 감각 테스트를 종료할까요?')).toBeInTheDocument();
@@ -113,9 +115,12 @@ describe('App', () => {
     it('should close dialog when cancel clicked', async () => {
       render(<App />);
 
-      if (mockBackEventCallback) {
-        mockBackEventCallback();
-      }
+      // 뒤로가기 이벤트 트리거 (act로 감싸서 상태 업데이트 처리)
+      await act(async () => {
+        if (mockBackEventCallback) {
+          mockBackEventCallback();
+        }
+      });
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: '취소' })).toBeInTheDocument();
@@ -132,9 +137,12 @@ describe('App', () => {
     it('should call closeApp when confirm clicked', async () => {
       render(<App />);
 
-      if (mockBackEventCallback) {
-        mockBackEventCallback();
-      }
+      // 뒤로가기 이벤트 트리거 (act로 감싸서 상태 업데이트 처리)
+      await act(async () => {
+        if (mockBackEventCallback) {
+          mockBackEventCallback();
+        }
+      });
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: '종료하기' })).toBeInTheDocument();

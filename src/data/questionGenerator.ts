@@ -206,6 +206,60 @@ const questionTemplates: QuestionTemplate[] = [
       ],
     },
   },
+  {
+    situation: '📚 자격증 시험 준비',
+    category: 'spending',
+    // 독학: -5만원, 학원: EV = -300*0.8 + -500*0.2 = -340천원
+    optionA: {
+      label: '독학으로 준비',
+      description: '교재비 5만원만 투자',
+      outcomes: [{ probability: 1, value: -50 }], // -50,000원
+    },
+    optionB: {
+      label: '학원 수강 30만원',
+      description: '80% 합격, 20% 재수강 필요',
+      outcomes: [
+        { probability: 0.8, value: -300 },  // -300,000원
+        { probability: 0.2, value: -500 },  // -500,000원
+      ],
+    },
+  },
+  {
+    situation: '💐 부모님 결혼기념일 선물',
+    category: 'spending',
+    // 소박: -10만원, 성대: EV = -300*0.7 + -400*0.3 = -330천원
+    optionA: {
+      label: '소박하게 꽃과 케이크',
+      description: '10만원으로 정성 표현',
+      outcomes: [{ probability: 1, value: -100 }], // -100,000원
+    },
+    optionB: {
+      label: '고급 레스토랑 예약',
+      description: '70% 대만족, 30% 취향 아님',
+      outcomes: [
+        { probability: 0.7, value: -300 },  // -300,000원
+        { probability: 0.3, value: -400 },  // -400,000원
+      ],
+    },
+  },
+  {
+    situation: '💒 친구 결혼식 축의금',
+    category: 'spending',
+    // 5만원: -50천원, 10만원: EV = -100*0.6 + -150*0.4 = -120천원
+    optionA: {
+      label: '축의금 5만원',
+      description: '부담 없는 금액',
+      outcomes: [{ probability: 1, value: -50 }], // -50,000원
+    },
+    optionB: {
+      label: '축의금 10만원+선물',
+      description: '60% 관계 돈독, 40% 과한 느낌',
+      outcomes: [
+        { probability: 0.6, value: -100 },  // -100,000원
+        { probability: 0.4, value: -150 },  // -150,000원
+      ],
+    },
+  },
 
   // ========== 수익 시나리오 (INCOME) - EV가 양수 ==========
   // 수익 기회, 합리적 선택으로 수익 최대화
@@ -315,6 +369,42 @@ const questionTemplates: QuestionTemplate[] = [
       outcomes: [
         { probability: 0.5, value: 500 },  // +500,000원
         { probability: 0.5, value: 0 },
+      ],
+    },
+  },
+  {
+    situation: '📋 연말정산 시즌!',
+    category: 'income',
+    // 기본공제: +30만원, 꼼꼼준비: EV = 800*0.7 + 200*0.3 = 620천원
+    optionA: {
+      label: '기본 공제만 신청',
+      description: '30만원 환급 확정',
+      outcomes: [{ probability: 1, value: 300 }], // +300,000원
+    },
+    optionB: {
+      label: '공제 항목 꼼꼼히 챙기기',
+      description: '70% 80만원, 30% 20만원 환급',
+      outcomes: [
+        { probability: 0.7, value: 800 },  // +800,000원
+        { probability: 0.3, value: 200 },  // +200,000원
+      ],
+    },
+  },
+  {
+    situation: '💳 적금 만기! 500만원 수령',
+    category: 'income',
+    // 재예치: +200천원, 투자: EV = 750*0.6 + (-250)*0.4 = 350천원
+    optionA: {
+      label: '재예치 (연 4%)',
+      description: '1년 후 20만원 이자 확정',
+      outcomes: [{ probability: 1, value: 200 }], // +200,000원
+    },
+    optionB: {
+      label: '채권 ETF 투자',
+      description: '60% 15% 수익, 40% 5% 손실',
+      outcomes: [
+        { probability: 0.6, value: 750 },  // +750,000원
+        { probability: 0.4, value: -250 }, // -250,000원
       ],
     },
   },
@@ -463,6 +553,63 @@ const questionTemplates: QuestionTemplate[] = [
       outcomes: [
         { probability: 0.6, value: -1050 },  // -1,050,000원
         { probability: 0.4, value: -1800 },  // -1,800,000원
+      ],
+    },
+  },
+  {
+    situation: '🏥 실손보험 가입 제안',
+    category: 'mixed',
+    // 미가입: 0원 (but 리스크), 가입: EV = -120*0.9 + 500*0.1 = -58천원
+    optionA: {
+      label: '가입 안 함',
+      description: '월 보험료 아끼기',
+      outcomes: [
+        { probability: 0.95, value: 0 },
+        { probability: 0.05, value: -2000 },  // 5% 병원비 200만원
+      ],
+    },
+    optionB: {
+      label: '월 1만원 가입',
+      description: '연 12만원, 병원비 80% 보장',
+      outcomes: [
+        { probability: 0.9, value: -120 },   // -120,000원 보험료만
+        { probability: 0.1, value: 500 },    // +500,000원 보험금 수령
+      ],
+    },
+  },
+  {
+    situation: '💻 온라인 코딩 부트캠프',
+    category: 'mixed',
+    // 무료: 0원, 유료: EV = 3000*0.6 + (-500)*0.4 = 1600천원
+    optionA: {
+      label: '무료 유튜브 독학',
+      description: '비용 0원, 시간만 투자',
+      outcomes: [{ probability: 1, value: 0 }],
+    },
+    optionB: {
+      label: '500만원 부트캠프',
+      description: '60% 취업 성공, 40% 미취업',
+      outcomes: [
+        { probability: 0.6, value: 3000 },   // +3,000,000원 연봉상승
+        { probability: 0.4, value: -500 },   // -500,000원 등록금만
+      ],
+    },
+  },
+  {
+    situation: '🧾 세금 납부 방법 선택',
+    category: 'mixed',
+    // 일시납: -500천원, 분할납: EV = -510*0.8 + (-600)*0.2 = -528천원
+    optionA: {
+      label: '일시납부',
+      description: '50만원 한번에 납부',
+      outcomes: [{ probability: 1, value: -500 }], // -500,000원
+    },
+    optionB: {
+      label: '분할납부 신청',
+      description: '80% 무사히 완납, 20% 가산세',
+      outcomes: [
+        { probability: 0.8, value: -510 },   // -510,000원
+        { probability: 0.2, value: -600 },   // -600,000원 가산세
       ],
     },
   },

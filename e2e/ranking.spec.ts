@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { completeGame, closePopupsIfAny } from './fixtures';
 
 /**
  * 랭킹 시스템 E2E 테스트
@@ -6,28 +7,10 @@ import { test, expect } from '@playwright/test';
  * 닉네임 입력, 유효성 검사, 랭킹 제출 플로우를 테스트합니다.
  */
 test.describe('랭킹 제출 플로우', () => {
-  // 게임을 완료하고 결과 페이지로 이동하는 헬퍼
-  async function completeGame(page: import('@playwright/test').Page) {
-    await page.goto('/');
-
-    // 게임 시작
-    await page.locator('.mode-btn').first().click();
-    await page.locator('.start-button').click();
-
-    // 10 라운드 진행
-    for (let round = 1; round <= 10; round++) {
-      await expect(page.getByText(`${round}/10`)).toBeVisible({ timeout: 5000 });
-      await page.locator('.choice-card').first().click();
-      await expect(page.locator('.result-overlay')).toBeVisible({ timeout: 5000 });
-      await page.locator('.next-btn').click();
-    }
-
-    // 결과 페이지 대기
-    await expect(page).toHaveURL(/\/result/, { timeout: 15000 });
-  }
 
   test('유효한 닉네임으로 랭킹 제출', async ({ page }) => {
     await completeGame(page);
+    await closePopupsIfAny(page);
 
     // 닉네임 입력 필드 찾기
     const nicknameInput = page.getByPlaceholder(/닉네임|이름|별명/);
@@ -51,6 +34,7 @@ test.describe('랭킹 제출 플로우', () => {
 
   test('닉네임 유효성 검사 - 빈 값', async ({ page }) => {
     await completeGame(page);
+    await closePopupsIfAny(page);
 
     const nicknameInput = page.getByPlaceholder(/닉네임|이름|별명/);
 
@@ -71,6 +55,7 @@ test.describe('랭킹 제출 플로우', () => {
 
   test('닉네임 유효성 검사 - 최대 길이 초과', async ({ page }) => {
     await completeGame(page);
+    await closePopupsIfAny(page);
 
     const nicknameInput = page.getByPlaceholder(/닉네임|이름|별명/);
 
@@ -86,6 +71,7 @@ test.describe('랭킹 제출 플로우', () => {
 
   test('닉네임 유효성 검사 - 특수문자', async ({ page }) => {
     await completeGame(page);
+    await closePopupsIfAny(page);
 
     const nicknameInput = page.getByPlaceholder(/닉네임|이름|별명/);
 
@@ -109,23 +95,9 @@ test.describe('랭킹 제출 플로우', () => {
 });
 
 test.describe('랭킹 리더보드', () => {
-  async function completeGame(page: import('@playwright/test').Page) {
-    await page.goto('/');
-    await page.locator('.mode-btn').first().click();
-    await page.locator('.start-button').click();
-
-    for (let round = 1; round <= 10; round++) {
-      await expect(page.getByText(`${round}/10`)).toBeVisible({ timeout: 5000 });
-      await page.locator('.choice-card').first().click();
-      await expect(page.locator('.result-overlay')).toBeVisible({ timeout: 5000 });
-      await page.locator('.next-btn').click();
-    }
-
-    await expect(page).toHaveURL(/\/result/, { timeout: 15000 });
-  }
-
   test('TOP 10 랭킹 토글', async ({ page }) => {
     await completeGame(page);
+    await closePopupsIfAny(page);
 
     // 랭킹 보기 토글 버튼 찾기
     const rankingToggle = page.getByRole('button', { name: /TOP|랭킹|순위|보기/ });
@@ -148,6 +120,7 @@ test.describe('랭킹 리더보드', () => {
 
   test('랭킹 목록에 필수 정보 표시', async ({ page }) => {
     await completeGame(page);
+    await closePopupsIfAny(page);
 
     const rankingToggle = page.getByRole('button', { name: /TOP|랭킹|순위|보기/ });
 

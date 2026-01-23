@@ -27,7 +27,7 @@ export default defineConfig({
   /* 모든 테스트에 적용되는 공통 설정 */
   use: {
     /* 개발 서버 기본 URL */
-    baseURL: 'http://localhost:5173',
+    baseURL: process.env.BASE_URL || 'http://localhost:5173',
 
     /* 실패 시 스크린샷 캡처 */
     screenshot: 'only-on-failure',

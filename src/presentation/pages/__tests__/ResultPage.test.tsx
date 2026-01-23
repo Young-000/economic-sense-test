@@ -170,8 +170,9 @@ describe('ResultPage', () => {
       renderResultPage();
 
       // 초기 잔액 + 10라운드 * 100,000 = 11,000,000
+      // 공유 이미지 카드에도 동일한 텍스트가 있으므로 getAllByText 사용
       await waitFor(() => {
-        expect(screen.getByText(/1,100만원/)).toBeInTheDocument();
+        expect(screen.getAllByText(/1,100만원/).length).toBeGreaterThan(0);
       });
     });
 
@@ -361,7 +362,7 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByText('결과 공유하기')).toBeInTheDocument();
+        expect(screen.getByText('텍스트로 공유하기')).toBeInTheDocument();
       });
     });
   });
@@ -416,24 +417,27 @@ describe('ResultPage', () => {
     it('should render aggression stat', async () => {
       renderResultPage();
 
+      // 공유 이미지 카드에도 동일한 텍스트가 있으므로 getAllByText 사용
       await waitFor(() => {
-        expect(screen.getByText('공격성')).toBeInTheDocument();
+        expect(screen.getAllByText('공격성').length).toBeGreaterThan(0);
       });
     });
 
     it('should render rationality stat', async () => {
       renderResultPage();
 
+      // 공유 이미지 카드에도 동일한 텍스트가 있으므로 getAllByText 사용
       await waitFor(() => {
-        expect(screen.getByText('합리성')).toBeInTheDocument();
+        expect(screen.getAllByText('합리성').length).toBeGreaterThan(0);
       });
     });
 
     it('should render luck stat', async () => {
       renderResultPage();
 
+      // 공유 이미지 카드에도 동일한 텍스트가 있으므로 getAllByText 사용
       await waitFor(() => {
-        expect(screen.getByText('운')).toBeInTheDocument();
+        expect(screen.getAllByText('운').length).toBeGreaterThan(0);
       });
     });
   });
@@ -506,10 +510,10 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByText('결과 공유하기')).toBeInTheDocument();
+        expect(screen.getByText('텍스트로 공유하기')).toBeInTheDocument();
       });
 
-      const shareBtn = screen.getByText('결과 공유하기');
+      const shareBtn = screen.getByText('텍스트로 공유하기');
       fireEvent.click(shareBtn);
 
       // 공유 기능 트리거됨 (실제 동작은 모킹된 함수에 의존)
@@ -571,8 +575,9 @@ describe('ResultPage', () => {
     it('should show initial balance note', async () => {
       renderResultPage();
 
+      // 공유 이미지 카드에도 동일한 텍스트가 있으므로 getAllByText 사용
       await waitFor(() => {
-        expect(screen.getByText(/시작:/)).toBeInTheDocument();
+        expect(screen.getAllByText(/시작:/).length).toBeGreaterThan(0);
       });
     });
   });
@@ -707,10 +712,10 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByText('결과 공유하기')).toBeInTheDocument();
+        expect(screen.getByText('텍스트로 공유하기')).toBeInTheDocument();
       });
 
-      const shareBtn = screen.getByText('결과 공유하기');
+      const shareBtn = screen.getByText('텍스트로 공유하기');
       fireEvent.click(shareBtn);
 
       await waitFor(() => {
@@ -724,14 +729,14 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByText('결과 공유하기')).toBeInTheDocument();
+        expect(screen.getByText('텍스트로 공유하기')).toBeInTheDocument();
       });
 
-      const shareBtn = screen.getByText('결과 공유하기');
+      const shareBtn = screen.getByText('텍스트로 공유하기');
       fireEvent.click(shareBtn);
 
       await waitFor(() => {
-        expect(trackClick).toHaveBeenCalledWith('share_result');
+        expect(trackClick).toHaveBeenCalledWith('share_result_text');
       });
     });
 
@@ -749,10 +754,10 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByText('결과 공유하기')).toBeInTheDocument();
+        expect(screen.getByText('텍스트로 공유하기')).toBeInTheDocument();
       });
 
-      const shareBtn = screen.getByText('결과 공유하기');
+      const shareBtn = screen.getByText('텍스트로 공유하기');
       fireEvent.click(shareBtn);
 
       await waitFor(() => {
@@ -967,10 +972,10 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByText('결과 공유하기')).toBeInTheDocument();
+        expect(screen.getByText('텍스트로 공유하기')).toBeInTheDocument();
       });
 
-      const shareBtn = screen.getByText('결과 공유하기');
+      const shareBtn = screen.getByText('텍스트로 공유하기');
       fireEvent.click(shareBtn);
 
       await waitFor(() => {
