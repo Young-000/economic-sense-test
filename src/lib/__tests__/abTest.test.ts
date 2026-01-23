@@ -1,7 +1,6 @@
 /**
  * A/B 테스트 서비스 테스트
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   getVariant,

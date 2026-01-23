@@ -23,9 +23,19 @@ export const formatBalance = (balance: number): string => {
 export const formatMoney = (v: number): string => {
   const absV = Math.abs(v);
   const sign = v >= 0 ? '+' : '-';
+
+  // 천만원 이상
   if (absV >= 10_000_000) return `${sign}${Math.round(absV / 10_000_000)}천만`;
+
+  // 만원 이상
   if (absV >= 10_000) return `${sign}${Math.round(absV / 10_000)}만`;
-  return `${sign}${Math.round(absV / 1000)}천`;
+
+  // 천원 단위 (500원 이상)
+  const inThousand = Math.round(absV / 1000);
+  if (inThousand > 0) return `${sign}${inThousand}천`;
+
+  // 0원 또는 매우 작은 금액
+  return '0원';
 };
 
 /**

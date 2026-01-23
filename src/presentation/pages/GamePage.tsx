@@ -5,20 +5,11 @@ import { getGameConfig, type Outcome, type GameMode } from '@domain/entities';
 import { calculateExpectedValue } from '@domain/usecases/gameEngine';
 import { AssetProgressChart } from '@presentation/components';
 import { triggerHapticFeedback, trackClick } from '@lib/appsInToss';
-import { formatBalance } from '@lib/formatUtils';
+import { formatBalance, formatMoney } from '@lib/formatUtils';
 import { getReactionMessage, getLuckText } from '@data/reactions';
 
-// 컴포넌트 외부에 정의하여 리렌더링 시 재생성 방지
-const formatMoney = (value: number, showSign = true): string => {
-  const absValue = Math.abs(value);
-  const sign = showSign ? (value >= 0 ? '+' : '-') : '';
-  if (absValue >= 100_000_000) {
-    return `${sign}${(absValue / 100_000_000).toFixed(1)}억`;
-  }
-  const inMan = Math.round(absValue / 10_000);
-  if (inMan === 0) return `${sign}0만`;
-  return `${sign}${inMan.toLocaleString()}만`;
-};
+// formatMoney는 이제 @lib/formatUtils에서 import
+// 작은 금액도 '천' 단위로 정확히 표시됨 (예: -8000원 → -8천)
 
 const renderOutcomes = (outcomes: Outcome[]): JSX.Element[] => {
   return outcomes.map((outcome, idx) => (

@@ -1,15 +1,10 @@
 /**
  * useABTest 훅 테스트
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useABTest, useABTests } from '../useABTest';
-import {
-  forceVariant,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  EXPERIMENTS,
-} from '@lib/abTest';
+import { forceVariant, EXPERIMENTS } from '@lib/abTest';
 
 // Mock localStorage
 const localStorageMock = (() => {

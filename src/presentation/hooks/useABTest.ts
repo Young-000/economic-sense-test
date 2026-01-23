@@ -83,40 +83,56 @@ export function useABTest(
 ): UseABTestReturn {
   const { showLoading = false, trackImpression = true } = options;
 
+  // 초기 변형 로드 (lazy initialization)
   const [variant, setVariant] = useState<Variant | null>(() => {
-    // SSR 대응: 초기에는 null
     if (typeof window === 'undefined') return null;
     return showLoading ? null : getVariant(experimentId);
   });
-  const [isLoading, setIsLoading] = useState(showLoading);
-  const [impressionTracked, setImpressionTracked] = useState(false);
+
+  // showLoading이 true면 초기 로딩 상태, 아니면 이미 로드됨
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window === 'undefined') return showLoading;
+    return showLoading;
+  });
+
+  // 노출 추적 여부
+  const impressionTrackedRef = React.useRef(false);
 
   const experiment = useMemo(
     () => getExperiment(experimentId),
     [experimentId]
   );
 
-  // 변형 로드
+  // showLoading일 때만 비동기로 변형 로드
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (!showLoading || typeof window === 'undefined') return;
+
+    // 이미 로드된 경우 스킵
+    if (variant !== null) {
+      setIsLoading(false);
+      return;
+    }
 
     const loadedVariant = getVariant(experimentId);
-    setVariant(loadedVariant);
-    setIsLoading(false);
-  }, [experimentId]);
+    // 배치 업데이트로 한 번에 처리
+    React.startTransition(() => {
+      setVariant(loadedVariant);
+      setIsLoading(false);
+    });
+  }, [experimentId, showLoading, variant]);
 
-  // 노출 이벤트 트래킹
+  // 노출 이벤트 트래킹 (ref로 중복 방지)
   useEffect(() => {
     if (
       trackImpression &&
       variant !== null &&
-      !impressionTracked &&
+      !impressionTrackedRef.current &&
       typeof window !== 'undefined'
     ) {
       trackEvent(experimentId, 'impression').catch(() => {});
-      setImpressionTracked(true);
+      impressionTrackedRef.current = true;
     }
-  }, [experimentId, variant, trackImpression, impressionTracked]);
+  }, [experimentId, variant, trackImpression]);
 
   // 이벤트 트래킹
   const track = useCallback(
@@ -173,20 +189,42 @@ export function useABTest(
  * ```
  */
 export function useABTests(experimentIds: string[]): UseABTestsReturn {
-  const [variants, setVariants] = useState<Record<string, Variant | null>>({});
-  const [isLoading, setIsLoading] = useState(true);
+  // experimentIds를 안정적인 키로 변환
+  const experimentIdsKey = experimentIds.join(',');
 
-  // 모든 실험의 변형 로드
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
+  // 초기 변형 로드 (lazy initialization)
+  const [variants, setVariants] = useState<Record<string, Variant | null>>(() => {
+    if (typeof window === 'undefined') return {};
 
     const loadedVariants: Record<string, Variant | null> = {};
     for (const id of experimentIds) {
       loadedVariants[id] = getVariant(id);
     }
-    setVariants(loadedVariants);
-    setIsLoading(false);
-  }, [experimentIds.join(',')]);
+    return loadedVariants;
+  });
+
+  const [isLoading, setIsLoading] = useState(() => {
+    // 초기화 시 이미 로드됨
+    return typeof window === 'undefined';
+  });
+
+  // experimentIds가 변경될 때만 재로드
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // 이미 로드된 경우 (lazy init에서 처리됨) 스킵
+    if (Object.keys(variants).length > 0 && !isLoading) return;
+
+    const loadedVariants: Record<string, Variant | null> = {};
+    for (const id of experimentIds) {
+      loadedVariants[id] = getVariant(id);
+    }
+    React.startTransition(() => {
+      setVariants(loadedVariants);
+      setIsLoading(false);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [experimentIdsKey]);
 
   // 변형 가져오기
   const getVariantFn = useCallback(
