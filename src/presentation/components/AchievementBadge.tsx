@@ -51,40 +51,85 @@ export interface AchievementListProps {
   showLocked?: boolean;
 }
 
+// 카테고리별 정보
+const CATEGORY_INFO: Record<string, { name: string; emoji: string }> = {
+  milestone: { name: '마일스톤', emoji: '🎮' },
+  return: { name: '수익률', emoji: '💰' },
+  streak: { name: '연속기록', emoji: '🔥' },
+  strategy: { name: '전략', emoji: '🧠' },
+  luck: { name: '운', emoji: '🍀' },
+  special: { name: '특별', emoji: '⭐' },
+};
+
+// 티어별 뱃지 이모지
+const TIER_BADGES: Record<string, string> = {
+  bronze: '🥉',
+  silver: '🥈',
+  gold: '🏅',
+  diamond: '💎',
+  legendary: '👑',
+};
+
 export function AchievementList({
   achievements,
-  showLocked = true,
 }: AchievementListProps) {
-  const unlockedAchievements = achievements.filter((a) => a.isUnlocked);
-  const lockedAchievements = achievements.filter((a) => !a.isUnlocked);
+  // 카테고리별로 그룹화
+  const groupedByCategory = achievements.reduce((acc, achievement) => {
+    const category = achievement.category || 'special';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(achievement);
+    return acc;
+  }, {} as Record<string, typeof achievements>);
+
+  // 카테고리 순서 정의
+  const categoryOrder = ['milestone', 'return', 'streak', 'strategy', 'luck', 'special'];
 
   return (
-    <div className="achievement-list">
-      <div className="achievements-unlocked">
-        {unlockedAchievements.map((achievement) => (
-          <div key={achievement.id} className="achievement-item unlocked">
-            <span className="achievement-emoji">{achievement.emoji}</span>
-            <div className="achievement-info">
-              <span className="achievement-name">{achievement.name}</span>
-              <span className="achievement-desc">{achievement.description}</span>
+    <div className="achievement-list compact">
+      {categoryOrder.map((category) => {
+        const categoryAchievements = groupedByCategory[category];
+        if (!categoryAchievements || categoryAchievements.length === 0) return null;
+
+        const info = CATEGORY_INFO[category] || { name: category, emoji: '📌' };
+        const unlocked = categoryAchievements.filter((a) => a.isUnlocked);
+        const total = categoryAchievements.length;
+
+        // 티어별 달성 현황
+        const tierProgress = categoryAchievements
+          .sort((a, b) => {
+            const tierOrder = ['bronze', 'silver', 'gold', 'diamond', 'legendary'];
+            return tierOrder.indexOf(a.tier || 'bronze') - tierOrder.indexOf(b.tier || 'bronze');
+          })
+          .map((a) => ({
+            tier: a.tier || 'bronze',
+            unlocked: a.isUnlocked,
+            name: a.name,
+            emoji: a.emoji,
+          }));
+
+        return (
+          <div key={category} className="achievement-category">
+            <div className="category-header">
+              <span className="category-icon">{info.emoji}</span>
+              <span className="category-name">{info.name}</span>
+              <span className="category-progress">{unlocked.length}/{total}</span>
+            </div>
+            <div className="tier-badges">
+              {tierProgress.map((item, idx) => (
+                <div
+                  key={idx}
+                  className={`tier-badge ${item.unlocked ? 'unlocked' : 'locked'}`}
+                  title={item.unlocked ? item.name : '???'}
+                >
+                  {item.unlocked ? item.emoji : TIER_BADGES[item.tier]}
+                </div>
+              ))}
             </div>
           </div>
-        ))}
-      </div>
-
-      {showLocked && lockedAchievements.length > 0 && (
-        <div className="achievements-locked">
-          {lockedAchievements.map((achievement) => (
-            <div key={achievement.id} className="achievement-item locked">
-              <span className="achievement-emoji locked">🔒</span>
-              <div className="achievement-info">
-                <span className="achievement-name">???</span>
-                <span className="achievement-desc">{achievement.description}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+        );
+      })}
     </div>
   );
 }

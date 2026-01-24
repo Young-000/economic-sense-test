@@ -52,9 +52,10 @@ export function AssetProgressChart({
     return data;
   }, [results, INITIAL_BALANCE]);
 
-  // 차트 범위 계산
+  // 차트 범위 계산 - INITIAL_BALANCE를 항상 포함하여 기준선 비교 가능
   const { minBalance, maxBalance } = useMemo(() => {
     const allBalances = [
+      INITIAL_BALANCE, // 항상 시작 잔액을 포함하여 기준선 표시
       ...currentData.map((d) => d.balance),
       ...(bestPerformance?.map((d) => d.balance) || []),
     ];
@@ -62,8 +63,14 @@ export function AssetProgressChart({
     const min = Math.min(...allBalances);
     const max = Math.max(...allBalances);
 
-    // 패딩 추가
-    const padding = (max - min) * 0.1 || INITIAL_BALANCE * 0.1;
+    // 최소 범위 설정: 시작 잔액의 20%는 항상 보이도록
+    const dataRange = max - min;
+    const minRange = INITIAL_BALANCE * 0.2;
+    const effectiveRange = Math.max(dataRange, minRange);
+
+    // 패딩 추가 (범위의 15%)
+    const padding = effectiveRange * 0.15;
+
     return {
       minBalance: min - padding,
       maxBalance: max + padding,

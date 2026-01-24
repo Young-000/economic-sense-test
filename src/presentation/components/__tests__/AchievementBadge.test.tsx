@@ -127,49 +127,54 @@ describe('AchievementList', () => {
     },
   ];
 
-  it('should render unlocked achievements', () => {
-    render(<AchievementList achievements={mockAchievements} />);
-
-    expect(screen.getByText('첫 걸음')).toBeInTheDocument();
-    expect(screen.getByText('백만장자')).toBeInTheDocument();
-  });
-
-  it('should render locked achievements by default', () => {
-    render(<AchievementList achievements={mockAchievements} />);
-
-    // 잠긴 업적은 '???' 으로 표시
-    expect(screen.getByText('???')).toBeInTheDocument();
-    expect(screen.getByText('🔒')).toBeInTheDocument();
-  });
-
-  it('should hide locked achievements when showLocked is false', () => {
-    render(<AchievementList achievements={mockAchievements} showLocked={false} />);
-
-    expect(screen.queryByText('???')).not.toBeInTheDocument();
-    expect(screen.queryByText('🔒')).not.toBeInTheDocument();
-  });
-
-  it('should show description for locked achievements', () => {
-    render(<AchievementList achievements={mockAchievements} />);
-
-    expect(screen.getByText('위험한 선택 5회')).toBeInTheDocument();
-  });
-
-  it('should have correct classes for unlocked/locked items', () => {
+  it('should render categories with achievements', () => {
     const { container } = render(<AchievementList achievements={mockAchievements} />);
 
-    const unlockedItems = container.querySelectorAll('.achievement-item.unlocked');
-    const lockedItems = container.querySelectorAll('.achievement-item.locked');
+    // 카테고리가 렌더링되어야 함
+    const categories = container.querySelectorAll('.achievement-category');
+    expect(categories.length).toBeGreaterThan(0);
+  });
 
-    expect(unlockedItems).toHaveLength(2);
-    expect(lockedItems).toHaveLength(1);
+  it('should show category names', () => {
+    render(<AchievementList achievements={mockAchievements} />);
+
+    // 카테고리 이름 확인 (마일스톤, 수익률, 전략)
+    expect(screen.getByText('마일스톤')).toBeInTheDocument();
+    expect(screen.getByText('수익률')).toBeInTheDocument();
+    expect(screen.getByText('전략')).toBeInTheDocument();
+  });
+
+  it('should show category progress', () => {
+    const { container } = render(<AchievementList achievements={mockAchievements} />);
+
+    // 각 카테고리의 진행률이 표시되어야 함 (예: "1/1")
+    const progressElements = container.querySelectorAll('.category-progress');
+    expect(progressElements.length).toBeGreaterThan(0);
+  });
+
+  it('should render tier badges', () => {
+    const { container } = render(<AchievementList achievements={mockAchievements} />);
+
+    // 티어 뱃지가 렌더링되어야 함
+    const tierBadges = container.querySelectorAll('.tier-badge');
+    expect(tierBadges).toHaveLength(3); // 3개 업적
+  });
+
+  it('should have correct classes for unlocked/locked badges', () => {
+    const { container } = render(<AchievementList achievements={mockAchievements} />);
+
+    const unlockedBadges = container.querySelectorAll('.tier-badge.unlocked');
+    const lockedBadges = container.querySelectorAll('.tier-badge.locked');
+
+    expect(unlockedBadges).toHaveLength(2);
+    expect(lockedBadges).toHaveLength(1);
   });
 
   it('should render empty list when no achievements', () => {
     const { container } = render(<AchievementList achievements={[]} />);
 
-    const items = container.querySelectorAll('.achievement-item');
-    expect(items).toHaveLength(0);
+    const categories = container.querySelectorAll('.achievement-category');
+    expect(categories).toHaveLength(0);
   });
 });
 
