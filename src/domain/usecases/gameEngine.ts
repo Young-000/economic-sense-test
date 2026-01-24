@@ -200,14 +200,18 @@ export function determineInvestorType(
 
 /**
  * 최종 결과 계산
+ * @param results - 라운드 결과 배열
+ * @param questions - 질문 배열
+ * @param initialBalance - 시작 잔액 (게임 모드별로 다름)
  */
 export function calculateFinalResult(
   results: RoundResult[],
-  questions: { optionA: Option; optionB: Option }[]
+  questions: { optionA: Option; optionB: Option }[],
+  initialBalance: number = GAME_CONFIG.INITIAL_BALANCE
 ): FinalResult {
   const totalGain = results.reduce((sum, r) => sum + r.actualOutcome, 0);
-  const finalBalance = GAME_CONFIG.INITIAL_BALANCE + totalGain;
-  const totalReturn = (totalGain / GAME_CONFIG.INITIAL_BALANCE) * 100;
+  const finalBalance = initialBalance + totalGain;
+  const totalReturn = (totalGain / initialBalance) * 100;
 
   const riskScore = calculateRiskScore(results, questions);
   const rationalityScore = calculateRationalityScore(results, questions);

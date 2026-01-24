@@ -62,16 +62,21 @@ export function GamePage() {
     return gameState.results.map((r) => r.actualOutcome >= 0);
   }, [gameState.results]);
 
-  // 연속 수익/손실 스트릭 계산
+  // 연속 수익/손실 스트릭 계산 (결과 대기 중일 때 현재 결과도 포함)
   const currentStreak = useMemo(() => {
-    if (gameState.results.length === 0) return { count: 0, type: null };
+    // 결과 대기 중이면 lastResult를 포함해서 계산
+    const allResults = isWaitingResult && lastResult
+      ? [...gameState.results, lastResult]
+      : gameState.results;
 
-    const lastResult = gameState.results[gameState.results.length - 1];
-    const isPositive = lastResult.actualOutcome >= 0;
+    if (allResults.length === 0) return { count: 0, type: null };
+
+    const latestResult = allResults[allResults.length - 1];
+    const isPositive = latestResult.actualOutcome >= 0;
     let count = 1;
 
-    for (let i = gameState.results.length - 2; i >= 0; i--) {
-      const prevIsPositive = gameState.results[i].actualOutcome >= 0;
+    for (let i = allResults.length - 2; i >= 0; i--) {
+      const prevIsPositive = allResults[i].actualOutcome >= 0;
       if (prevIsPositive === isPositive) {
         count++;
       } else {
@@ -80,7 +85,7 @@ export function GamePage() {
     }
 
     return { count, type: isPositive ? 'win' : 'lose' };
-  }, [gameState.results]);
+  }, [gameState.results, isWaitingResult, lastResult]);
 
   // 선택 시 햅틱 피드백 + 애널리틱스
   const handleChoice = useCallback((choice: 'A' | 'B') => {

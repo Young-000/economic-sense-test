@@ -73,6 +73,8 @@ const TIER_BADGES: Record<string, string> = {
 export function AchievementList({
   achievements,
 }: AchievementListProps) {
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+
   // 카테고리별로 그룹화
   const groupedByCategory = achievements.reduce((acc, achievement) => {
     const category = achievement.category || 'special';
@@ -86,6 +88,21 @@ export function AchievementList({
   // 카테고리 순서 정의
   const categoryOrder = ['milestone', 'return', 'streak', 'strategy', 'luck', 'special'];
 
+  // 툴팁 토글 (모바일 클릭 지원)
+  const handleBadgeClick = (id: string, isUnlocked: boolean) => {
+    if (!isUnlocked) return;
+    setActiveTooltip(activeTooltip === id ? null : id);
+  };
+
+  // 외부 클릭 시 툴팁 닫기
+  useEffect(() => {
+    const handleClickOutside = () => setActiveTooltip(null);
+    if (activeTooltip) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [activeTooltip]);
+
   return (
     <div className="achievement-list compact">
       {categoryOrder.map((category) => {
@@ -96,17 +113,19 @@ export function AchievementList({
         const unlocked = categoryAchievements.filter((a) => a.isUnlocked);
         const total = categoryAchievements.length;
 
-        // 티어별 달성 현황
+        // 티어별 달성 현황 (description 포함)
         const tierProgress = categoryAchievements
           .sort((a, b) => {
             const tierOrder = ['bronze', 'silver', 'gold', 'diamond', 'legendary'];
             return tierOrder.indexOf(a.tier || 'bronze') - tierOrder.indexOf(b.tier || 'bronze');
           })
           .map((a) => ({
+            id: a.id,
             tier: a.tier || 'bronze',
             unlocked: a.isUnlocked,
             name: a.name,
             emoji: a.emoji,
+            description: a.description,
           }));
 
         return (
@@ -117,13 +136,28 @@ export function AchievementList({
               <span className="category-progress">{unlocked.length}/{total}</span>
             </div>
             <div className="tier-badges">
-              {tierProgress.map((item, idx) => (
+              {tierProgress.map((item) => (
                 <div
-                  key={idx}
-                  className={`tier-badge ${item.unlocked ? 'unlocked' : 'locked'}`}
-                  title={item.unlocked ? item.name : '???'}
+                  key={item.id}
+                  className={`tier-badge ${item.unlocked ? 'unlocked' : 'locked'} ${activeTooltip === item.id ? 'active' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleBadgeClick(item.id, item.unlocked);
+                  }}
+                  onMouseEnter={() => item.unlocked && setActiveTooltip(item.id)}
+                  onMouseLeave={() => setActiveTooltip(null)}
+                  role="button"
+                  tabIndex={item.unlocked ? 0 : -1}
+                  aria-label={item.unlocked ? `${item.name}: ${item.description}` : '미달성 업적'}
                 >
                   {item.unlocked ? item.emoji : TIER_BADGES[item.tier]}
+                  {/* 커스텀 툴팁 */}
+                  {item.unlocked && activeTooltip === item.id && (
+                    <div className="achievement-tooltip">
+                      <span className="tooltip-name">{item.name}</span>
+                      <span className="tooltip-desc">{item.description}</span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

@@ -133,7 +133,7 @@ export function ResultPage() {
       }
 
       return {
-        finalResult: calculateFinalResult(results, questions),
+        finalResult: calculateFinalResult(results, questions, config.INITIAL_BALANCE),
         gameResults: results,
         assetHistory: createAssetHistory(results),
         bestPerformance: getBestPerformance(),
