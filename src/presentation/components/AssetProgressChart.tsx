@@ -26,6 +26,8 @@ export interface AssetProgressChartProps {
   animate?: boolean;
   /** 컴팩트 모드 (GamePage용) */
   compact?: boolean;
+  /** 시작 잔액 (게임 모드에 따라 다름) */
+  initialBalance?: number;
 }
 
 export function AssetProgressChart({
@@ -35,8 +37,10 @@ export function AssetProgressChart({
   height = 160,
   animate = true,
   compact = false,
+  initialBalance,
 }: AssetProgressChartProps) {
-  const INITIAL_BALANCE = GAME_CONFIG.INITIAL_BALANCE;
+  // 시작 잔액: prop으로 전달받거나 기본값 사용
+  const INITIAL_BALANCE = initialBalance ?? GAME_CONFIG.INITIAL_BALANCE;
   const TOTAL_ROUNDS = GAME_CONFIG.TOTAL_ROUNDS;
 
   // 현재 플레이어의 라운드별 자산 계산

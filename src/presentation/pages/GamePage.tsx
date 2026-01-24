@@ -166,6 +166,7 @@ export function GamePage() {
             height={100}
             animate={false}
             compact={true}
+            initialBalance={gameConfig.INITIAL_BALANCE}
           />
         </div>
       </div>

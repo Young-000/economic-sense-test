@@ -589,6 +589,7 @@ export function ResultPage() {
           bestPerformance={bestPerformance?.history}
           height={180}
           animate={true}
+          initialBalance={initialBalance}
         />
 
         {/* 설명 */}
