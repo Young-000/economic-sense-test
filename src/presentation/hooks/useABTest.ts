@@ -84,42 +84,44 @@ export function useABTest(
   const { showLoading = false, trackImpression = true } = options;
 
   // 초기 변형 로드 (lazy initialization)
+  // showLoading이 false면 즉시 로드, true면 effect에서 로드
   const [variant, setVariant] = useState<Variant | null>(() => {
     if (typeof window === 'undefined') return null;
     return showLoading ? null : getVariant(experimentId);
   });
 
-  // showLoading이 true면 초기 로딩 상태, 아니면 이미 로드됨
+  // isLoading 상태: showLoading=true이고 variant가 아직 null일 때만 true
   const [isLoading, setIsLoading] = useState(() => {
     if (typeof window === 'undefined') return showLoading;
+    // showLoading=false면 이미 variant가 로드됨, showLoading=true면 로딩 중
     return showLoading;
   });
 
   // 노출 추적 여부
   const impressionTrackedRef = React.useRef(false);
+  // effect 실행 여부 추적 (strict mode 대응)
+  const effectRanRef = React.useRef(false);
 
   const experiment = useMemo(
     () => getExperiment(experimentId),
     [experimentId]
   );
 
-  // showLoading일 때만 비동기로 변형 로드
+  // showLoading일 때 마운트 후 변형 로드
   useEffect(() => {
+    // SSR이거나 showLoading이 아니면 스킵
     if (!showLoading || typeof window === 'undefined') return;
+    // 이미 실행됨
+    if (effectRanRef.current) return;
+    effectRanRef.current = true;
 
-    // 이미 로드된 경우 스킵
-    if (variant !== null) {
-      setIsLoading(false);
-      return;
-    }
-
+    // 다음 틱에 실행하여 cascading render 방지
     const loadedVariant = getVariant(experimentId);
-    // 배치 업데이트로 한 번에 처리
     React.startTransition(() => {
       setVariant(loadedVariant);
       setIsLoading(false);
     });
-  }, [experimentId, showLoading, variant]);
+  }, [experimentId, showLoading]);
 
   // 노출 이벤트 트래킹 (ref로 중복 방지)
   useEffect(() => {
