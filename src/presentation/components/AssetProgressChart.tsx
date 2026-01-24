@@ -78,10 +78,10 @@ export function AssetProgressChart({
   }, [currentData, bestPerformance, INITIAL_BALANCE]);
 
   // SVG 좌표 계산
-  const chartWidth = compact ? 200 : 320;
+  const chartWidth = compact ? 240 : 320;
   const chartHeight = height;
-  const paddingLeft = compact ? 10 : 50;
-  const paddingRight = compact ? 10 : 20;
+  const paddingLeft = compact ? 35 : 50;
+  const paddingRight = compact ? 40 : 20;
   const paddingTop = 20;
   const paddingBottom = compact ? 10 : 30;
 
@@ -229,17 +229,29 @@ export function AssetProgressChart({
               opacity={compact ? 0.9 : 0.7}
               className={animate ? 'chart-line-animate' : ''}
             />
-            {/* 1등 최종 포인트 마커 (compact 모드) */}
+            {/* 1등 최종 포인트 마커 + 금액 라벨 (compact 모드) */}
             {compact && bestPerformance.length > 0 && (
-              <circle
-                cx={scaleX(bestPerformance[bestPerformance.length - 1].round)}
-                cy={scaleY(bestPerformance[bestPerformance.length - 1].balance)}
-                r={4}
-                fill="#FBBF24"
-                stroke="white"
-                strokeWidth="1.5"
-                opacity={0.9}
-              />
+              <>
+                <circle
+                  cx={scaleX(bestPerformance[bestPerformance.length - 1].round)}
+                  cy={scaleY(bestPerformance[bestPerformance.length - 1].balance)}
+                  r={4}
+                  fill="#FBBF24"
+                  stroke="white"
+                  strokeWidth="1.5"
+                  opacity={0.9}
+                />
+                {/* 1등 최종 금액 라벨 */}
+                <text
+                  x={scaleX(bestPerformance[bestPerformance.length - 1].round) + 6}
+                  y={scaleY(bestPerformance[bestPerformance.length - 1].balance) - 8}
+                  fontSize="10"
+                  fill="#FBBF24"
+                  fontWeight="600"
+                >
+                  {formatBalance(bestPerformance[bestPerformance.length - 1].balance)}
+                </text>
+              </>
             )}
           </>
         )}
@@ -276,6 +288,34 @@ export function AssetProgressChart({
             style={{ animationDelay: `${i * 0.1}s` }}
           />
         ))}
+
+        {/* compact 모드: 시작점 + 현재 금액 라벨 */}
+        {compact && currentData.length > 0 && (
+          <>
+            {/* 시작점 금액 */}
+            <text
+              x={scaleX(0) - 4}
+              y={scaleY(INITIAL_BALANCE) + 4}
+              fontSize="9"
+              fill="#9CA3AF"
+              textAnchor="end"
+            >
+              {formatBalance(INITIAL_BALANCE)}
+            </text>
+            {/* 현재 금액 (마지막 포인트) */}
+            {currentData.length > 1 && (
+              <text
+                x={scaleX(currentData[currentData.length - 1].round) + 6}
+                y={scaleY(currentData[currentData.length - 1].balance) + 4}
+                fontSize="10"
+                fill={isPositive ? '#10B981' : '#EF4444'}
+                fontWeight="600"
+              >
+                {formatBalance(currentData[currentData.length - 1].balance)}
+              </text>
+            )}
+          </>
+        )}
 
         {/* X축 라운드 라벨 */}
         {!compact &&
