@@ -40,6 +40,20 @@ describe('formatUtils', () => {
       expect(formatMoney(-20_000_000)).toBe('-2천만');
     });
 
+    it('should format decimal 천만 values correctly (갭투자 EV 검증)', () => {
+      // 갭투자 시나리오: EV = 0.2 * 50,000,000 + 0.8 * (-30,000,000) = -14,000,000원
+      expect(formatMoney(-14_000_000)).toBe('-1.4천만');
+      expect(formatMoney(15_000_000)).toBe('+1.5천만');
+      expect(formatMoney(-18_000_000)).toBe('-1.8천만');
+      expect(formatMoney(25_000_000)).toBe('+2.5천만');
+    });
+
+    it('should format 억 values correctly', () => {
+      expect(formatMoney(100_000_000)).toBe('+1억');
+      expect(formatMoney(-150_000_000)).toBe('-1.5억');
+      expect(formatMoney(200_000_000)).toBe('+2억');
+    });
+
     it('should handle small values in 천', () => {
       expect(formatMoney(1_000)).toBe('+1천');
       expect(formatMoney(9_000)).toBe('+9천');

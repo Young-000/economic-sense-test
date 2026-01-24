@@ -300,6 +300,36 @@ describe('50개 문제 분포 검증', () => {
   });
 });
 
+describe('특정 시나리오 EV 검증', () => {
+  it('갭투자 시나리오의 EV가 -1.4천만원(=-14,000,000원)이어야 함', () => {
+    // 갭투자: 20% 확률로 +5천만, 80% 확률로 -3천만
+    // EV = 0.2 * 50,000,000 + 0.8 * (-30,000,000) = 10,000,000 - 24,000,000 = -14,000,000원
+    const gapInvestmentOutcomes = [
+      { probability: 0.2, value: 50_000_000 }, // +5천만 (스케일 적용 후)
+      { probability: 0.8, value: -30_000_000 }, // -3천만 (스케일 적용 후)
+    ];
+
+    const ev = calculateEV({ outcomes: gapInvestmentOutcomes });
+    expect(ev).toBe(-14_000_000);
+
+    // -14,000,000원 = -1.4천만
+    // 이 값이 "-1천만"이 아닌 "-1.4천만"으로 표시되어야 함
+    expect(ev / 10_000_000).toBe(-1.4);
+  });
+
+  it('800만원 투자 시나리오의 EV가 +5만원이어야 함', () => {
+    // 35% 확률로 +1.5천만, 65% 확률로 -800만
+    // EV = 0.35 * 15,000,000 + 0.65 * (-8,000,000) = 5,250,000 - 5,200,000 = 50,000원
+    const investmentOutcomes = [
+      { probability: 0.35, value: 15_000_000 },
+      { probability: 0.65, value: -8_000_000 },
+    ];
+
+    const ev = calculateEV({ outcomes: investmentOutcomes });
+    expect(ev).toBe(50_000);
+  });
+});
+
 describe('generateQuestionsAsync', () => {
   beforeEach(() => {
     vi.clearAllMocks();
