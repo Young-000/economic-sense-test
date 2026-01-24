@@ -169,8 +169,8 @@ export function useGame(options: UseGameOptions = {}): UseGameReturn {
 
   const finalResult = useMemo(() => {
     if (!gameState.isComplete) return null;
-    return calculateFinalResult(gameState.results, questions);
-  }, [gameState.isComplete, gameState.results, questions]);
+    return calculateFinalResult(gameState.results, questions, config.INITIAL_BALANCE);
+  }, [gameState.isComplete, gameState.results, questions, config.INITIAL_BALANCE]);
 
   const reset = useCallback(async () => {
     setGameState(createInitialState(mode));
