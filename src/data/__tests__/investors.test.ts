@@ -56,18 +56,18 @@ describe('investorProfiles', () => {
   });
 
   describe('specific profile values', () => {
-    it('lucky_gambler should have 운빨 부자 name', () => {
-      expect(investorProfiles.lucky_gambler.name).toBe('운빨 부자');
+    it('lucky_gambler should have 운빨 도전가 name', () => {
+      expect(investorProfiles.lucky_gambler.name).toBe('운빨 도전가');
       expect(investorProfiles.lucky_gambler.emoji).toBe('🍀');
     });
 
-    it('smart_winner should have 금손 투자자 name', () => {
-      expect(investorProfiles.smart_winner.name).toBe('금손 투자자');
+    it('smart_winner should have 금손 전략가 name', () => {
+      expect(investorProfiles.smart_winner.name).toBe('금손 전략가');
       expect(investorProfiles.smart_winner.emoji).toBe('👑');
     });
 
-    it('steady_grower should have 적금의 신 name', () => {
-      expect(investorProfiles.steady_grower.name).toBe('적금의 신');
+    it('steady_grower should have 안정 추구형 name', () => {
+      expect(investorProfiles.steady_grower.name).toBe('안정 추구형');
       expect(investorProfiles.steady_grower.emoji).toBe('🏦');
     });
 

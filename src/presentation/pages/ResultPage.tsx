@@ -125,7 +125,7 @@ export function ResultPage() {
         return {
           finalResult: null,
           gameResults: results,
-          assetHistory: createAssetHistory(results),
+          assetHistory: createAssetHistory(results, config.INITIAL_BALANCE),
           bestPerformance: getBestPerformance(),
           gameMode: mode,
           initialBalance: config.INITIAL_BALANCE,
@@ -135,7 +135,7 @@ export function ResultPage() {
       return {
         finalResult: calculateFinalResult(results, questions, config.INITIAL_BALANCE),
         gameResults: results,
-        assetHistory: createAssetHistory(results),
+        assetHistory: createAssetHistory(results, config.INITIAL_BALANCE),
         bestPerformance: getBestPerformance(),
         gameMode: mode,
         initialBalance: config.INITIAL_BALANCE,

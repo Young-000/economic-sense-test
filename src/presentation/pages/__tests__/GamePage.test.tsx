@@ -437,7 +437,8 @@ describe('GamePage', () => {
 
   describe('스트릭 표시', () => {
     it('should show win streak badge for 3+ consecutive wins', () => {
-      const mockResults = Array(3).fill(null).map((_, i) => ({
+      // 이전 라운드 결과 (rounds 0, 1) - 2개의 연속 수익
+      const previousResults = Array(2).fill(null).map((_, i) => ({
         questionId: i + 1,
         choice: 'A' as const,
         chosenOption: mockQuestion.optionA,
@@ -445,15 +446,24 @@ describe('GamePage', () => {
         expectedValue: 100_000,
       }));
 
+      // 현재 라운드 결과 (round 2) - 3번째 연속 수익 (아직 results에 추가 안됨)
+      const currentResult = {
+        questionId: 3,
+        choice: 'A' as const,
+        chosenOption: mockQuestion.optionA,
+        actualOutcome: 100_000,
+        expectedValue: 100_000,
+      };
+
       (useGame as ReturnType<typeof vi.fn>).mockReturnValue({
         gameState: {
           ...defaultGameState,
           currentRound: 2,
           balance: normalConfig.initialBalance + 300_000,
-          results: mockResults,
+          results: previousResults, // 이전 2개 결과만
         },
         currentQuestion: mockQuestion,
-        lastResult: mockResults[2],
+        lastResult: currentResult, // 현재 라운드 결과 (아직 results에 없음)
         makeChoice: mockMakeChoice,
         nextRound: mockNextRound,
         isWaitingResult: true,

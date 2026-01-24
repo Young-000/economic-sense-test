@@ -100,14 +100,19 @@ export function useGame(options: UseGameOptions = {}): UseGameReturn {
       try {
         const roundResults = await getTopPlayerRoundResults();
         if (mounted && roundResults && roundResults.length > 0) {
-          // RoundResultData를 AssetDataPoint로 변환
+          // outcome을 사용해 현재 모드의 시작 잔액 기준으로 재계산
+          // (다른 모드에서 플레이한 1등 기록도 올바르게 표시하기 위함)
           const assetData: AssetDataPoint[] = [
             { round: 0, balance: config.INITIAL_BALANCE },
-            ...roundResults.map((r) => ({
-              round: r.round,
-              balance: r.balance,
-            })),
           ];
+          let runningBalance = config.INITIAL_BALANCE;
+
+          // 라운드별 outcome을 누적하여 balance 재계산
+          for (const r of roundResults) {
+            runningBalance += r.outcome;
+            assetData.push({ round: r.round, balance: runningBalance });
+          }
+
           setTopPlayerData(assetData);
         }
       } catch (error) {

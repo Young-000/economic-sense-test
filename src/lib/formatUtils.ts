@@ -18,14 +18,25 @@ export const formatBalance = (balance: number): string => {
 /**
  * 금액을 간략하게 포맷팅
  * @param v 금액 (원)
- * @returns 포맷팅된 문자열 (예: "+30만", "-5만")
+ * @returns 포맷팅된 문자열 (예: "+30만", "-5만", "+1억")
  */
 export const formatMoney = (v: number): string => {
   const absV = Math.abs(v);
   const sign = v >= 0 ? '+' : '-';
 
-  // 천만원 이상
-  if (absV >= 10_000_000) return `${sign}${Math.round(absV / 10_000_000)}천만`;
+  // 1억원 이상 (100,000,000원)
+  if (absV >= 100_000_000) {
+    const billions = absV / 100_000_000;
+    // 정수면 그대로, 아니면 소수점 1자리
+    return `${sign}${billions % 1 === 0 ? billions : billions.toFixed(1)}억`;
+  }
+
+  // 천만원 이상 (10,000,000원)
+  if (absV >= 10_000_000) {
+    const tenMillions = absV / 10_000_000;
+    // 정수면 그대로, 아니면 소수점 1자리까지 표시
+    return `${sign}${tenMillions % 1 === 0 ? tenMillions : tenMillions.toFixed(1)}천만`;
+  }
 
   // 만원 이상
   if (absV >= 10_000) return `${sign}${Math.round(absV / 10_000)}만`;
