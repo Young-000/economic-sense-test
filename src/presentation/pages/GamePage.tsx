@@ -109,6 +109,12 @@ export function GamePage() {
     nextRound();
   }, [nextRound]);
 
+  // 뒤로가기 핸들러 (1라운드에서만 사용)
+  const handleBack = useCallback(() => {
+    triggerHapticFeedback('light');
+    navigate('/');
+  }, [navigate]);
+
   // 로딩 상태 표시
   if (isLoadingQuestions && !currentQuestion) {
     return (
@@ -122,12 +128,6 @@ export function GamePage() {
   }
 
   if (gameState.isComplete || !currentQuestion) return null;
-
-  // 뒤로가기 핸들러 (1라운드에서만 사용)
-  const handleBack = useCallback(() => {
-    triggerHapticFeedback('light');
-    navigate('/');
-  }, [navigate]);
 
   return (
     <div className="game-page">
