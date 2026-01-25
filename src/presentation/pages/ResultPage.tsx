@@ -88,6 +88,7 @@ export function ResultPage() {
     assetHistory,
     bestPerformance,
     initialBalance,
+    gameMode,
   } = useMemo(() => {
     try {
       const storedResults = sessionStorage.getItem('gameResults');
@@ -100,7 +101,7 @@ export function ResultPage() {
           finalResult: null,
           gameResults: [],
           assetHistory: [],
-          bestPerformance: getBestPerformance(),
+          bestPerformance: getBestPerformance(mode),
           gameMode: mode,
           initialBalance: config.INITIAL_BALANCE,
         };
@@ -115,7 +116,7 @@ export function ResultPage() {
           finalResult: null,
           gameResults: [],
           assetHistory: [],
-          bestPerformance: getBestPerformance(),
+          bestPerformance: getBestPerformance(mode),
           gameMode: mode,
           initialBalance: config.INITIAL_BALANCE,
         };
@@ -126,7 +127,7 @@ export function ResultPage() {
           finalResult: null,
           gameResults: results,
           assetHistory: createAssetHistory(results, config.INITIAL_BALANCE),
-          bestPerformance: getBestPerformance(),
+          bestPerformance: getBestPerformance(mode),
           gameMode: mode,
           initialBalance: config.INITIAL_BALANCE,
         };
@@ -136,7 +137,7 @@ export function ResultPage() {
         finalResult: calculateFinalResult(results, questions, config.INITIAL_BALANCE),
         gameResults: results,
         assetHistory: createAssetHistory(results, config.INITIAL_BALANCE),
-        bestPerformance: getBestPerformance(),
+        bestPerformance: getBestPerformance(mode),
         gameMode: mode,
         initialBalance: config.INITIAL_BALANCE,
       };
@@ -147,7 +148,7 @@ export function ResultPage() {
         finalResult: null,
         gameResults: [],
         assetHistory: [],
-        bestPerformance: getBestPerformance(),
+        bestPerformance: getBestPerformance(mode),
         gameMode: mode,
         initialBalance: config.INITIAL_BALANCE,
       };
@@ -171,7 +172,8 @@ export function ResultPage() {
       const wasNewRecord = updateBestPerformance(
         assetHistory,
         finalResult.totalReturn,
-        finalResult.investorType
+        finalResult.investorType,
+        gameMode
       );
       if (isMounted) setIsNewRecord(wasNewRecord);
 
@@ -215,7 +217,7 @@ export function ResultPage() {
     return () => {
       isMounted = false;
     };
-  }, [finalResult, assetHistory, gameResults, initialBalance]);
+  }, [finalResult, assetHistory, gameResults, initialBalance, gameMode]);
 
   // Apps in Toss 환경 체크 및 광고 초기화
   useEffect(() => {

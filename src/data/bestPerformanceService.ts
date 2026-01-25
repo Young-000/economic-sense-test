@@ -4,10 +4,17 @@
  * - 최고 수익률 기록 추적
  */
 
-import { GAME_CONFIG } from '@domain/entities';
+import { GAME_CONFIG, type GameMode } from '@domain/entities';
 import type { AssetDataPoint } from '@presentation/components/AssetProgressChart';
 
-const STORAGE_KEY = 'economic_best_performance';
+const STORAGE_KEY_PREFIX = 'economic_best_performance';
+
+/**
+ * 모드별 스토리지 키 생성
+ */
+function getStorageKey(mode: GameMode = 'normal'): string {
+  return `${STORAGE_KEY_PREFIX}_${mode}`;
+}
 
 export interface BestPerformanceData {
   /** 라운드별 잔액 */
@@ -22,10 +29,11 @@ export interface BestPerformanceData {
 
 /**
  * 최고 성적 데이터 가져오기
+ * @param mode 게임 모드 (기본값: 'normal')
  */
-export function getBestPerformance(): BestPerformanceData | null {
+export function getBestPerformance(mode: GameMode = 'normal'): BestPerformanceData | null {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(getStorageKey(mode));
     if (!stored) return null;
     return JSON.parse(stored);
   } catch {
@@ -38,14 +46,16 @@ export function getBestPerformance(): BestPerformanceData | null {
  * @param history 라운드별 잔액 데이터
  * @param totalReturn 최종 수익률
  * @param investorType 투자자 유형
+ * @param mode 게임 모드 (기본값: 'normal')
  * @returns 새 기록 여부
  */
 export function updateBestPerformance(
   history: AssetDataPoint[],
   totalReturn: number,
-  investorType?: string
+  investorType?: string,
+  mode: GameMode = 'normal'
 ): boolean {
-  const current = getBestPerformance();
+  const current = getBestPerformance(mode);
 
   // 기존 기록이 없거나 새 기록이 더 높으면 업데이트
   if (!current || totalReturn > current.totalReturn) {
@@ -57,7 +67,7 @@ export function updateBestPerformance(
     };
 
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(getStorageKey(mode), JSON.stringify(newData));
       return true;
     } catch {
       return false;
@@ -87,10 +97,11 @@ export function createAssetHistory(
 
 /**
  * 최고 성적 기록 삭제 (테스트용)
+ * @param mode 게임 모드 (기본값: 'normal')
  */
-export function clearBestPerformance(): void {
+export function clearBestPerformance(mode: GameMode = 'normal'): void {
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(getStorageKey(mode));
   } catch {
     // 무시
   }
