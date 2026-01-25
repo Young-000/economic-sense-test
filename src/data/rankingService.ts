@@ -56,11 +56,11 @@ export async function submitRanking(data: SubmitRankingData): Promise<{ success:
 
     if (error) throw error;
 
-    // 현재 순위 조회
+    // 현재 순위 조회 (최종 자산 기준)
     const { count } = await supabase
       .from('economic_rankings')
       .select('*', { count: 'exact', head: true })
-      .gt('total_return', data.totalReturn);
+      .gt('final_balance', data.finalBalance);
 
     return { success: true, rank: (count ?? 0) + 1 };
   } catch (err) {
@@ -81,7 +81,7 @@ export async function getTopRankings(limit = 10): Promise<RankingEntry[]> {
     const { data, error } = await supabase
       .from('economic_rankings')
       .select('*')
-      .order('total_return', { ascending: false })
+      .order('final_balance', { ascending: false })
       .limit(limit);
 
     if (error) throw error;

@@ -63,6 +63,7 @@ export function GamePage() {
   }, [gameState.results]);
 
   // 연속 수익/손실 스트릭 계산 (결과 대기 중일 때 현재 결과도 포함)
+  // 0원은 수익도 손실도 아니므로 스트릭에서 제외
   const currentStreak = useMemo(() => {
     // 결과 대기 중이면 lastResult를 포함해서 계산
     const allResults = isWaitingResult && lastResult
@@ -72,11 +73,19 @@ export function GamePage() {
     if (allResults.length === 0) return { count: 0, type: null };
 
     const latestResult = allResults[allResults.length - 1];
-    const isPositive = latestResult.actualOutcome >= 0;
+
+    // 0원이면 스트릭 없음
+    if (latestResult.actualOutcome === 0) return { count: 0, type: null };
+
+    const isPositive = latestResult.actualOutcome > 0;
     let count = 1;
 
     for (let i = allResults.length - 2; i >= 0; i--) {
-      const prevIsPositive = allResults[i].actualOutcome >= 0;
+      const outcome = allResults[i].actualOutcome;
+      // 0원은 스트릭 중단
+      if (outcome === 0) break;
+
+      const prevIsPositive = outcome > 0;
       if (prevIsPositive === isPositive) {
         count++;
       } else {
@@ -114,10 +123,24 @@ export function GamePage() {
 
   if (gameState.isComplete || !currentQuestion) return null;
 
+  // 뒤로가기 핸들러 (1라운드에서만 사용)
+  const handleBack = useCallback(() => {
+    triggerHapticFeedback('light');
+    navigate('/');
+  }, [navigate]);
+
   return (
     <div className="game-page">
       {/* 상단 헤더 */}
       <div className="game-header">
+        {/* 1라운드에서만 뒤로가기 버튼 표시 */}
+        {gameState.currentRound === 0 && !isWaitingResult ? (
+          <button className="back-button" onClick={handleBack} aria-label="뒤로가기">
+            ←
+          </button>
+        ) : (
+          <div className="back-button-placeholder" />
+        )}
         <div className="round-badge">
           <span>{gameState.currentRound + 1}/{gameConfig.TOTAL_ROUNDS}</span>
           <div

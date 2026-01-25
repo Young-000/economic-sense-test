@@ -126,16 +126,52 @@ export function AssetProgressChart({
   const currentReturn = ((currentBalance - INITIAL_BALANCE) / INITIAL_BALANCE) * 100;
   const isPositive = currentReturn >= 0;
 
-  // Y축 눈금 계산
+  // Y축 눈금 계산 - 깔끔한 단위로 표시
   const yTicks = useMemo(() => {
     const tickCount = compact ? 3 : 5;
-    const ticks: number[] = [];
-    for (let i = 0; i < tickCount; i++) {
-      const balance = minBalance + ((maxBalance - minBalance) * i) / (tickCount - 1);
-      ticks.push(balance);
+
+    // 데이터 범위에 따른 깔끔한 단위 결정
+    const dataRange = maxBalance - minBalance;
+    let tickUnit: number;
+
+    if (INITIAL_BALANCE >= 50_000_000) {
+      // 극한 모드 (5천만원 이상): 1천만원 또는 5천만원 단위
+      if (dataRange > 100_000_000) {
+        tickUnit = 50_000_000; // 5천만원 단위
+      } else {
+        tickUnit = 10_000_000; // 1천만원 단위
+      }
+    } else {
+      // 일반 모드 (1천만원): 500만원 단위
+      if (dataRange > 10_000_000) {
+        tickUnit = 5_000_000; // 500만원 단위
+      } else {
+        tickUnit = 2_500_000; // 250만원 단위
+      }
     }
+
+    // 최소값을 tickUnit으로 내림, 최대값을 tickUnit으로 올림
+    const tickMin = Math.floor(minBalance / tickUnit) * tickUnit;
+    const tickMax = Math.ceil(maxBalance / tickUnit) * tickUnit;
+
+    const ticks: number[] = [];
+    for (let value = tickMin; value <= tickMax; value += tickUnit) {
+      if (ticks.length < tickCount) {
+        ticks.push(value);
+      }
+    }
+
+    // tickCount보다 적으면 균등 분배
+    if (ticks.length < tickCount) {
+      const step = (tickMax - tickMin) / (tickCount - 1);
+      ticks.length = 0;
+      for (let i = 0; i < tickCount; i++) {
+        ticks.push(tickMin + step * i);
+      }
+    }
+
     return ticks;
-  }, [minBalance, maxBalance, compact]);
+  }, [minBalance, maxBalance, compact, INITIAL_BALANCE]);
 
   const formatBalance = (value: number) => {
     if (value >= 100_000_000) {

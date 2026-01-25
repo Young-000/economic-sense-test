@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GAME_MODE_CONFIG, type GameMode } from '@domain/entities';
 import { trackPageView, trackClick, triggerHapticFeedback } from '@lib/appsInToss';
+import { AdBanner } from '@presentation/components';
 
 export function IntroPage() {
   const navigate = useNavigate();
@@ -101,6 +102,9 @@ export function IntroPage() {
         <p className="intro-disclaimer" role="note">
           * 실제 돈이 아닙니다. 재미로만 즐겨주세요!
         </p>
+
+        {/* Google AdSense 배너 */}
+        <AdBanner className="intro-ad" />
       </div>
     </main>
   );

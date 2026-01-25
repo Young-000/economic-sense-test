@@ -15,7 +15,7 @@ import {
   calculateGameStats,
   type Achievement,
 } from '@data/achievementService';
-import { AssetProgressChart, Confetti, NewAchievementsPopup, AchievementList, ShareImageCard } from '@presentation/components';
+import { AssetProgressChart, Confetti, NewAchievementsPopup, AchievementList, ShareImageCard, AdBanner } from '@presentation/components';
 import {
   isAppsInToss,
   submitToGameLeaderboard,
@@ -575,8 +575,8 @@ export function ResultPage() {
                     {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`}
                   </span>
                   <span className="ranking-nickname">{entry.nickname}</span>
-                  <span className={`ranking-return ${entry.total_return >= 0 ? 'positive' : 'negative'}`}>
-                    {entry.total_return >= 0 ? '+' : ''}{Number(entry.total_return).toFixed(1)}%
+                  <span className={`ranking-balance ${entry.final_balance >= initialBalance ? 'positive' : 'negative'}`}>
+                    {formatBalance(entry.final_balance)}
                   </span>
                 </div>
               ))}
@@ -698,6 +698,11 @@ export function ResultPage() {
         {/* TossAds 배너 광고 (Apps in Toss 환경에서만) */}
         {inTossApp && (
           <div className="toss-ads-container" ref={adContainerRef} />
+        )}
+
+        {/* Google AdSense 배너 (일반 웹 환경에서만) */}
+        {!inTossApp && (
+          <AdBanner className="result-ad" />
         )}
       </div>
 
