@@ -12,4 +12,22 @@ export default defineConfig({
       '@lib': resolve(__dirname, './src/lib'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // React core
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          // Supabase (큰 라이브러리)
+          'vendor-supabase': ['@supabase/supabase-js'],
+          // html2canvas (ResultPage에서만 사용)
+          'vendor-html2canvas': ['html2canvas'],
+          // Toss SDK (tree-shakeable)
+          'vendor-toss': ['@apps-in-toss/web-framework', '@toss/tds-mobile'],
+        },
+      },
+    },
+    // 청크 크기 경고 임계값 (KB)
+    chunkSizeWarningLimit: 300,
+  },
 });
