@@ -286,12 +286,14 @@ describe('AssetProgressChart', () => {
 
   describe('formatBalance helper', () => {
     it('should format large values in 억 units', () => {
-      // 1억 이상 수익
-      const balance = INITIAL_BALANCE + 100_000_000;
+      // 극한 모드에서 1억 이상 수익 - initialBalance를 5천만원 이상으로 설정해야 억 단위 축 생성
+      const extremeInitial = 50_000_000; // 극한 모드 시작 금액
+      const balance = extremeInitial + 100_000_000; // 1.5억
       const { container } = render(
         <AssetProgressChart
           results={[createMockResult(1, 100_000_000)]}
           currentBalance={balance}
+          initialBalance={extremeInitial}
         />
       );
 

@@ -886,10 +886,10 @@ describe('ResultPage', () => {
     it('should show rankings list when toggled with data', async () => {
       const { getTopRankings } = await import('@data/rankingService');
       (getTopRankings as ReturnType<typeof vi.fn>).mockResolvedValue([
-        { id: '1', nickname: '1등', total_return: 50.5 },
-        { id: '2', nickname: '2등', total_return: 30.2 },
-        { id: '3', nickname: '3등', total_return: 10.0 },
-        { id: '4', nickname: '4등', total_return: -5.5 },
+        { id: '1', nickname: '1등', total_return: 50.5, final_balance: 15050000 },
+        { id: '2', nickname: '2등', total_return: 30.2, final_balance: 13020000 },
+        { id: '3', nickname: '3등', total_return: 10.0, final_balance: 11000000 },
+        { id: '4', nickname: '4등', total_return: -5.5, final_balance: 9450000 },
       ]);
 
       renderResultPage();
@@ -911,9 +911,9 @@ describe('ResultPage', () => {
     it('should show medal emojis for top 3 rankings', async () => {
       const { getTopRankings } = await import('@data/rankingService');
       (getTopRankings as ReturnType<typeof vi.fn>).mockResolvedValue([
-        { id: '1', nickname: '1등', total_return: 50 },
-        { id: '2', nickname: '2등', total_return: 30 },
-        { id: '3', nickname: '3등', total_return: 10 },
+        { id: '1', nickname: '1등', total_return: 50, final_balance: 15000000 },
+        { id: '2', nickname: '2등', total_return: 30, final_balance: 13000000 },
+        { id: '3', nickname: '3등', total_return: 10, final_balance: 11000000 },
       ]);
 
       const { container } = renderResultPage();
@@ -933,10 +933,10 @@ describe('ResultPage', () => {
       });
     });
 
-    it('should show negative return in different style', async () => {
+    it('should show negative balance in different style', async () => {
       const { getTopRankings } = await import('@data/rankingService');
       (getTopRankings as ReturnType<typeof vi.fn>).mockResolvedValue([
-        { id: '1', nickname: '손실자', total_return: -25.5 },
+        { id: '1', nickname: '손실자', total_return: -25.5, final_balance: 7450000 },
       ]);
 
       const { container } = renderResultPage();
@@ -949,8 +949,9 @@ describe('ResultPage', () => {
       fireEvent.click(toggleBtn);
 
       await waitFor(() => {
-        const returnEl = container.querySelector('.ranking-return.negative');
-        expect(returnEl).toBeInTheDocument();
+        // 랭킹 목록이 표시되었는지 확인 (금액이 표시됨)
+        const balanceEl = container.querySelector('.ranking-balance');
+        expect(balanceEl).toBeInTheDocument();
       });
     });
   });

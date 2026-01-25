@@ -43,14 +43,14 @@ describe('Best Performance Service', () => {
         achievedAt: '2024-01-01T00:00:00Z',
         investorType: 'smart_winner',
       };
-      localStorage.setItem('economic_best_performance', JSON.stringify(mockData));
+      localStorage.setItem('economic_best_performance_normal', JSON.stringify(mockData));
 
       const result = getBestPerformance();
       expect(result).toEqual(mockData);
     });
 
     it('should return null for invalid JSON', () => {
-      localStorage.setItem('economic_best_performance', 'invalid json');
+      localStorage.setItem('economic_best_performance_normal', 'invalid json');
 
       const result = getBestPerformance();
       expect(result).toBeNull();
@@ -100,7 +100,7 @@ describe('Best Performance Service', () => {
         totalReturn: 30.0,
         achievedAt: '2024-01-01T00:00:00Z',
       };
-      localStorage.setItem('economic_best_performance', JSON.stringify(oldData));
+      localStorage.setItem('economic_best_performance_normal', JSON.stringify(oldData));
 
       // 더 낮은 기록으로 업데이트 시도
       const newHistory = [{ round: 0, balance: 10_000_000 }];
@@ -117,7 +117,7 @@ describe('Best Performance Service', () => {
         totalReturn: 10.0,
         achievedAt: '2024-01-01T00:00:00Z',
       };
-      localStorage.setItem('economic_best_performance', JSON.stringify(oldData));
+      localStorage.setItem('economic_best_performance_normal', JSON.stringify(oldData));
 
       // 동일한 기록은 업데이트 안됨 (> 조건)
       const result = updateBestPerformance([], 10.0);
