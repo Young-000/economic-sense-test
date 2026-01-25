@@ -11,9 +11,7 @@ interface AdBannerProps {
 }
 
 export function AdBanner({ className = '' }: AdBannerProps) {
-  // HTMLModElement 대신 any 사용 - <ins> 요소에 대한 React 타입 호환성 문제
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const adRef = useRef<any>(null);
+  const adRef = useRef<HTMLModElement>(null);
   const isAdLoaded = useRef(false);
 
   useEffect(() => {

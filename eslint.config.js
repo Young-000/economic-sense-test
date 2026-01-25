@@ -40,6 +40,7 @@ export default [
         HTMLButtonElement: 'readonly',
         HTMLCanvasElement: 'readonly',
         HTMLAnchorElement: 'readonly',
+        HTMLModElement: 'readonly',
         KeyboardEvent: 'readonly',
         global: 'readonly',
         JSX: 'readonly',
