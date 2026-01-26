@@ -57,6 +57,73 @@ body {
   justify-content: center;
 }
 
+/* 소셜 증거 배너 */
+.social-proof-banner {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(251, 191, 36, 0.1));
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.social-proof-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.player-count {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.player-count strong {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.today-top {
+  font-size: 12px;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.social-proof-live {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  animation: live-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.live-message {
+  font-size: 12px;
+  color: var(--text-secondary);
+  animation: fade-in 0.3s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .intro-badge {
   display: inline-block;
   padding: 6px 14px;
@@ -692,6 +759,450 @@ body {
   margin-top: 12px;
 }
 
+/* 바이럴 CTA 섹션 */
+.viral-cta-section {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(251, 191, 36, 0.15));
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.percentile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 16px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.percentile-icon {
+  font-size: 20px;
+}
+
+.percentile-text {
+  font-size: 15px;
+  color: var(--text);
+}
+
+.percentile-text strong {
+  color: var(--gold);
+  font-size: 18px;
+}
+
+.challenge-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.challenge-btn {
+  width: 100%;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, var(--primary), #059669);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.challenge-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+}
+
+.challenge-btn:active {
+  transform: scale(0.98);
+}
+
+.challenge-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.challenge-btn-secondary {
+  width: 100%;
+  padding: 12px 24px;
+  margin-top: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.challenge-btn-secondary:hover {
+  background: var(--card);
+  color: var(--text);
+}
+
+/* 친구 도전 비교 결과 카드 */
+.challenge-result-card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 2px solid var(--border);
+}
+
+.challenge-result-card.me {
+  border-color: var(--positive);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), transparent);
+}
+
+.challenge-result-card.friend {
+  border-color: var(--negative);
+  background: linear-gradient(135deg, rgba(255, 71, 87, 0.1), transparent);
+}
+
+.challenge-result-card.tie {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), transparent);
+}
+
+.challenge-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.versus-icon {
+  font-size: 24px;
+}
+
+.versus-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.challenge-comparison {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.challenge-player {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.challenge-player .player-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.challenge-player .player-emoji {
+  font-size: 32px;
+}
+
+.challenge-player .player-return {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.challenge-player .player-return.positive {
+  color: var(--positive);
+}
+
+.challenge-player .player-return.negative {
+  color: var(--negative);
+}
+
+.challenge-vs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.vs-result {
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.challenge-win-text {
+  text-align: center;
+  font-size: 14px;
+  color: var(--positive);
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+.rematch-btn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 12px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* 인트로 페이지 친구 도전 배너 */
+.challenge-banner {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(251, 191, 36, 0.15));
+  border: 2px solid rgba(239, 68, 68, 0.3);
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 16px;
+  animation: challenge-glow 2s ease-in-out infinite;
+}
+
+@keyframes challenge-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2); }
+  50% { box-shadow: 0 0 20px 4px rgba(239, 68, 68, 0.2); }
+}
+
+.challenge-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.challenge-icon {
+  font-size: 20px;
+}
+
+.challenge-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ef4444;
+}
+
+.challenge-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+}
+
+.challenger-emoji {
+  font-size: 36px;
+}
+
+.challenger-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.challenger-name {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.challenger-type {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.challenger-return {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.challenger-return.positive {
+  color: var(--positive);
+}
+
+.challenger-return.negative {
+  color: var(--negative);
+}
+
+.challenge-prompt {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 12px;
+}
+
+/* 투자자 유형 상세 설명 카드 */
+.investor-detail-card {
+  background: var(--card);
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.detail-header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.detail-emoji {
+  font-size: 48px;
+}
+
+.detail-title-area {
+  flex: 1;
+}
+
+.detail-type-name {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.detail-summary {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.detail-quote {
+  position: relative;
+  background: rgba(99, 102, 241, 0.1);
+  border-left: 3px solid #6366f1;
+  padding: 16px 20px;
+  border-radius: 0 12px 12px 0;
+  margin-bottom: 20px;
+}
+
+.quote-icon {
+  position: absolute;
+  top: -8px;
+  left: 8px;
+  font-size: 32px;
+  color: #6366f1;
+  opacity: 0.5;
+}
+
+.detail-quote p {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--text);
+}
+
+.detail-style {
+  margin-bottom: 20px;
+}
+
+.detail-style h4,
+.detail-section h4,
+.detail-examples h4,
+.detail-investments h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.detail-style p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.detail-section {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.detail-section.strengths {
+  border-left: 3px solid var(--positive);
+}
+
+.detail-section.weaknesses {
+  border-left: 3px solid var(--gold);
+}
+
+.detail-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.detail-section li {
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 4px 0;
+  padding-left: 12px;
+  position: relative;
+}
+
+.detail-section li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--text-secondary);
+}
+
+.detail-examples,
+.detail-investments {
+  margin-bottom: 16px;
+}
+
+.example-tags,
+.investment-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.example-tag {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.investment-tag {
+  background: rgba(16, 185, 129, 0.15);
+  color: #6ee7b7;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+/* 펄스 애니메이션 */
+.pulse-animation {
+  animation: button-pulse 2s ease-in-out infinite;
+}
+
+@keyframes button-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(16, 185, 129, 0);
+  }
+}
+
 .description-card {
   background: var(--card);
   padding: 20px 24px;
@@ -941,6 +1452,47 @@ body {
   flex-direction: column;
   gap: 8px;
   animation: slideUp 0.3s ease-out;
+}
+
+/* 1위 하이라이트 */
+.top-player-highlight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.05));
+  border: 2px solid var(--gold);
+  border-radius: 16px;
+  margin-bottom: 8px;
+}
+
+.crown-icon {
+  font-size: 24px;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.top-player-label {
+  font-size: 12px;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.top-player-name {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.top-player-return {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--gold);
 }
 
 .ranking-item {

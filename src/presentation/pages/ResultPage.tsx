@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import type { RoundResult, Question, GameMode } from '@domain/entities';
-import { getGameConfig } from '@domain/entities';
+import { getGameConfig, investorProfiles } from '@domain/entities';
 import { calculateFinalResult } from '@domain/usecases';
-import { submitRanking, getTopRankings, type RankingEntry } from '@data/rankingService';
+import { submitRanking, getTopRankings, getPlayersAboveReturn, type RankingEntry } from '@data/rankingService';
 import {
   getBestPerformance,
   updateBestPerformance,
@@ -40,6 +40,14 @@ import {
   generateShareText,
   generateClipboardText,
 } from '@data/viralTemplates';
+import {
+  getSavedChallenge,
+  clearSavedChallenge,
+  createChallengeUrl,
+  compareResults,
+  type ChallengeData,
+} from '@lib/challengeUtils';
+import { investorDetails } from '@data/investorDetails';
 
 // 닉네임 유효성 검사 상수 및 함수 (컴포넌트 외부에 정의하여 리렌더링 시 재생성 방지)
 const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9_\s]+$/;
@@ -81,6 +89,8 @@ export function ResultPage() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareImageUrl, setShareImageUrl] = useState<string | null>(null);
   const [shareImageBlob, setShareImageBlob] = useState<Blob | null>(null);
+  const [percentile, setPercentile] = useState<number | null>(null); // 상위 N%
+  const [challenge, setChallenge] = useState<ChallengeData | null>(null); // 친구 도전
   const adContainerRef = useRef<HTMLDivElement>(null);
   const adSlotIdRef = useRef<string | null>(null);
   const shareCardRef = useRef<HTMLDivElement>(null);
@@ -255,6 +265,33 @@ export function ResultPage() {
       }
     };
   }, [inTossApp]);
+
+  // 상위 N% 계산
+  useEffect(() => {
+    if (!finalResult) return;
+
+    const calculatePercentile = async () => {
+      const { above, total } = await getPlayersAboveReturn(finalResult.totalReturn);
+      if (total > 0) {
+        // 상위 퍼센트 계산 (나보다 높은 사람 수 / 전체 * 100)
+        const pct = Math.max(1, Math.round(((above + 1) / (total + 1)) * 100));
+        setPercentile(pct);
+      } else {
+        // 첫 번째 플레이어인 경우
+        setPercentile(1);
+      }
+    };
+
+    calculatePercentile();
+  }, [finalResult]);
+
+  // 친구 도전 데이터 로드
+  useEffect(() => {
+    const savedChallenge = getSavedChallenge();
+    if (savedChallenge) {
+      setChallenge(savedChallenge);
+    }
+  }, []);
 
   // 공유 텍스트 생성 함수 (플랫폼별 바이럴 최적화)
   const getShareText = useCallback((platform: 'default' | 'kakao' | 'twitter' | 'instagram' = 'default') => {
@@ -552,6 +589,103 @@ export function ResultPage() {
           </p>
         </div>
 
+        {/* 친구 도전 비교 결과 */}
+        {challenge && (() => {
+          const comparison = compareResults(totalReturn, challenge.return);
+          const challengeProfile = investorProfiles[challenge.type];
+          return (
+            <div className={`challenge-result-card ${comparison.winner}`}>
+              <div className="challenge-result-header">
+                <span className="versus-icon">⚔️</span>
+                <span className="versus-text">VS 친구</span>
+              </div>
+              <div className="challenge-comparison">
+                <div className="challenge-player me">
+                  <span className="player-label">나</span>
+                  <span className="player-emoji">{profile.emoji}</span>
+                  <span className={`player-return ${totalReturn >= 0 ? 'positive' : 'negative'}`}>
+                    {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="challenge-vs">
+                  <span className="vs-result">{comparison.message}</span>
+                </div>
+                <div className="challenge-player friend">
+                  <span className="player-label">{challenge.name || '친구'}</span>
+                  <span className="player-emoji">{challengeProfile.emoji}</span>
+                  <span className={`player-return ${challenge.return >= 0 ? 'positive' : 'negative'}`}>
+                    {challenge.return >= 0 ? '+' : ''}{challenge.return.toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+              {comparison.winner === 'me' && (
+                <p className="challenge-win-text">🎉 축하해요! 친구 기록을 넘었어요!</p>
+              )}
+              <button
+                className="rematch-btn"
+                onClick={() => {
+                  clearSavedChallenge();
+                  setChallenge(null);
+                }}
+              >
+                🔄 새로운 도전
+              </button>
+            </div>
+          );
+        })()}
+
+        {/* 상위 N% 배지 + 친구 도전 CTA */}
+        <div className="viral-cta-section">
+          {percentile !== null && (
+            <div className="percentile-badge">
+              <span className="percentile-icon">
+                {percentile <= 10 ? '🏆' : percentile <= 30 ? '🥈' : percentile <= 50 ? '🥉' : '📊'}
+              </span>
+              <span className="percentile-text">
+                상위 <strong>{percentile}%</strong> 성적!
+              </span>
+            </div>
+          )}
+          <p className="challenge-text">
+            {challenge
+              ? (compareResults(totalReturn, challenge.return).winner === 'me'
+                  ? '🔥 이 기록으로 다른 친구에게도 도전!'
+                  : '😤 설욕전! 친구에게 다시 도전장을 보내세요')
+              : percentile !== null && percentile <= 30
+                ? '🔥 대단해요! 친구들에게 자랑해보세요'
+                : '🤔 친구들은 몇 %일까요?'}
+          </p>
+          <button
+            className="challenge-btn pulse-animation"
+            onClick={async () => {
+              triggerHapticFeedback('light');
+              trackClick('share_challenge_url');
+              const challengeUrl = createChallengeUrl(
+                finalResult?.investorType ?? 'balanced_investor',
+                totalReturn,
+                nickname || undefined
+              );
+              try {
+                await navigator.clipboard.writeText(
+                  `💸 돈 감각 테스트에서 ${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}% 달성!\n\n이 기록 이길 수 있어? 😏\n\n👉 ${challengeUrl}`
+                );
+                alert('도전장 링크가 복사되었습니다!\n친구에게 보내보세요 🔥');
+              } catch {
+                alert(`도전장 링크:\n${challengeUrl}`);
+              }
+            }}
+          >
+            📋 도전장 링크 복사하기
+          </button>
+          <button
+            className="challenge-btn-secondary"
+            onClick={handleShare}
+            disabled={isGeneratingImage}
+          >
+            {isGeneratingImage ? '이미지 생성 중...' : '🖼️ 결과 이미지로 공유'}
+          </button>
+        </div>
+
         {/* 랭킹 등록 */}
         <div className="ranking-section">
           {!submitted ? (
@@ -612,12 +746,26 @@ export function ResultPage() {
 
           {showRankings && topRankings.length > 0 && (
             <div className="rankings-list">
+              {/* 1위 하이라이트 */}
+              {topRankings[0] && (
+                <div className="top-player-highlight">
+                  <span className="crown-icon">👑</span>
+                  <span className="top-player-label">현재 1위</span>
+                  <span className="top-player-name">{topRankings[0].nickname}</span>
+                  <span className="top-player-return">
+                    +{topRankings[0].total_return.toFixed(1)}%
+                  </span>
+                </div>
+              )}
               {topRankings.map((entry, index) => (
-                <div key={entry.id} className="ranking-item">
+                <div key={entry.id} className={`ranking-item ${index < 3 ? 'top-three' : ''}`}>
                   <span className="ranking-position">
                     {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`}
                   </span>
                   <span className="ranking-nickname">{entry.nickname}</span>
+                  <span className={`ranking-return ${entry.total_return >= 0 ? 'positive' : 'negative'}`}>
+                    {entry.total_return >= 0 ? '+' : ''}{entry.total_return.toFixed(1)}%
+                  </span>
                   <span className={`ranking-balance ${entry.final_balance >= initialBalance ? 'positive' : 'negative'}`}>
                     {formatBalance(entry.final_balance)}
                   </span>
@@ -637,10 +785,64 @@ export function ResultPage() {
           initialBalance={initialBalance}
         />
 
-        {/* 설명 */}
-        <div className="description-card">
-          <p>{profile.description}</p>
-        </div>
+        {/* 유형 상세 설명 */}
+        {(() => {
+          const detail = investorDetails[finalResult?.investorType ?? 'balanced_investor'];
+          return (
+            <div className="investor-detail-card">
+              <div className="detail-header">
+                <span className="detail-emoji">{profile.emoji}</span>
+                <div className="detail-title-area">
+                  <h3 className="detail-type-name">{profile.name}</h3>
+                  <p className="detail-summary">{detail.summary}</p>
+                </div>
+              </div>
+
+              <div className="detail-quote">
+                <span className="quote-icon">"</span>
+                <p>{detail.quote}</p>
+              </div>
+
+              <div className="detail-style">
+                <h4>💡 투자 스타일</h4>
+                <p>{detail.style}</p>
+              </div>
+
+              <div className="detail-grid">
+                <div className="detail-section strengths">
+                  <h4>✅ 강점</h4>
+                  <ul>
+                    {detail.strengths.map((s, i) => <li key={i}>{s}</li>)}
+                  </ul>
+                </div>
+                <div className="detail-section weaknesses">
+                  <h4>⚠️ 주의점</h4>
+                  <ul>
+                    {detail.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="detail-examples">
+                <h4>🌟 이런 투자자들</h4>
+                <div className="example-tags">
+                  {detail.examples.map((e, i) => (
+                    <span key={i} className="example-tag">{e}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="detail-investments">
+                <h4>💰 어울리는 투자 (재미용)</h4>
+                <div className="investment-tags">
+                  {detail.investments.map((inv, i) => (
+                    <span key={i} className="investment-tag">{inv}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* 상세 분석 */}
         <div className="analysis-section">

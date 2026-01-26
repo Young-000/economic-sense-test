@@ -114,6 +114,68 @@ export async function getTotalPlayers(): Promise<number> {
 }
 
 /**
+ * 특정 수익률보다 높은 플레이어 수 조회 (상위 N% 계산용)
+ */
+export async function getPlayersAboveReturn(totalReturn: number): Promise<{ above: number; total: number }> {
+  if (!isSupabaseConfigured || !supabase) {
+    return { above: 0, total: 0 };
+  }
+
+  try {
+    // 전체 수와 해당 수익률보다 높은 수를 동시에 조회
+    const [totalResult, aboveResult] = await Promise.all([
+      supabase
+        .from('economic_rankings')
+        .select('*', { count: 'exact', head: true }),
+      supabase
+        .from('economic_rankings')
+        .select('*', { count: 'exact', head: true })
+        .gt('total_return', totalReturn),
+    ]);
+
+    return {
+      above: aboveResult.count ?? 0,
+      total: totalResult.count ?? 0,
+    };
+  } catch (err) {
+    console.error('Failed to get players above return:', err);
+    return { above: 0, total: 0 };
+  }
+}
+
+/**
+ * 오늘의 1위 플레이어 조회
+ */
+export async function getTodayTopPlayer(): Promise<{ nickname: string; totalReturn: number } | null> {
+  if (!isSupabaseConfigured || !supabase) {
+    return null;
+  }
+
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const { data, error } = await supabase
+      .from('economic_rankings')
+      .select('nickname, total_return')
+      .gte('created_at', today.toISOString())
+      .order('total_return', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null;
+      throw error;
+    }
+
+    return data ? { nickname: data.nickname, totalReturn: data.total_return } : null;
+  } catch (err) {
+    console.error('Failed to get today top player:', err);
+    return null;
+  }
+}
+
+/**
  * 1등 플레이어의 라운드별 결과 조회
  * GamePage에서 그래프 백그라운드로 표시할 데이터
  */

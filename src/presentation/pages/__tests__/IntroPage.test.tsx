@@ -24,6 +24,17 @@ vi.mock('@lib/appsInToss', () => ({
   triggerHapticFeedback: vi.fn(),
 }));
 
+// rankingService 모킹
+vi.mock('@data/rankingService', () => ({
+  getTotalPlayers: vi.fn().mockResolvedValue(1234),
+  getTodayTopPlayer: vi.fn().mockResolvedValue({ nickname: '테스트', totalReturn: 50 }),
+}));
+
+// challengeUtils 모킹
+vi.mock('@lib/challengeUtils', () => ({
+  extractAndSaveChallenge: vi.fn().mockReturnValue(null),
+}));
+
 import { trackPageView, trackClick, triggerHapticFeedback } from '@lib/appsInToss';
 
 describe('IntroPage', () => {
@@ -170,7 +181,8 @@ describe('IntroPage', () => {
     it('should track page view on mount', () => {
       renderIntroPage();
 
-      expect(trackPageView).toHaveBeenCalledWith('intro_page');
+      // 도전 데이터 없이 마운트되면 undefined로 호출됨
+      expect(trackPageView).toHaveBeenCalledWith('intro_page', undefined);
     });
 
     it('should track page view only once', () => {

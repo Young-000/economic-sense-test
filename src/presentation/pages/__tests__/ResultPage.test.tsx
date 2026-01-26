@@ -24,6 +24,14 @@ vi.mock('react-router-dom', async () => {
 vi.mock('@data/rankingService', () => ({
   submitRanking: vi.fn().mockResolvedValue({ rank: 5 }),
   getTopRankings: vi.fn().mockResolvedValue([]),
+  getPlayersAboveReturn: vi.fn().mockResolvedValue({ above: 100, total: 1000 }),
+}));
+
+// challengeUtils 모킹
+vi.mock('@lib/challengeUtils', () => ({
+  getSavedChallenge: vi.fn().mockReturnValue(null),
+  compareResults: vi.fn().mockReturnValue({ winner: 'me', diff: 10, message: '승리!' }),
+  createChallengeUrl: vi.fn().mockReturnValue('https://example.com/challenge'),
 }));
 
 vi.mock('@data/bestPerformanceService', () => ({
@@ -886,10 +894,10 @@ describe('ResultPage', () => {
     it('should show rankings list when toggled with data', async () => {
       const { getTopRankings } = await import('@data/rankingService');
       (getTopRankings as ReturnType<typeof vi.fn>).mockResolvedValue([
-        { id: '1', nickname: '1등', total_return: 50.5, final_balance: 15050000 },
-        { id: '2', nickname: '2등', total_return: 30.2, final_balance: 13020000 },
-        { id: '3', nickname: '3등', total_return: 10.0, final_balance: 11000000 },
-        { id: '4', nickname: '4등', total_return: -5.5, final_balance: 9450000 },
+        { id: '1', nickname: '금손왕', total_return: 50.5, final_balance: 15050000 },
+        { id: '2', nickname: '투자고수', total_return: 30.2, final_balance: 13020000 },
+        { id: '3', nickname: '행운아', total_return: 10.0, final_balance: 11000000 },
+        { id: '4', nickname: '노력파', total_return: -5.5, final_balance: 9450000 },
       ]);
 
       renderResultPage();
@@ -902,18 +910,19 @@ describe('ResultPage', () => {
       fireEvent.click(toggleBtn);
 
       await waitFor(() => {
-        expect(screen.getByText('1등')).toBeInTheDocument();
-        expect(screen.getByText('2등')).toBeInTheDocument();
-        expect(screen.getByText('3등')).toBeInTheDocument();
+        // 금손왕은 top-player-highlight와 ranking-item 두 곳에 나타남
+        expect(screen.getAllByText('금손왕').length).toBeGreaterThan(0);
+        expect(screen.getByText('투자고수')).toBeInTheDocument();
+        expect(screen.getByText('행운아')).toBeInTheDocument();
       });
     });
 
     it('should show medal emojis for top 3 rankings', async () => {
       const { getTopRankings } = await import('@data/rankingService');
       (getTopRankings as ReturnType<typeof vi.fn>).mockResolvedValue([
-        { id: '1', nickname: '1등', total_return: 50, final_balance: 15000000 },
-        { id: '2', nickname: '2등', total_return: 30, final_balance: 13000000 },
-        { id: '3', nickname: '3등', total_return: 10, final_balance: 11000000 },
+        { id: '1', nickname: '금손왕', total_return: 50, final_balance: 15000000 },
+        { id: '2', nickname: '투자고수', total_return: 30, final_balance: 13000000 },
+        { id: '3', nickname: '행운아', total_return: 10, final_balance: 11000000 },
       ]);
 
       const { container } = renderResultPage();

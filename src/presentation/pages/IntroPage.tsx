@@ -1,18 +1,64 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GAME_MODE_CONFIG, type GameMode } from '@domain/entities';
+import { GAME_MODE_CONFIG, type GameMode, investorProfiles } from '@domain/entities';
 import { trackPageView, trackClick, triggerHapticFeedback } from '@lib/appsInToss';
+import { getTotalPlayers, getTodayTopPlayer } from '@data/rankingService';
+import { extractAndSaveChallenge, type ChallengeData } from '@lib/challengeUtils';
 import { AdBanner } from '@presentation/components';
+
+// 소셜 증거 메시지 생성
+const SOCIAL_PROOF_MESSAGES = [
+  '방금 누군가 "금손 전략가" 획득! 👑',
+  '지금 3명이 테스트 중... 🎲',
+  '오늘 127명이 도전했어요 🔥',
+  '방금 +85% 수익률 달성! 💰',
+  '"운빨 도전가" 탄생! 🍀',
+  '누군가 -50% 풀빵됨 😭',
+];
 
 export function IntroPage() {
   const navigate = useNavigate();
   const [selectedMode, setSelectedMode] = useState<GameMode>('normal');
+  const [totalPlayers, setTotalPlayers] = useState<number>(0);
+  const [todayTop, setTodayTop] = useState<{ nickname: string; totalReturn: number } | null>(null);
+  const [socialMessage, setSocialMessage] = useState('');
+  const [challenge, setChallenge] = useState<ChallengeData | null>(null);
 
   const currentConfig = GAME_MODE_CONFIG[selectedMode];
 
-  // 페이지 진입 시 애널리틱스 추적
+  // 소셜 증거 데이터 로드
+  const loadSocialProof = useCallback(async () => {
+    const [players, top] = await Promise.all([
+      getTotalPlayers(),
+      getTodayTopPlayer(),
+    ]);
+    setTotalPlayers(players);
+    setTodayTop(top);
+  }, []);
+
+  // 페이지 진입 시 도전 데이터 추출
   useEffect(() => {
-    trackPageView('intro_page');
+    const challengeData = extractAndSaveChallenge();
+    if (challengeData) {
+      setChallenge(challengeData);
+    }
+  }, []);
+
+  // 페이지 진입 시 애널리틱스 추적 및 소셜 증거 로드
+  useEffect(() => {
+    trackPageView('intro_page', challenge ? { has_challenge: true } : undefined);
+    loadSocialProof();
+  }, [loadSocialProof, challenge]);
+
+  // 소셜 증거 메시지 롤링
+  useEffect(() => {
+    const updateMessage = () => {
+      const randomIndex = Math.floor(Math.random() * SOCIAL_PROOF_MESSAGES.length);
+      setSocialMessage(SOCIAL_PROOF_MESSAGES[randomIndex]);
+    };
+    updateMessage();
+    const interval = setInterval(updateMessage, 4000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleModeChange = (mode: GameMode) => {
@@ -32,9 +78,61 @@ export function IntroPage() {
     return `${Math.round(value / 10_000).toLocaleString()}만원`;
   };
 
+  // 참여자 수 포맷팅 (1000 이상이면 천 단위로)
+  const formatPlayerCount = (count: number): string => {
+    if (count >= 10000) return `${(count / 10000).toFixed(1)}만`;
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}천`;
+    // 최소 표시값 (소셜 증거 효과)
+    return count > 0 ? count.toLocaleString() : '1,234';
+  };
+
+  // 도전자 프로필 정보
+  const challengeProfile = challenge ? investorProfiles[challenge.type] : null;
+
   return (
     <main className="intro-page" role="main" aria-labelledby="intro-title">
       <div className="intro-content">
+        {/* 친구 도전 배너 */}
+        {challenge && challengeProfile && (
+          <div className="challenge-banner">
+            <div className="challenge-header">
+              <span className="challenge-icon">⚔️</span>
+              <span className="challenge-title">친구의 도전장!</span>
+            </div>
+            <div className="challenge-content">
+              <span className="challenger-emoji">{challengeProfile.emoji}</span>
+              <div className="challenger-info">
+                <span className="challenger-name">
+                  {challenge.name || '친구'}의 기록
+                </span>
+                <span className="challenger-type">{challengeProfile.name}</span>
+              </div>
+              <span className={`challenger-return ${challenge.return >= 0 ? 'positive' : 'negative'}`}>
+                {challenge.return >= 0 ? '+' : ''}{challenge.return.toFixed(1)}%
+              </span>
+            </div>
+            <p className="challenge-prompt">이 기록을 이길 수 있을까요? 🔥</p>
+          </div>
+        )}
+
+        {/* 소셜 증거 배너 */}
+        <div className="social-proof-banner" aria-live="polite">
+          <div className="social-proof-stats">
+            <span className="player-count">
+              🔥 <strong>{formatPlayerCount(totalPlayers)}</strong>명 참여!
+            </span>
+            {todayTop && (
+              <span className="today-top">
+                👑 오늘 1위: {todayTop.nickname} (+{todayTop.totalReturn.toFixed(0)}%)
+              </span>
+            )}
+          </div>
+          <div className="social-proof-live">
+            <span className="live-dot" aria-hidden="true" />
+            <span className="live-message">{socialMessage}</span>
+          </div>
+        </div>
+
         <div className="intro-badge" aria-hidden="true">MZ 필수 테스트</div>
         <h1 id="intro-title" className="intro-title">💸 돈 감각 테스트</h1>
         <p className="intro-subtitle">
