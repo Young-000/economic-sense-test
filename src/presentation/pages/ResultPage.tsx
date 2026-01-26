@@ -36,6 +36,10 @@ import {
   downloadBlob,
   canShareFiles,
 } from '@lib/shareUtils';
+import {
+  generateShareText,
+  generateClipboardText,
+} from '@data/viralTemplates';
 
 // 닉네임 유효성 검사 상수 및 함수 (컴포넌트 외부에 정의하여 리렌더링 시 재생성 방지)
 const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9_\s]+$/;
@@ -252,18 +256,20 @@ export function ResultPage() {
     };
   }, [inTossApp]);
 
-  // 공유 텍스트 생성 함수 (Hooks는 조건문 전에 호출되어야 함)
-  const getShareText = useCallback(() => {
+  // 공유 텍스트 생성 함수 (플랫폼별 바이럴 최적화)
+  const getShareText = useCallback((platform: 'default' | 'kakao' | 'twitter' | 'instagram' = 'default') => {
     if (!finalResult) return '';
-    const { profile, totalReturn, finalBalance } = finalResult;
-    const returnEmoji = totalReturn >= 50 ? '🚀' : totalReturn >= 0 ? '📈' : totalReturn >= -30 ? '📉' : '💸';
-    return `💸 돈 감각 테스트 결과\n\n` +
-      `${profile.emoji} 나는 "${profile.name}"\n` +
-      `${returnEmoji} 수익률: ${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}%\n` +
-      `💰 1,000만원 → ${formatBalance(finalBalance)}\n\n` +
-      `#${profile.tag}\n` +
-      `#돈감각테스트 #금손흙손\n\n` +
-      `너의 돈 감각은? 👉`;
+    return generateShareText(finalResult.investorType, finalResult.totalReturn, platform);
+  }, [finalResult]);
+
+  // 클립보드용 간단 공유 텍스트
+  const getClipboardText = useCallback(() => {
+    if (!finalResult) return '';
+    return generateClipboardText(
+      finalResult.profile.name,
+      finalResult.profile.emoji,
+      finalResult.totalReturn
+    );
   }, [finalResult]);
 
   if (!finalResult) {
@@ -361,7 +367,7 @@ export function ResultPage() {
   const handleShareText = async () => {
     triggerHapticFeedback('light');
     trackClick('share_result_text');
-    const shareText = getShareText();
+    const shareText = getShareText('default');
 
     if (navigator.share) {
       try {
@@ -376,10 +382,10 @@ export function ResultPage() {
       }
     }
 
-    // Apps in Toss 환경에서는 네이티브 클립보드 API 사용
-    const fullShareText = shareText + ' ' + window.location.origin;
+    // 클립보드 복사용 텍스트 (더 짧은 버전)
+    const clipboardText = getClipboardText();
     if (inTossApp) {
-      const success = await setClipboardText(fullShareText);
+      const success = await setClipboardText(clipboardText);
       if (success) {
         alert('결과가 복사되었습니다!');
         return;
@@ -388,8 +394,45 @@ export function ResultPage() {
 
     // 웹 기본 클립보드 API
     try {
-      await navigator.clipboard.writeText(fullShareText);
+      await navigator.clipboard.writeText(clipboardText);
       alert('결과가 복사되었습니다!');
+    } catch {
+      alert(clipboardText);
+    }
+  };
+
+  // 카카오톡 공유
+  const handleShareKakao = async () => {
+    triggerHapticFeedback('light');
+    trackClick('share_kakao');
+    const shareText = getShareText('kakao');
+
+    try {
+      await navigator.clipboard.writeText(shareText);
+      alert('카카오톡용 문구가 복사되었습니다!\n카카오톡에 붙여넣기 해주세요 📱');
+    } catch {
+      alert(shareText);
+    }
+  };
+
+  // 트위터/X 공유
+  const handleShareTwitter = async () => {
+    triggerHapticFeedback('light');
+    trackClick('share_twitter');
+    const shareText = getShareText('twitter');
+    const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+    window.open(tweetUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  // 인스타그램 공유 (캡션 복사)
+  const handleShareInstagram = async () => {
+    triggerHapticFeedback('light');
+    trackClick('share_instagram');
+    const shareText = getShareText('instagram');
+
+    try {
+      await navigator.clipboard.writeText(shareText);
+      alert('인스타그램 캡션이 복사되었습니다!\n스토리나 피드에 이미지와 함께 붙여넣기 해주세요 📸');
     } catch {
       alert(shareText);
     }
@@ -728,6 +771,8 @@ export function ResultPage() {
             <div className="share-modal-preview">
               <img src={shareImageUrl} alt="공유 이미지" />
             </div>
+
+            {/* 메인 공유 버튼 */}
             <div className="share-modal-buttons">
               {canShareFiles() && (
                 <button
@@ -743,13 +788,39 @@ export function ResultPage() {
               >
                 💾 이미지 저장
               </button>
-              <button
-                className="share-modal-close"
-                onClick={handleCloseShareModal}
-              >
-                닫기
-              </button>
             </div>
+
+            {/* 플랫폼별 공유 문구 복사 */}
+            <div className="share-platform-section">
+              <p className="share-platform-title">📝 플랫폼별 공유 문구</p>
+              <div className="share-platform-buttons">
+                <button
+                  className="share-platform-btn kakao"
+                  onClick={handleShareKakao}
+                >
+                  💬 카카오톡
+                </button>
+                <button
+                  className="share-platform-btn twitter"
+                  onClick={handleShareTwitter}
+                >
+                  𝕏 트위터
+                </button>
+                <button
+                  className="share-platform-btn instagram"
+                  onClick={handleShareInstagram}
+                >
+                  📷 인스타
+                </button>
+              </div>
+            </div>
+
+            <button
+              className="share-modal-close"
+              onClick={handleCloseShareModal}
+            >
+              닫기
+            </button>
           </div>
         </div>
       )}
