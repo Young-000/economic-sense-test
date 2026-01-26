@@ -27,9 +27,13 @@ import { isAppsInToss, getSafeAreaInsets, setIosSwipeGestureEnabled, addBackEven
 
 describe('App', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
     mockBackEventCallback = null;
-    (isAppsInToss as ReturnType<typeof vi.fn>).mockReturnValue(false);
+    vi.mocked(isAppsInToss).mockReturnValue(false);
+    // addBackEventListener 구현 재설정 (vitest 4.x 호환)
+    vi.mocked(addBackEventListener).mockImplementation((cb: () => void) => {
+      mockBackEventCallback = cb;
+      return vi.fn();
+    });
   });
 
   afterEach(() => {
@@ -98,13 +102,18 @@ describe('App', () => {
     });
 
     it('should show exit dialog when back event triggered', async () => {
-      render(<App />);
-
-      // 뒤로가기 이벤트 트리거 (act로 감싸서 상태 업데이트 처리)
       await act(async () => {
-        if (mockBackEventCallback) {
-          mockBackEventCallback();
-        }
+        render(<App />);
+      });
+
+      // 콜백이 등록될 때까지 대기
+      await waitFor(() => {
+        expect(mockBackEventCallback).not.toBeNull();
+      });
+
+      // 뒤로가기 이벤트 트리거
+      await act(async () => {
+        mockBackEventCallback!();
       });
 
       await waitFor(() => {
@@ -113,21 +122,26 @@ describe('App', () => {
     });
 
     it('should close dialog when cancel clicked', async () => {
-      render(<App />);
-
-      // 뒤로가기 이벤트 트리거 (act로 감싸서 상태 업데이트 처리)
       await act(async () => {
-        if (mockBackEventCallback) {
-          mockBackEventCallback();
-        }
+        render(<App />);
+      });
+
+      await waitFor(() => {
+        expect(mockBackEventCallback).not.toBeNull();
+      });
+
+      await act(async () => {
+        mockBackEventCallback!();
       });
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: '취소' })).toBeInTheDocument();
       });
 
-      const cancelBtn = screen.getByRole('button', { name: '취소' });
-      fireEvent.click(cancelBtn);
+      await act(async () => {
+        const cancelBtn = screen.getByRole('button', { name: '취소' });
+        fireEvent.click(cancelBtn);
+      });
 
       await waitFor(() => {
         expect(screen.queryByText('돈 감각 테스트를 종료할까요?')).not.toBeInTheDocument();
@@ -135,21 +149,26 @@ describe('App', () => {
     });
 
     it('should call closeApp when confirm clicked', async () => {
-      render(<App />);
-
-      // 뒤로가기 이벤트 트리거 (act로 감싸서 상태 업데이트 처리)
       await act(async () => {
-        if (mockBackEventCallback) {
-          mockBackEventCallback();
-        }
+        render(<App />);
+      });
+
+      await waitFor(() => {
+        expect(mockBackEventCallback).not.toBeNull();
+      });
+
+      await act(async () => {
+        mockBackEventCallback!();
       });
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: '종료하기' })).toBeInTheDocument();
       });
 
-      const confirmBtn = screen.getByRole('button', { name: '종료하기' });
-      fireEvent.click(confirmBtn);
+      await act(async () => {
+        const confirmBtn = screen.getByRole('button', { name: '종료하기' });
+        fireEvent.click(confirmBtn);
+      });
 
       await waitFor(() => {
         expect(mockCloseApp).toHaveBeenCalled();
