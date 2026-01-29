@@ -1,9 +1,10 @@
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GAME_MODE_CONFIG, type GameMode, investorProfiles } from '@domain/entities';
 import { trackPageView, trackClick, triggerHapticFeedback } from '@lib/appsInToss';
 import { getTotalPlayers, getTodayTopPlayer } from '@data/rankingService';
 import { extractAndSaveChallenge, type ChallengeData } from '@lib/challengeUtils';
+import { getCurrentTheme, formatSeasonInfo } from '@lib/seasonUtils';
 import { AdBanner } from '@presentation/components';
 
 // 소셜 증거 메시지 생성
@@ -22,33 +23,30 @@ export function IntroPage() {
   const [totalPlayers, setTotalPlayers] = useState<number>(0);
   const [todayTop, setTodayTop] = useState<{ nickname: string; totalReturn: number } | null>(null);
   const [socialMessage, setSocialMessage] = useState('');
-  const [challenge, setChallenge] = useState<ChallengeData | null>(null);
+  // URL 파라미터에서 도전 데이터 추출 (lazy initialization)
+  const [challenge] = useState<ChallengeData | null>(() => extractAndSaveChallenge());
 
   const currentConfig = GAME_MODE_CONFIG[selectedMode];
 
-  // 소셜 증거 데이터 로드
-  const loadSocialProof = useCallback(async () => {
-    const [players, top] = await Promise.all([
-      getTotalPlayers(),
-      getTodayTopPlayer(),
-    ]);
-    setTotalPlayers(players);
-    setTodayTop(top);
-  }, []);
-
-  // 페이지 진입 시 도전 데이터 추출
-  useEffect(() => {
-    const challengeData = extractAndSaveChallenge();
-    if (challengeData) {
-      setChallenge(challengeData);
-    }
-  }, []);
+  // 현재 시즌/이벤트 테마
+  const seasonTheme = useMemo(() => getCurrentTheme(), []);
+  const seasonInfo = useMemo(() => formatSeasonInfo(seasonTheme), [seasonTheme]);
 
   // 페이지 진입 시 애널리틱스 추적 및 소셜 증거 로드
   useEffect(() => {
     trackPageView('intro_page', challenge ? { has_challenge: true } : undefined);
+
+    // 소셜 증거 데이터 로드 (비동기)
+    const loadSocialProof = async () => {
+      const [players, top] = await Promise.all([
+        getTotalPlayers(),
+        getTodayTopPlayer(),
+      ]);
+      setTotalPlayers(players);
+      setTodayTop(top);
+    };
     loadSocialProof();
-  }, [loadSocialProof, challenge]);
+  }, [challenge]);
 
   // 소셜 증거 메시지 롤링
   useEffect(() => {
@@ -92,6 +90,18 @@ export function IntroPage() {
   return (
     <main className="intro-page" role="main" aria-labelledby="intro-title">
       <div className="intro-content">
+        {/* 시즌/이벤트 배너 */}
+        <div
+          className={`season-banner ${seasonInfo.isSpecialEvent ? 'special-event' : ''}`}
+          style={{ '--season-color': seasonTheme.accentColor } as React.CSSProperties}
+        >
+          <span className="season-emoji">{seasonTheme.emoji}</span>
+          <span className="season-message">{seasonTheme.bannerMessage}</span>
+          {seasonInfo.isSpecialEvent && (
+            <span className="event-badge">EVENT</span>
+          )}
+        </div>
+
         {/* 친구 도전 배너 */}
         {challenge && challengeProfile && (
           <div className="challenge-banner">
