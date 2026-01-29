@@ -223,22 +223,22 @@
 
 ## 7. 액션 플랜
 
-### Phase 1: Quick Wins (이번 주)
-- [ ] 참여자 카운터 추가 (가짜라도)
-- [ ] 결과 페이지 "상위 N%" 표시
-- [ ] 공유 버튼 펄스 애니메이션
-- [ ] "친구에게 도전장" 문구로 CTA 변경
+### Phase 1: Quick Wins (이번 주) ✅ 완료
+- [x] 참여자 카운터 추가 (`IntroPage.tsx`)
+- [x] 결과 페이지 "상위 N%" 표시 (`ResultPage.tsx`)
+- [x] 공유 버튼 펄스 애니메이션 (`pulse-animation`)
+- [x] "친구에게 도전장" 문구로 CTA 변경
 
-### Phase 2: Core Improvements (다음 주)
-- [ ] 실시간 랭킹 표시 개선
-- [ ] 유형별 상세 설명 추가
-- [ ] 친구 비교 기능 (URL 파라미터)
-- [ ] 공유 이미지 리디자인
+### Phase 2: Core Improvements (다음 주) ✅ 완료
+- [x] 실시간 랭킹 표시 개선 (`IntroPage.tsx` - 오늘의 1위)
+- [x] 유형별 상세 설명 추가 (`investorDetails.ts`)
+- [x] 친구 비교 기능 (URL 파라미터) (`challengeUtils.ts`)
+- [x] 공유 이미지 리디자인 (`ShareImageCard.tsx`)
 
-### Phase 3: Growth Features (2주 후)
-- [ ] 바이럴 루프 완성 (비교 → 재공유)
-- [ ] 시즌 이벤트/테마 추가
-- [ ] 숨겨진 유형/업적 시스템
+### Phase 3: Growth Features (2주 후) ✅ 완료
+- [x] 바이럴 루프 완성 (비교 → 재공유) (`compareResults` + 도전장)
+- [x] 시즌 이벤트/테마 추가 (`seasonUtils.ts` - 4계절 + 8 이벤트)
+- [x] 숨겨진 유형/업적 시스템 (`achievementService.ts` - 50개 업적)
 
 ---
 

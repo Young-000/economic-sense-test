@@ -33,6 +33,8 @@ export default [
         fetch: 'readonly',
         URL: 'readonly',
         URLSearchParams: 'readonly',
+        btoa: 'readonly',
+        atob: 'readonly',
         Blob: 'readonly',
         File: 'readonly',
         HTMLDivElement: 'readonly',

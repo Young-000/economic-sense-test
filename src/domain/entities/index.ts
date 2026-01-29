@@ -111,6 +111,143 @@ export function getGameConfig(mode: GameMode) {
   };
 }
 
+/** 시즌 타입 */
+export type SeasonType =
+  | 'spring'      // 봄 (3-5월)
+  | 'summer'      // 여름 (6-8월)
+  | 'autumn'      // 가을 (9-11월)
+  | 'winter';     // 겨울 (12-2월)
+
+/** 특별 이벤트 타입 */
+export type SpecialEventType =
+  | 'new_year'        // 설날 (음력 1월 1일 전후)
+  | 'valentines'      // 발렌타인데이 (2/14)
+  | 'white_day'       // 화이트데이 (3/14)
+  | 'chuseok'         // 추석 (음력 8월 15일 전후)
+  | 'halloween'       // 할로윈 (10/31)
+  | 'black_friday'    // 블랙프라이데이 (11월 넷째 금요일)
+  | 'christmas'       // 크리스마스 (12/24-25)
+  | 'year_end';       // 연말 (12/26-31)
+
+/** 시즌/이벤트 테마 설정 */
+export interface SeasonTheme {
+  id: SeasonType | SpecialEventType;
+  name: string;
+  emoji: string;
+  description: string;
+  bannerMessage: string;
+  accentColor: string;
+  specialAchievementId?: string;
+}
+
+/** 시즌 테마 설정 */
+export const SEASON_THEMES: Record<SeasonType, SeasonTheme> = {
+  spring: {
+    id: 'spring',
+    name: '봄 시즌',
+    emoji: '🌸',
+    description: '새로운 시작의 계절',
+    bannerMessage: '🌸 봄맞이 투자 시즌!',
+    accentColor: '#FFB7C5',
+  },
+  summer: {
+    id: 'summer',
+    name: '여름 시즌',
+    emoji: '🏖️',
+    description: '뜨거운 여름, 뜨거운 수익',
+    bannerMessage: '🏖️ 여름 특별 이벤트!',
+    accentColor: '#00CED1',
+  },
+  autumn: {
+    id: 'autumn',
+    name: '가을 시즌',
+    emoji: '🍂',
+    description: '풍요로운 수확의 계절',
+    bannerMessage: '🍂 가을 수확 시즌!',
+    accentColor: '#FF8C00',
+  },
+  winter: {
+    id: 'winter',
+    name: '겨울 시즌',
+    emoji: '❄️',
+    description: '차가운 겨울, 뜨거운 투자',
+    bannerMessage: '❄️ 겨울 특별 시즌!',
+    accentColor: '#87CEEB',
+  },
+};
+
+/** 특별 이벤트 테마 설정 */
+export const SPECIAL_EVENT_THEMES: Record<SpecialEventType, SeasonTheme> = {
+  new_year: {
+    id: 'new_year',
+    name: '설날 이벤트',
+    emoji: '🧧',
+    description: '새해 복 많이 받으세요!',
+    bannerMessage: '🧧 설날 세뱃돈 이벤트!',
+    accentColor: '#FF4500',
+    specialAchievementId: 'new_year_luck',
+  },
+  valentines: {
+    id: 'valentines',
+    name: '발렌타인 이벤트',
+    emoji: '💝',
+    description: '사랑과 투자의 날',
+    bannerMessage: '💝 발렌타인 스페셜!',
+    accentColor: '#FF69B4',
+  },
+  white_day: {
+    id: 'white_day',
+    name: '화이트데이 이벤트',
+    emoji: '🍬',
+    description: '달콤한 수익의 날',
+    bannerMessage: '🍬 화이트데이 스페셜!',
+    accentColor: '#FFF0F5',
+  },
+  chuseok: {
+    id: 'chuseok',
+    name: '추석 이벤트',
+    emoji: '🌕',
+    description: '풍요로운 한가위',
+    bannerMessage: '🌕 추석 대박 이벤트!',
+    accentColor: '#FFD700',
+    specialAchievementId: 'chuseok_harvest',
+  },
+  halloween: {
+    id: 'halloween',
+    name: '할로윈 이벤트',
+    emoji: '🎃',
+    description: '무서운 수익률의 밤',
+    bannerMessage: '🎃 할로윈 스페셜!',
+    accentColor: '#FF6600',
+    specialAchievementId: 'halloween_thrill',
+  },
+  black_friday: {
+    id: 'black_friday',
+    name: '블랙프라이데이',
+    emoji: '🛍️',
+    description: '역대급 할인의 날',
+    bannerMessage: '🛍️ 블프 특별 이벤트!',
+    accentColor: '#000000',
+  },
+  christmas: {
+    id: 'christmas',
+    name: '크리스마스 이벤트',
+    emoji: '🎄',
+    description: '산타의 선물 같은 수익',
+    bannerMessage: '🎄 크리스마스 스페셜!',
+    accentColor: '#228B22',
+    specialAchievementId: 'christmas_gift',
+  },
+  year_end: {
+    id: 'year_end',
+    name: '연말 정산 이벤트',
+    emoji: '🎊',
+    description: '올해의 마지막 투자',
+    bannerMessage: '🎊 연말 결산 이벤트!',
+    accentColor: '#9400D3',
+  },
+};
+
 /** 투자자 유형 프로필 (도메인 지식) */
 export const investorProfiles: Record<InvestorType, InvestorProfile> = {
   lucky_gambler: {

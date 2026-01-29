@@ -799,7 +799,7 @@ export function ResultPage() {
               </div>
 
               <div className="detail-quote">
-                <span className="quote-icon">"</span>
+                <span className="quote-icon">&ldquo;</span>
                 <p>{detail.quote}</p>
               </div>
 
