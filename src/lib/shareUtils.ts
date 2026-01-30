@@ -1,8 +1,10 @@
 /**
  * 공유 이미지 생성 유틸리티
  * html2canvas를 사용하여 결과 화면을 이미지로 캡처하고 공유합니다.
+ *
+ * NOTE: html2canvas는 동적 임포트로 로드됩니다 (201KB → 초기 번들에서 제외)
+ * 공유 버튼 클릭 시에만 로드되어 초기 로딩 성능 개선
  */
-import html2canvas from 'html2canvas';
 
 export interface ShareImageOptions {
   scale?: number;
@@ -18,11 +20,15 @@ const DEFAULT_OPTIONS: Required<ShareImageOptions> = {
 
 /**
  * HTML 요소를 Canvas로 변환
+ * html2canvas를 동적으로 로드하여 초기 번들 사이즈 최적화
  */
 export async function elementToCanvas(
   element: HTMLElement,
   options: ShareImageOptions = {}
 ): Promise<HTMLCanvasElement> {
+  // 동적 임포트: 공유 기능 사용 시에만 html2canvas 로드 (201KB 절약)
+  const html2canvas = (await import('html2canvas')).default;
+
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
 
   const canvas = await html2canvas(element, {
