@@ -16,19 +16,6 @@ import {
   type Achievement,
 } from '@data/achievementService';
 import { AssetProgressChart, Confetti, NewAchievementsPopup, AchievementList, ShareImageCard, AdBanner } from '@presentation/components';
-import {
-  isAppsInToss,
-  submitToGameLeaderboard,
-  openGameLeaderboard,
-  initTossAds,
-  attachBannerAd,
-  removeBannerAd,
-  trackPageView,
-  trackClick,
-  trackImpression,
-  triggerHapticFeedback,
-  setClipboardText,
-} from '@lib/appsInToss';
 import { formatBalance } from '@lib/formatUtils';
 import {
   elementToBlob,
@@ -49,7 +36,7 @@ import {
 } from '@lib/challengeUtils';
 import { investorDetails } from '@data/investorDetails';
 
-// 닉네임 유효성 검사 상수 및 함수 (컴포넌트 외부에 정의하여 리렌더링 시 재생성 방지)
+// 닉네임 유효성 검사 상수 및 함수
 const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9_\s]+$/;
 const MAX_NICKNAME_LENGTH = 20;
 
@@ -78,8 +65,6 @@ export function ResultPage() {
   const [myRank, setMyRank] = useState<number | null>(null);
   const [topRankings, setTopRankings] = useState<RankingEntry[]>([]);
   const [showRankings, setShowRankings] = useState(false);
-  const [inTossApp, setInTossApp] = useState(false);
-  const [tossLeaderboardSubmitted, setTossLeaderboardSubmitted] = useState(false);
   const [isNewRecord, setIsNewRecord] = useState(false);
   const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
   const [showAchievementPopup, setShowAchievementPopup] = useState(false);
@@ -89,13 +74,11 @@ export function ResultPage() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareImageUrl, setShareImageUrl] = useState<string | null>(null);
   const [shareImageBlob, setShareImageBlob] = useState<Blob | null>(null);
-  const [percentile, setPercentile] = useState<number | null>(null); // 상위 N%
-  const [challenge, setChallenge] = useState<ChallengeData | null>(null); // 친구 도전
-  const adContainerRef = useRef<HTMLDivElement>(null);
-  const adSlotIdRef = useRef<string | null>(null);
+  const [percentile, setPercentile] = useState<number | null>(null);
+  const [challenge, setChallenge] = useState<ChallengeData | null>(null);
   const shareCardRef = useRef<HTMLDivElement>(null);
 
-  // 모든 게임 데이터를 한 번에 파싱 (sessionStorage 접근 최소화)
+  // 모든 게임 데이터를 한 번에 파싱
   const {
     finalResult,
     gameResults,
@@ -124,7 +107,6 @@ export function ResultPage() {
       const results: RoundResult[] = JSON.parse(storedResults);
       const questions: Question[] = JSON.parse(storedQuestions);
 
-      // 유효성 검증
       if (!Array.isArray(results) || !Array.isArray(questions)) {
         return {
           finalResult: null,
@@ -177,11 +159,8 @@ export function ResultPage() {
       .then((rankings) => {
         if (isMounted) setTopRankings(rankings);
       })
-      .catch(() => {
-        // 랭킹 로드 실패 시 빈 배열 유지 (이미 기본값)
-      });
+      .catch(() => {});
 
-    // 최고 기록 업데이트 확인
     if (finalResult) {
       const wasNewRecord = updateBestPerformance(
         assetHistory,
@@ -191,7 +170,7 @@ export function ResultPage() {
       );
       if (isMounted) setIsNewRecord(wasNewRecord);
 
-      // 업적 체크 (이미 파싱된 gameResults 재사용)
+      // 업적 체크
       const totalGamesPlayed = parseInt(localStorage.getItem('economic-sense-total-games') || '0', 10) + 1;
       localStorage.setItem('economic-sense-total-games', String(totalGamesPlayed));
 
@@ -208,24 +187,9 @@ export function ResultPage() {
       if (unlocked.length > 0 && isMounted) {
         setNewAchievements(unlocked);
         setShowAchievementPopup(true);
-        setShowAchievementList(true); // 업적 획득 시 목록 자동 펼침
-        setAchievementStatus(getAchievementStatus()); // 업적 상태 새로고침
-        triggerHapticFeedback('heavy');
-        // 업적 노출 추적
-        unlocked.forEach((achievement) => {
-          trackImpression(`achievement_${achievement.id}`, {
-            achievement_name: achievement.name,
-          });
-        });
+        setShowAchievementList(true);
+        setAchievementStatus(getAchievementStatus());
       }
-
-      // 페이지뷰 및 결과 추적
-      trackPageView('result_page', {
-        total_return: finalResult.totalReturn,
-        investor_type: finalResult.investorType,
-        is_new_record: wasNewRecord,
-        new_achievements: unlocked.length,
-      });
     }
 
     return () => {
@@ -233,56 +197,21 @@ export function ResultPage() {
     };
   }, [finalResult, assetHistory, gameResults, initialBalance, gameMode]);
 
-  // Apps in Toss 환경 체크 및 광고 초기화
-  useEffect(() => {
-    const isToss = isAppsInToss();
-    setInTossApp(isToss);
-
-    if (isToss) {
-      // TossAds 초기화 (테스트 모드는 개발 환경에서만)
-      const isTestMode = import.meta.env.DEV;
-      initTossAds(isTestMode);
-    }
-  }, []);
-
-  // 배너 광고 부착
-  useEffect(() => {
-    if (!inTossApp || !adContainerRef.current) return;
-
-    const slotId = attachBannerAd(adContainerRef.current, {
-      onLoad: () => {},
-      onError: () => {},
-    });
-
-    if (slotId) {
-      adSlotIdRef.current = slotId;
-    }
-
-    return () => {
-      if (adSlotIdRef.current) {
-        removeBannerAd(adSlotIdRef.current);
-        adSlotIdRef.current = null;
-      }
-    };
-  }, [inTossApp]);
-
   // 상위 N% 계산
   useEffect(() => {
     if (!finalResult) return;
 
-    const calculatePercentile = async () => {
+    const calculatePercentileAsync = async () => {
       const { above, total } = await getPlayersAboveReturn(finalResult.totalReturn);
       if (total > 0) {
-        // 상위 퍼센트 계산 (나보다 높은 사람 수 / 전체 * 100)
         const pct = Math.max(1, Math.round(((above + 1) / (total + 1)) * 100));
         setPercentile(pct);
       } else {
-        // 첫 번째 플레이어인 경우
         setPercentile(1);
       }
     };
 
-    calculatePercentile();
+    calculatePercentileAsync();
   }, [finalResult]);
 
   // 친구 도전 데이터 로드
@@ -293,13 +222,12 @@ export function ResultPage() {
     }
   }, []);
 
-  // 공유 텍스트 생성 함수 (플랫폼별 바이럴 최적화)
+  // 공유 텍스트 생성
   const getShareText = useCallback((platform: 'default' | 'kakao' | 'twitter' | 'instagram' = 'default') => {
     if (!finalResult) return '';
     return generateShareText(finalResult.investorType, finalResult.totalReturn, platform);
   }, [finalResult]);
 
-  // 클립보드용 간단 공유 텍스트
   const getClipboardText = useCallback(() => {
     if (!finalResult) return '';
     return generateClipboardText(
@@ -322,9 +250,8 @@ export function ResultPage() {
     );
   }
 
-  const { profile, finalBalance, totalReturn, riskScore, rationalityScore, luckScore, investorType } = finalResult;
+  const { profile, tier, finalBalance, totalReturn, riskScore, rationalityScore, luckScore, investorType } = finalResult;
 
-  // CSS 클래스 매핑 (공통 유틸 함수는 다른 패턴 사용)
   const returnClassName = (() => {
     if (totalReturn >= 50) return 'return-great';
     if (totalReturn >= 0) return 'return-good';
@@ -347,7 +274,6 @@ export function ResultPage() {
 
     setIsSubmitting(true);
     try {
-      // 라운드별 결과 데이터 생성 (1등 그래프용)
       let runningBalance = initialBalance;
       const roundResults = gameResults.map((result, index) => {
         runningBalance += result.actualOutcome;
@@ -358,7 +284,6 @@ export function ResultPage() {
         };
       });
 
-      // Supabase 랭킹 등록
       const result = await submitRanking({
         nickname: nickname.trim(),
         finalBalance,
@@ -373,18 +298,8 @@ export function ResultPage() {
       if (result.success) {
         setSubmitted(true);
         setMyRank(result.rank ?? null);
-        // 랭킹 새로고침
         const newRankings = await getTopRankings(10);
         setTopRankings(newRankings);
-
-        // Apps in Toss 게임 리더보드에도 제출 (수익률 * 100 정수로 변환)
-        if (inTossApp) {
-          const score = Math.round(totalReturn * 100);
-          const tossResult = await submitToGameLeaderboard(score);
-          if (tossResult.success) {
-            setTossLeaderboardSubmitted(true);
-          }
-        }
       } else {
         alert('랭킹 등록에 실패했어요.');
       }
@@ -395,15 +310,8 @@ export function ResultPage() {
     }
   };
 
-  const handleOpenTossLeaderboard = async () => {
-    trackClick('toss_leaderboard');
-    await openGameLeaderboard();
-  };
-
-  // 텍스트 전용 공유 (기존 기능)
+  // 텍스트 공유
   const handleShareText = async () => {
-    triggerHapticFeedback('light');
-    trackClick('share_result_text');
     const shareText = getShareText('default');
 
     if (navigator.share) {
@@ -419,17 +327,7 @@ export function ResultPage() {
       }
     }
 
-    // 클립보드 복사용 텍스트 (더 짧은 버전)
     const clipboardText = getClipboardText();
-    if (inTossApp) {
-      const success = await setClipboardText(clipboardText);
-      if (success) {
-        alert('결과가 복사되었습니다!');
-        return;
-      }
-    }
-
-    // 웹 기본 클립보드 API
     try {
       await navigator.clipboard.writeText(clipboardText);
       alert('결과가 복사되었습니다!');
@@ -440,10 +338,7 @@ export function ResultPage() {
 
   // 카카오톡 공유
   const handleShareKakao = async () => {
-    triggerHapticFeedback('light');
-    trackClick('share_kakao');
     const shareText = getShareText('kakao');
-
     try {
       await navigator.clipboard.writeText(shareText);
       alert('카카오톡용 문구가 복사되었습니다!\n카카오톡에 붙여넣기 해주세요 📱');
@@ -453,20 +348,15 @@ export function ResultPage() {
   };
 
   // 트위터/X 공유
-  const handleShareTwitter = async () => {
-    triggerHapticFeedback('light');
-    trackClick('share_twitter');
+  const handleShareTwitter = () => {
     const shareText = getShareText('twitter');
     const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
     window.open(tweetUrl, '_blank', 'noopener,noreferrer');
   };
 
-  // 인스타그램 공유 (캡션 복사)
+  // 인스타그램 공유
   const handleShareInstagram = async () => {
-    triggerHapticFeedback('light');
-    trackClick('share_instagram');
     const shareText = getShareText('instagram');
-
     try {
       await navigator.clipboard.writeText(shareText);
       alert('인스타그램 캡션이 복사되었습니다!\n스토리나 피드에 이미지와 함께 붙여넣기 해주세요 📸');
@@ -480,8 +370,6 @@ export function ResultPage() {
     if (!shareCardRef.current || isGeneratingImage) return;
 
     setIsGeneratingImage(true);
-    triggerHapticFeedback('light');
-    trackClick('share_image_generate');
 
     try {
       const blob = await elementToBlob(shareCardRef.current, {
@@ -505,9 +393,6 @@ export function ResultPage() {
   const handleShareImageAction = async () => {
     if (!shareImageBlob) return;
 
-    triggerHapticFeedback('light');
-    trackClick('share_image_share');
-
     try {
       const shared = await shareImage(shareImageBlob, {
         title: '돈 감각 테스트 결과',
@@ -517,7 +402,6 @@ export function ResultPage() {
       if (shared) {
         setShowShareModal(false);
       } else {
-        // 공유 실패 시 다운로드로 폴백
         handleDownloadImage();
       }
     } catch {
@@ -529,15 +413,12 @@ export function ResultPage() {
   const handleDownloadImage = () => {
     if (!shareImageBlob) return;
 
-    triggerHapticFeedback('light');
-    trackClick('share_image_download');
-
     const filename = `돈감각테스트_${profile.name.replace(/\s/g, '_')}.png`;
     downloadBlob(shareImageBlob, filename);
     alert('이미지가 저장되었습니다!');
   };
 
-  // 모달 닫기 시 URL 정리
+  // 모달 닫기
   const handleCloseShareModal = () => {
     setShowShareModal(false);
     if (shareImageUrl) {
@@ -546,7 +427,6 @@ export function ResultPage() {
     }
   };
 
-  // 기존 handleShare는 이미지 공유 모달을 여는 것으로 변경
   const handleShare = async () => {
     await handleGenerateShareImage();
   };
@@ -569,6 +449,18 @@ export function ResultPage() {
         {isNewRecord && (
           <div className="new-record-badge">신기록 달성!</div>
         )}
+
+        {/* 티어 배지 - 핵심 히어로 요소 */}
+        <div
+          className="tier-badge-hero"
+          style={{ '--tier-color': tier.color, '--tier-bg': tier.bgColor } as React.CSSProperties}
+        >
+          <div className="tier-grade-display">
+            <span className="tier-grade-letter">{tier.grade}</span>
+          </div>
+          <span className="tier-name">{tier.name}</span>
+          <span className="tier-description">{tier.description}</span>
+        </div>
 
         {/* 투자자 유형 */}
         <div className="investor-type-card">
@@ -658,8 +550,6 @@ export function ResultPage() {
           <button
             className="challenge-btn pulse-animation"
             onClick={async () => {
-              triggerHapticFeedback('light');
-              trackClick('share_challenge_url');
               const challengeUrl = createChallengeUrl(
                 finalResult?.investorType ?? 'balanced_investor',
                 totalReturn,
@@ -734,19 +624,8 @@ export function ResultPage() {
             {showRankings ? '랭킹 숨기기 ▲' : 'TOP 10 랭킹 보기 ▼'}
           </button>
 
-          {/* Apps in Toss 게임 리더보드 버튼 */}
-          {inTossApp && (
-            <button
-              className="toss-leaderboard-btn"
-              onClick={handleOpenTossLeaderboard}
-            >
-              {tossLeaderboardSubmitted ? '토스 리더보드 보기' : '토스 앱 전체 랭킹 보기'}
-            </button>
-          )}
-
           {showRankings && topRankings.length > 0 && (
             <div className="rankings-list">
-              {/* 1위 하이라이트 */}
               {topRankings[0] && (
                 <div className="top-player-highlight">
                   <span className="crown-icon">👑</span>
@@ -940,15 +819,8 @@ export function ResultPage() {
           </button>
         </div>
 
-        {/* TossAds 배너 광고 (Apps in Toss 환경에서만) */}
-        {inTossApp && (
-          <div className="toss-ads-container" ref={adContainerRef} />
-        )}
-
-        {/* Google AdSense 배너 (일반 웹 환경에서만) */}
-        {!inTossApp && (
-          <AdBanner className="result-ad" />
-        )}
+        {/* Google AdSense 배너 */}
+        <AdBanner className="result-ad" />
       </div>
 
       {/* 공유용 이미지 카드 (오프스크린 렌더링) */}
@@ -956,6 +828,7 @@ export function ResultPage() {
         <ShareImageCard
           ref={shareCardRef}
           profile={profile}
+          tier={tier}
           finalBalance={finalBalance}
           initialBalance={initialBalance}
           totalReturn={totalReturn}
@@ -974,7 +847,6 @@ export function ResultPage() {
               <img src={shareImageUrl} alt="공유 이미지" />
             </div>
 
-            {/* 메인 공유 버튼 */}
             <div className="share-modal-buttons">
               {canShareFiles() && (
                 <button
@@ -992,7 +864,6 @@ export function ResultPage() {
               </button>
             </div>
 
-            {/* 플랫폼별 공유 문구 복사 */}
             <div className="share-platform-section">
               <p className="share-platform-title">📝 플랫폼별 공유 문구</p>
               <div className="share-platform-buttons">
