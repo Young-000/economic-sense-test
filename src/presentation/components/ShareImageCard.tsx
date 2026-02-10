@@ -9,11 +9,12 @@
  * - FOMO 유발 문구
  */
 import { forwardRef } from 'react';
-import type { InvestorProfile } from '@domain/entities';
+import type { InvestorProfile, TierInfo } from '@domain/entities';
 import { formatBalance } from '@lib/formatUtils';
 
 export interface ShareImageCardProps {
   profile: InvestorProfile;
+  tier: TierInfo;
   finalBalance: number;
   initialBalance: number;
   totalReturn: number;
@@ -50,6 +51,7 @@ export const ShareImageCard = forwardRef<HTMLDivElement, ShareImageCardProps>(
   (
     {
       profile,
+      tier,
       finalBalance,
       initialBalance,
       totalReturn,
@@ -59,13 +61,6 @@ export const ShareImageCard = forwardRef<HTMLDivElement, ShareImageCardProps>(
     },
     ref
   ) => {
-    const returnClassName = (() => {
-      if (totalReturn >= 50) return 'return-great';
-      if (totalReturn >= 0) return 'return-good';
-      if (totalReturn >= -30) return 'return-bad';
-      return 'return-terrible';
-    })();
-
     const luckLabel = (() => {
       if (luckScore >= 50) return '대박 행운!';
       if (luckScore >= 20) return '운 좋았어요';
@@ -89,6 +84,19 @@ export const ShareImageCard = forwardRef<HTMLDivElement, ShareImageCardProps>(
           <span className="share-card-logo">💸 돈 감각 테스트</span>
         </div>
 
+        {/* 티어 배지 - 핵심 바이럴 요소 */}
+        <div
+          className="share-tier-badge"
+          style={{ background: tier.bgColor, borderColor: tier.color }}
+        >
+          <span className="share-tier-grade" style={{ color: tier.color }}>
+            {tier.grade}
+          </span>
+          <span className="share-tier-name" style={{ color: tier.color }}>
+            {tier.name}
+          </span>
+        </div>
+
         {/* 투자자 유형 */}
         <div className="share-card-type" style={{ background: resultGradient }}>
           <span className="share-type-emoji">{profile.emoji}</span>
@@ -96,11 +104,14 @@ export const ShareImageCard = forwardRef<HTMLDivElement, ShareImageCardProps>(
           <span className="share-type-tag">#{profile.tag}</span>
         </div>
 
-        {/* 최종 자산 - 더 강조 */}
+        {/* 최종 자산 */}
         <div className="share-card-balance">
           <span className="share-balance-label">최종 자산</span>
           <span className="share-balance-value">{formatBalance(finalBalance)}</span>
-          <span className={`share-return-value share-return-large ${returnClassName}`}>
+          <span
+            className="share-return-value share-return-large"
+            style={{ color: totalReturn >= 0 ? 'var(--positive)' : 'var(--negative)' }}
+          >
             {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(1)}%
           </span>
           <span className="share-initial-note">
@@ -148,11 +159,6 @@ export const ShareImageCard = forwardRef<HTMLDivElement, ShareImageCardProps>(
           </div>
         </div>
 
-        {/* 설명 */}
-        <div className="share-card-description">
-          <p>{profile.description}</p>
-        </div>
-
         {/* 푸터 - CTA 강화 */}
         <div className="share-card-footer">
           <span className="share-card-url">economic-sense-test.vercel.app</span>
@@ -161,7 +167,7 @@ export const ShareImageCard = forwardRef<HTMLDivElement, ShareImageCardProps>(
 
         {/* FOMO 유발 문구 */}
         <div className="share-card-fomo">
-          <span>🤔 당신은 금손? 흙손?</span>
+          <span>🤔 당신의 티어는? {tier.grade}등급 도전!</span>
         </div>
       </div>
     );

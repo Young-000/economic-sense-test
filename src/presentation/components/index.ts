@@ -1,4 +1,3 @@
-export { ExitConfirmDialog } from './ExitConfirmDialog';
 export { AssetProgressChart } from './AssetProgressChart';
 export type { AssetDataPoint, AssetProgressChartProps } from './AssetProgressChart';
 export { Confetti } from './Confetti';

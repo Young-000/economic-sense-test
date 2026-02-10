@@ -3,7 +3,7 @@
  */
 
 import type { Option, Outcome, RoundResult, FinalResult, InvestorType } from '../entities';
-import { GAME_CONFIG, investorProfiles } from '../entities';
+import { GAME_CONFIG, investorProfiles, calculateTier } from '../entities';
 
 /**
  * 옵션의 기대값 계산
@@ -220,6 +220,8 @@ export function calculateFinalResult(
   const investorType = determineInvestorType(riskScore, rationalityScore, luckScore);
   const profile = investorProfiles[investorType];
 
+  const tier = calculateTier(totalReturn);
+
   return {
     finalBalance,
     totalReturn,
@@ -228,5 +230,6 @@ export function calculateFinalResult(
     luckScore,
     investorType,
     profile,
+    tier,
   };
 }

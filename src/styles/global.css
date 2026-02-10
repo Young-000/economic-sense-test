@@ -743,6 +743,63 @@ body {
   color: var(--text-secondary);
 }
 
+/* 티어 배지 - 히어로 요소 */
+.tier-badge-hero {
+  text-align: center;
+  padding: 32px 24px;
+  margin-bottom: 16px;
+  background: var(--tier-bg, #1a1a1a);
+  border: 2px solid var(--tier-color, #888);
+  border-radius: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tier-badge-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--tier-color) 15%, transparent), transparent 70%);
+  pointer-events: none;
+}
+
+.tier-grade-display {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  border: 3px solid var(--tier-color, #888);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--tier-color) 10%, var(--bg));
+  box-shadow: 0 0 30px color-mix(in srgb, var(--tier-color) 30%, transparent);
+}
+
+.tier-grade-letter {
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--tier-color, #888);
+  letter-spacing: -2px;
+}
+
+.tier-name {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--tier-color, #888);
+  margin-bottom: 6px;
+}
+
+.tier-description {
+  display: block;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
 .investor-type-card {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
   padding: 40px 24px;
@@ -2893,6 +2950,29 @@ body {
 .share-return-large {
   font-size: 28px !important;
   font-weight: 800 !important;
+}
+
+/* 공유 카드 - 티어 배지 */
+.share-tier-badge {
+  text-align: center;
+  padding: 20px 16px;
+  margin-bottom: 16px;
+  border-radius: 20px;
+  border: 2px solid;
+}
+
+.share-tier-grade {
+  display: block;
+  font-size: 40px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  margin-bottom: 4px;
+}
+
+.share-tier-name {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .share-card-fomo {

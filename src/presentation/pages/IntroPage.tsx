@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GAME_MODE_CONFIG, type GameMode, investorProfiles } from '@domain/entities';
-import { trackPageView, trackClick, triggerHapticFeedback } from '@lib/appsInToss';
 import { getTotalPlayers, getTodayTopPlayer } from '@data/rankingService';
 import { extractAndSaveChallenge, type ChallengeData } from '@lib/challengeUtils';
 import { getCurrentTheme, formatSeasonInfo } from '@lib/seasonUtils';
@@ -32,11 +31,8 @@ export function IntroPage() {
   const seasonTheme = useMemo(() => getCurrentTheme(), []);
   const seasonInfo = useMemo(() => formatSeasonInfo(seasonTheme), [seasonTheme]);
 
-  // 페이지 진입 시 애널리틱스 추적 및 소셜 증거 로드
+  // 소셜 증거 데이터 로드
   useEffect(() => {
-    trackPageView('intro_page', challenge ? { has_challenge: true } : undefined);
-
-    // 소셜 증거 데이터 로드 (비동기)
     const loadSocialProof = async () => {
       const [players, top] = await Promise.all([
         getTotalPlayers(),
@@ -46,7 +42,7 @@ export function IntroPage() {
       setTodayTop(top);
     };
     loadSocialProof();
-  }, [challenge]);
+  }, []);
 
   // 소셜 증거 메시지 롤링
   useEffect(() => {
@@ -60,15 +56,10 @@ export function IntroPage() {
   }, []);
 
   const handleModeChange = (mode: GameMode) => {
-    triggerHapticFeedback('light');
-    trackClick(`select_mode_${mode}`);
     setSelectedMode(mode);
   };
 
   const handleStart = () => {
-    triggerHapticFeedback('medium');
-    trackClick('start_game', { mode: selectedMode });
-    // 모드를 URL 파라미터로 전달
     navigate(`/game?mode=${selectedMode}`);
   };
 

@@ -4,7 +4,6 @@ import { useGame } from '../hooks/useGame';
 import { getGameConfig, type Outcome, type GameMode } from '@domain/entities';
 import { calculateExpectedValue } from '@domain/usecases/gameEngine';
 import { AssetProgressChart } from '@presentation/components';
-import { triggerHapticFeedback, trackClick } from '@lib/appsInToss';
 import { formatBalance, formatMoney } from '@lib/formatUtils';
 import { getReactionMessage, getLuckText } from '@data/reactions';
 
@@ -96,22 +95,15 @@ export function GamePage() {
     return { count, type: isPositive ? 'win' : 'lose' };
   }, [gameState.results, isWaitingResult, lastResult]);
 
-  // 선택 시 햅틱 피드백 + 애널리틱스
   const handleChoice = useCallback((choice: 'A' | 'B') => {
-    triggerHapticFeedback('light');
-    trackClick(`choice_${choice}`, { round: gameState.currentRound + 1 });
     makeChoice(choice);
-  }, [makeChoice, gameState.currentRound]);
+  }, [makeChoice]);
 
-  // 다음 라운드 진행 시 햅틱 피드백
   const handleNextRound = useCallback(() => {
-    triggerHapticFeedback('medium');
     nextRound();
   }, [nextRound]);
 
-  // 뒤로가기 핸들러 (1라운드에서만 사용)
   const handleBack = useCallback(() => {
-    triggerHapticFeedback('light');
     navigate('/');
   }, [navigate]);
 

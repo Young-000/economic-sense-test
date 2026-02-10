@@ -159,6 +159,7 @@ describe('Type definitions', () => {
       luckScore: 10,
       investorType: 'balanced_investor',
       profile,
+      tier: { grade: 'A', name: '제법 하는데?', color: '#4ECDC4', bgColor: '#0F2E2C', description: '꽤 괜찮은 결과!', minReturn: 20 },
     };
 
     expect(finalResult.finalBalance).toBe(12_000_000);

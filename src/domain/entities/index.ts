@@ -73,6 +73,41 @@ export interface FinalResult {
   luckScore: number;          // 운 점수 (-100 ~ +100)
   investorType: InvestorType;
   profile: InvestorProfile;
+  tier: TierInfo;             // 티어 등급
+}
+
+/** 티어 등급 */
+export type TierGrade = 'SS' | 'S' | 'A' | 'B' | 'C' | 'D' | 'F';
+
+/** 티어 정보 */
+export interface TierInfo {
+  grade: TierGrade;
+  name: string;
+  color: string;
+  bgColor: string;
+  description: string;
+  minReturn: number; // 이 티어의 최소 수익률 (%)
+}
+
+/** 티어 등급 기준 (수익률 기반, 내림차순) */
+export const TIER_THRESHOLDS: TierInfo[] = [
+  { grade: 'SS', name: '금손 중의 금손', color: '#FFD700', bgColor: '#3D2E00', description: '전설적인 수익률! 운빨 만렙 달성', minReturn: 80 },
+  { grade: 'S', name: '타고난 금손', color: '#FF6B35', bgColor: '#3D1A0A', description: '대단한 결과! 자랑할 만한 수익률', minReturn: 50 },
+  { grade: 'A', name: '제법 하는데?', color: '#4ECDC4', bgColor: '#0F2E2C', description: '꽤 괜찮은 결과! 운이 따라줬어요', minReturn: 20 },
+  { grade: 'B', name: '본전치기 장인', color: '#95E1D3', bgColor: '#1A2E2A', description: '무난하게 지켜냈어요', minReturn: 0 },
+  { grade: 'C', name: '살짝 흙손', color: '#A8A8A8', bgColor: '#2A2A2A', description: '아쉽지만 다음엔 다를 거예요', minReturn: -30 },
+  { grade: 'D', name: '본격 흙손', color: '#FF8A80', bgColor: '#3D1A1A', description: '운이 안 따라줬네요...', minReturn: -60 },
+  { grade: 'F', name: '전설의 흙손', color: '#FF5252', bgColor: '#3D0A0A', description: '오히려 레전드! 이것도 재능', minReturn: -Infinity },
+];
+
+/** 수익률로 티어 계산 */
+export function calculateTier(totalReturn: number): TierInfo {
+  for (const tier of TIER_THRESHOLDS) {
+    if (totalReturn >= tier.minReturn) {
+      return tier;
+    }
+  }
+  return TIER_THRESHOLDS[TIER_THRESHOLDS.length - 1];
 }
 
 /** 게임 모드 */

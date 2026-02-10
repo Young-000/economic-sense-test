@@ -17,13 +17,6 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// appsInToss 모킹
-vi.mock('@lib/appsInToss', () => ({
-  trackPageView: vi.fn(),
-  trackClick: vi.fn(),
-  triggerHapticFeedback: vi.fn(),
-}));
-
 // rankingService 모킹
 vi.mock('@data/rankingService', () => ({
   getTotalPlayers: vi.fn().mockResolvedValue(1234),
@@ -34,8 +27,6 @@ vi.mock('@data/rankingService', () => ({
 vi.mock('@lib/challengeUtils', () => ({
   extractAndSaveChallenge: vi.fn().mockReturnValue(null),
 }));
-
-import { trackPageView, trackClick, triggerHapticFeedback } from '@lib/appsInToss';
 
 describe('IntroPage', () => {
   beforeEach(() => {
@@ -158,45 +149,6 @@ describe('IntroPage', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/game?mode=normal');
     });
 
-    it('should trigger haptic feedback on start', () => {
-      renderIntroPage();
-
-      const startButton = screen.getByRole('button', { name: '일반 모드로 게임 시작하기' });
-      fireEvent.click(startButton);
-
-      expect(triggerHapticFeedback).toHaveBeenCalledWith('medium');
-    });
-
-    it('should track click event on start with mode', () => {
-      renderIntroPage();
-
-      const startButton = screen.getByRole('button', { name: '일반 모드로 게임 시작하기' });
-      fireEvent.click(startButton);
-
-      expect(trackClick).toHaveBeenCalledWith('start_game', { mode: 'normal' });
-    });
-  });
-
-  describe('애널리틱스', () => {
-    it('should track page view on mount', () => {
-      renderIntroPage();
-
-      // 도전 데이터 없이 마운트되면 undefined로 호출됨
-      expect(trackPageView).toHaveBeenCalledWith('intro_page', undefined);
-    });
-
-    it('should track page view only once', () => {
-      const { rerender } = renderIntroPage();
-
-      rerender(
-        <MemoryRouter>
-          <IntroPage />
-        </MemoryRouter>
-      );
-
-      // 첫 렌더링에서만 호출됨
-      expect(trackPageView).toHaveBeenCalledTimes(1);
-    });
   });
 
   describe('스타일 클래스', () => {
@@ -247,24 +199,6 @@ describe('IntroPage', () => {
 
       const expectedBalance = `${Math.round(GAME_MODE_CONFIG.extreme.initialBalance / 10_000).toLocaleString()}만원`;
       expect(screen.getByText(new RegExp(expectedBalance))).toBeInTheDocument();
-    });
-
-    it('should trigger haptic feedback when mode changed', () => {
-      renderIntroPage();
-
-      const extremeBtn = screen.getByText(GAME_MODE_CONFIG.extreme.name).closest('button');
-      fireEvent.click(extremeBtn!);
-
-      expect(triggerHapticFeedback).toHaveBeenCalledWith('light');
-    });
-
-    it('should track mode selection', () => {
-      renderIntroPage();
-
-      const extremeBtn = screen.getByText(GAME_MODE_CONFIG.extreme.name).closest('button');
-      fireEvent.click(extremeBtn!);
-
-      expect(trackClick).toHaveBeenCalledWith('select_mode_extreme');
     });
 
     it('should navigate with extreme mode when extreme start clicked', () => {

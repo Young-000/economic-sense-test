@@ -62,14 +62,7 @@ vi.mock('../../hooks/useGame', () => ({
   })),
 }));
 
-// appsInToss 모킹
-vi.mock('@lib/appsInToss', () => ({
-  triggerHapticFeedback: vi.fn(),
-  trackClick: vi.fn(),
-}));
-
 import { useGame } from '../../hooks/useGame';
-import { triggerHapticFeedback, trackClick } from '@lib/appsInToss';
 
 describe('GamePage', () => {
   beforeEach(() => {
@@ -146,23 +139,6 @@ describe('GamePage', () => {
       expect(mockMakeChoice).toHaveBeenCalledWith('B');
     });
 
-    it('should trigger haptic feedback on choice', () => {
-      renderGamePage();
-
-      const choiceA = screen.getByLabelText(/A 선택/);
-      fireEvent.click(choiceA);
-
-      expect(triggerHapticFeedback).toHaveBeenCalledWith('light');
-    });
-
-    it('should track click event on choice', () => {
-      renderGamePage();
-
-      const choiceA = screen.getByLabelText(/A 선택/);
-      fireEvent.click(choiceA);
-
-      expect(trackClick).toHaveBeenCalledWith('choice_A', { round: 1 });
-    });
   });
 
   describe('결과 표시', () => {
@@ -233,7 +209,6 @@ describe('GamePage', () => {
       fireEvent.click(nextBtn);
 
       expect(mockNextRound).toHaveBeenCalled();
-      expect(triggerHapticFeedback).toHaveBeenCalledWith('medium');
     });
 
     it('should show 결과 보기 on last round', () => {

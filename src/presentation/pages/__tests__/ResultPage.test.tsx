@@ -49,17 +49,10 @@ vi.mock('@data/achievementService', () => ({
 }));
 
 vi.mock('@lib/appsInToss', () => ({
-  isAppsInToss: vi.fn().mockReturnValue(false),
-  submitToGameLeaderboard: vi.fn().mockResolvedValue({ success: true }),
-  openGameLeaderboard: vi.fn().mockResolvedValue({ success: true }),
-  initTossAds: vi.fn(),
-  attachBannerAd: vi.fn().mockReturnValue(null),
-  removeBannerAd: vi.fn(),
   trackPageView: vi.fn(),
   trackClick: vi.fn(),
   trackImpression: vi.fn(),
   triggerHapticFeedback: vi.fn(),
-  setClipboardText: vi.fn().mockResolvedValue(true),
 }));
 
 // 유효한 게임 결과 데이터 생성
@@ -714,40 +707,6 @@ describe('ResultPage', () => {
       sessionStorage.setItem('gameQuestions', JSON.stringify(questions));
     });
 
-    it('should trigger haptic feedback on share', async () => {
-      const { triggerHapticFeedback } = await import('@lib/appsInToss');
-
-      renderResultPage();
-
-      await waitFor(() => {
-        expect(screen.getByText('텍스트로 공유하기')).toBeInTheDocument();
-      });
-
-      const shareBtn = screen.getByText('텍스트로 공유하기');
-      fireEvent.click(shareBtn);
-
-      await waitFor(() => {
-        expect(triggerHapticFeedback).toHaveBeenCalledWith('light');
-      });
-    });
-
-    it('should track share click', async () => {
-      const { trackClick } = await import('@lib/appsInToss');
-
-      renderResultPage();
-
-      await waitFor(() => {
-        expect(screen.getByText('텍스트로 공유하기')).toBeInTheDocument();
-      });
-
-      const shareBtn = screen.getByText('텍스트로 공유하기');
-      fireEvent.click(shareBtn);
-
-      await waitFor(() => {
-        expect(trackClick).toHaveBeenCalledWith('share_result_text');
-      });
-    });
-
     it('should copy to clipboard when navigator.share is not available', async () => {
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
 
@@ -805,81 +764,6 @@ describe('ResultPage', () => {
       // 토글 후 AchievementList가 표시되어야 함
       await waitFor(() => {
         expect(screen.getByText(/업적.*▲/)).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Apps in Toss 환경', () => {
-    beforeEach(() => {
-      const { questions, results } = createValidGameData();
-      sessionStorage.setItem('gameResults', JSON.stringify(results));
-      sessionStorage.setItem('gameQuestions', JSON.stringify(questions));
-    });
-
-    it('should render Toss leaderboard button in Toss app', async () => {
-      const { isAppsInToss } = await import('@lib/appsInToss');
-      (isAppsInToss as ReturnType<typeof vi.fn>).mockReturnValue(true);
-
-      renderResultPage();
-
-      await waitFor(() => {
-        expect(screen.getByText('토스 앱 전체 랭킹 보기')).toBeInTheDocument();
-      });
-    });
-
-    it('should submit to Toss leaderboard when ranking submitted in Toss app', async () => {
-      const { isAppsInToss, submitToGameLeaderboard } = await import('@lib/appsInToss');
-      const { submitRanking } = await import('@data/rankingService');
-
-      (isAppsInToss as ReturnType<typeof vi.fn>).mockReturnValue(true);
-      (submitRanking as ReturnType<typeof vi.fn>).mockResolvedValue({ success: true, rank: 1 });
-      (submitToGameLeaderboard as ReturnType<typeof vi.fn>).mockResolvedValue({ success: true });
-
-      renderResultPage();
-
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)')).toBeInTheDocument();
-      });
-
-      const input = screen.getByPlaceholderText('닉네임 입력 (한글/영문/숫자)');
-      fireEvent.change(input, { target: { value: '토스유저' } });
-
-      const submitBtn = screen.getByText('등록하기');
-      fireEvent.click(submitBtn);
-
-      await waitFor(() => {
-        expect(submitToGameLeaderboard).toHaveBeenCalled();
-      });
-    });
-
-    it('should open Toss leaderboard when button clicked', async () => {
-      const { isAppsInToss, openGameLeaderboard, trackClick } = await import('@lib/appsInToss');
-
-      (isAppsInToss as ReturnType<typeof vi.fn>).mockReturnValue(true);
-
-      renderResultPage();
-
-      await waitFor(() => {
-        expect(screen.getByText('토스 앱 전체 랭킹 보기')).toBeInTheDocument();
-      });
-
-      const tossBtn = screen.getByText('토스 앱 전체 랭킹 보기');
-      fireEvent.click(tossBtn);
-
-      await waitFor(() => {
-        expect(trackClick).toHaveBeenCalledWith('toss_leaderboard');
-        expect(openGameLeaderboard).toHaveBeenCalled();
-      });
-    });
-
-    it('should render TossAds container in Toss app', async () => {
-      const { isAppsInToss } = await import('@lib/appsInToss');
-      (isAppsInToss as ReturnType<typeof vi.fn>).mockReturnValue(true);
-
-      const { container } = renderResultPage();
-
-      await waitFor(() => {
-        expect(container.querySelector('.toss-ads-container')).toBeInTheDocument();
       });
     });
   });
@@ -962,38 +846,6 @@ describe('ResultPage', () => {
         const balanceEl = container.querySelector('.ranking-balance');
         expect(balanceEl).toBeInTheDocument();
       });
-    });
-  });
-
-  describe('Apps in Toss 클립보드', () => {
-    beforeEach(() => {
-      const { questions, results } = createValidGameData();
-      sessionStorage.setItem('gameResults', JSON.stringify(results));
-      sessionStorage.setItem('gameQuestions', JSON.stringify(questions));
-    });
-
-    it('should copy using Toss API when in Toss app', async () => {
-      const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
-      const { isAppsInToss, setClipboardText } = await import('@lib/appsInToss');
-
-      (isAppsInToss as ReturnType<typeof vi.fn>).mockReturnValue(true);
-      (setClipboardText as ReturnType<typeof vi.fn>).mockResolvedValue(true);
-
-      renderResultPage();
-
-      await waitFor(() => {
-        expect(screen.getByText('텍스트로 공유하기')).toBeInTheDocument();
-      });
-
-      const shareBtn = screen.getByText('텍스트로 공유하기');
-      fireEvent.click(shareBtn);
-
-      await waitFor(() => {
-        expect(setClipboardText).toHaveBeenCalled();
-        expect(alertSpy).toHaveBeenCalledWith('결과가 복사되었습니다!');
-      });
-
-      alertSpy.mockRestore();
     });
   });
 
