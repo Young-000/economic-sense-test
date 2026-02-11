@@ -966,7 +966,6 @@ export function analyzeDistribution(questions: Question[]): {
 export async function generateQuestions(mode: GameMode = 'normal'): Promise<Question[]> {
   // 극한 모드는 DB 없이 로컬만 사용 (특별한 시나리오)
   if (mode === 'extreme') {
-    console.log('Using extreme mode templates');
     return generateQuestionsLocal(mode);
   }
 
@@ -976,7 +975,6 @@ export async function generateQuestions(mode: GameMode = 'normal'): Promise<Ques
     const dbQuestions = await fetchQuestionsFromDB();
 
     if (dbQuestions && dbQuestions.length > 0) {
-      console.log(`Loaded ${dbQuestions.length} questions from DB`);
       return dbQuestions;
     }
   } catch (error) {
@@ -984,7 +982,6 @@ export async function generateQuestions(mode: GameMode = 'normal'): Promise<Ques
   }
 
   // 2. 폴백: 로컬 템플릿 사용
-  console.log('Using local question templates as fallback');
   return generateQuestionsLocal(mode);
 }
 

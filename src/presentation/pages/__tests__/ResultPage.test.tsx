@@ -395,7 +395,7 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByText(/업적/)).toBeInTheDocument();
+        expect(screen.getByText(/🏅 업적/)).toBeInTheDocument();
       });
     });
   });
@@ -454,11 +454,11 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByText(/업적/)).toBeInTheDocument();
+        expect(screen.getByText(/🏅 업적/)).toBeInTheDocument();
       });
 
       // 업적 버튼이 렌더링되어 있어야 함
-      const toggleBtn = screen.getByText(/업적/);
+      const toggleBtn = screen.getByText(/🏅 업적/);
       expect(toggleBtn).toBeInTheDocument();
     });
 
@@ -755,10 +755,10 @@ describe('ResultPage', () => {
       renderResultPage();
 
       await waitFor(() => {
-        expect(screen.getByText(/업적/)).toBeInTheDocument();
+        expect(screen.getByText(/🏅 업적/)).toBeInTheDocument();
       });
 
-      const toggleBtn = screen.getByText(/업적/);
+      const toggleBtn = screen.getByText(/🏅 업적/);
       fireEvent.click(toggleBtn);
 
       // 토글 후 AchievementList가 표시되어야 함

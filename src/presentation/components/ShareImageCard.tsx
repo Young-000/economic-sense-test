@@ -8,9 +8,9 @@
  * - 명확한 CTA
  * - FOMO 유발 문구
  */
-import { forwardRef } from 'react';
-import type { InvestorProfile, TierInfo } from '@domain/entities';
-import { formatBalance } from '@lib/formatUtils';
+import { forwardRef, type CSSProperties } from 'react';
+import type { InvestorProfile, TierInfo, TierGrade } from '@domain/entities';
+import { formatBalance, getLuckLabel } from '@lib/formatUtils';
 
 export interface ShareImageCardProps {
   profile: InvestorProfile;
@@ -30,6 +30,51 @@ const getResultGradient = (totalReturn: number): string => {
   if (totalReturn >= 0) return 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)'; // 퍼플
   if (totalReturn >= -30) return 'linear-gradient(135deg, #f97316 0%, #ea580c 50%, #c2410c 100%)'; // 오렌지
   return 'linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%)'; // 레드
+};
+
+// 티어 등급별 아이콘
+const getTierIcon = (grade: TierGrade): string => {
+  switch (grade) {
+    case 'SS': return '👑';
+    case 'S': return '🔥';
+    case 'F': return '💀';
+    default: return '';
+  }
+};
+
+// 티어 등급별 인라인 스타일 (html2canvas 호환)
+const getTierCardStyle = (grade: TierGrade, color: string, bgColor: string): CSSProperties => {
+  const base: CSSProperties = {
+    textAlign: 'center' as const,
+    padding: '24px 16px',
+    marginBottom: '16px',
+    borderRadius: '20px',
+    border: `3px solid ${color}`,
+    background: bgColor,
+    position: 'relative' as const,
+  };
+
+  switch (grade) {
+    case 'SS':
+      return {
+        ...base,
+        background: 'linear-gradient(135deg, #3D2E00 0%, #5A4400 50%, #3D2E00 100%)',
+        border: '4px solid #FFD700',
+        boxShadow: '0 0 30px rgba(255, 215, 0, 0.5), inset 0 0 20px rgba(255, 215, 0, 0.1)',
+      };
+    case 'S':
+      return {
+        ...base,
+        boxShadow: '0 0 20px rgba(255, 107, 53, 0.4)',
+      };
+    case 'F':
+      return {
+        ...base,
+        boxShadow: '0 0 25px rgba(255, 82, 82, 0.5), inset 0 0 15px rgba(255, 82, 82, 0.1)',
+      };
+    default:
+      return base;
+  }
 };
 
 // 결과에 따른 리액션 문구 (바이럴용)
@@ -61,13 +106,7 @@ export const ShareImageCard = forwardRef<HTMLDivElement, ShareImageCardProps>(
     },
     ref
   ) => {
-    const luckLabel = (() => {
-      if (luckScore >= 50) return '대박 행운!';
-      if (luckScore >= 20) return '운 좋았어요';
-      if (luckScore >= -20) return '평균적인 운';
-      if (luckScore >= -50) return '운이 없었네요';
-      return '극심한 불운';
-    })();
+    const luckLabel = getLuckLabel(luckScore);
 
     const viralReaction = getViralReaction(totalReturn);
     const resultGradient = getResultGradient(totalReturn);
@@ -85,16 +124,46 @@ export const ShareImageCard = forwardRef<HTMLDivElement, ShareImageCardProps>(
         </div>
 
         {/* 티어 배지 - 핵심 바이럴 요소 */}
-        <div
-          className="share-tier-badge"
-          style={{ background: tier.bgColor, borderColor: tier.color }}
-        >
-          <span className="share-tier-grade" style={{ color: tier.color }}>
+        <div style={getTierCardStyle(tier.grade, tier.color, tier.bgColor)}>
+          {getTierIcon(tier.grade) && (
+            <span style={{ fontSize: '28px', display: 'block', marginBottom: '4px' }}>
+              {getTierIcon(tier.grade)}
+            </span>
+          )}
+          <span style={{
+            display: 'block',
+            fontSize: tier.grade === 'SS' ? '56px' : '48px',
+            fontWeight: 900,
+            color: tier.color,
+            letterSpacing: '-2px',
+            marginBottom: '4px',
+            textShadow: tier.grade === 'SS' ? '0 0 20px rgba(255, 215, 0, 0.6)' : undefined,
+          }}>
             {tier.grade}
           </span>
-          <span className="share-tier-name" style={{ color: tier.color }}>
+          <span style={{
+            display: 'block',
+            fontSize: '16px',
+            fontWeight: 700,
+            color: tier.color,
+            marginBottom: tier.grade === 'F' ? '6px' : '0',
+          }}>
             {tier.name}
           </span>
+          {tier.grade === 'F' && (
+            <span style={{
+              display: 'inline-block',
+              fontSize: '12px',
+              fontWeight: 700,
+              color: '#FF5252',
+              background: 'rgba(255, 82, 82, 0.15)',
+              padding: '4px 10px',
+              borderRadius: '10px',
+              marginTop: '4px',
+            }}>
+              오히려 레전드
+            </span>
+          )}
         </div>
 
         {/* 투자자 유형 */}
@@ -167,7 +236,7 @@ export const ShareImageCard = forwardRef<HTMLDivElement, ShareImageCardProps>(
 
         {/* FOMO 유발 문구 */}
         <div className="share-card-fomo">
-          <span>🤔 당신의 티어는? {tier.grade}등급 도전!</span>
+          <span>🏆 전체의 약 {tier.rarity}%만 달성! {tier.grade}등급 도전!</span>
         </div>
       </div>
     );
