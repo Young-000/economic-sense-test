@@ -7,6 +7,9 @@ import { getCurrentTheme, formatSeasonInfo } from '@lib/seasonUtils';
 import { formatBalance } from '@lib/formatUtils';
 import { AdBanner, SiteFooter } from '@presentation/components';
 
+/** 소셜 증거 메시지 롤링 주기 (ms) */
+const SOCIAL_PROOF_INTERVAL_MS = 4000;
+
 // 소셜 증거 메시지 생성
 const SOCIAL_PROOF_MESSAGES = [
   '방금 누군가 "금손 전략가" 획득! 👑',
@@ -52,7 +55,7 @@ export function IntroPage() {
       setSocialMessage(SOCIAL_PROOF_MESSAGES[randomIndex]);
     };
     updateMessage();
-    const interval = setInterval(updateMessage, 4000);
+    const interval = setInterval(updateMessage, SOCIAL_PROOF_INTERVAL_MS);
     return () => clearInterval(interval);
   }, []);
 

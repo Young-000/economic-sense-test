@@ -7,8 +7,8 @@ import { AssetProgressChart } from '@presentation/components';
 import { formatBalance, formatMoney } from '@lib/formatUtils';
 import { getReactionMessage, getLuckText } from '@data/reactions';
 
-// formatMoney는 이제 @lib/formatUtils에서 import
-// 작은 금액도 '천' 단위로 정확히 표시됨 (예: -8000원 → -8천)
+/** 연속 스트릭 배지 표시 최소 횟수 */
+const STREAK_BADGE_THRESHOLD = 3;
 
 const renderOutcomes = (outcomes: Outcome[]): JSX.Element[] => {
   return outcomes.map((outcome, idx) => (
@@ -215,7 +215,7 @@ export function GamePage() {
               })}
             </div>
             {/* 연속 스트릭 표시 */}
-            {currentStreak.count >= 3 && (
+            {currentStreak.count >= STREAK_BADGE_THRESHOLD && (
               <div className={`streak-badge ${currentStreak.type}`}>
                 {currentStreak.type === 'win' ? '🔥' : '💧'} {currentStreak.count}연속 {currentStreak.type === 'win' ? '수익!' : '손실'}
               </div>

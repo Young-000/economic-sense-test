@@ -238,6 +238,28 @@ export function ResultPage() {
     );
   }, [finalResult]);
 
+  // 모달 닫기 (hooks는 early return 전에 선언)
+  const handleCloseShareModal = useCallback(() => {
+    setShowShareModal(false);
+    if (shareImageUrl) {
+      URL.revokeObjectURL(shareImageUrl);
+      setShareImageUrl(null);
+    }
+  }, [shareImageUrl]);
+
+  // 공유 모달 ESC 키 닫기
+  useEffect(() => {
+    if (!showShareModal) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleCloseShareModal();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showShareModal, handleCloseShareModal]);
+
   if (!finalResult) {
     return (
       <main className="result-page">
@@ -412,28 +434,6 @@ export function ResultPage() {
     downloadBlob(shareImageBlob, filename);
     alert('이미지가 저장되었습니다!');
   };
-
-  // 모달 닫기
-  const handleCloseShareModal = useCallback(() => {
-    setShowShareModal(false);
-    if (shareImageUrl) {
-      URL.revokeObjectURL(shareImageUrl);
-      setShareImageUrl(null);
-    }
-  }, [shareImageUrl]);
-
-  // 공유 모달 ESC 키 닫기
-  useEffect(() => {
-    if (!showShareModal) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleCloseShareModal();
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showShareModal, handleCloseShareModal]);
 
   const handleShare = async () => {
     await handleGenerateShareImage();

@@ -143,8 +143,14 @@ export const GAME_CONFIG = {
   TOTAL_ROUNDS: 10,
 } as const;
 
+/** 게임 설정 반환 타입 */
+export interface GameConfig {
+  INITIAL_BALANCE: number;
+  TOTAL_ROUNDS: number;
+}
+
 /** 모드별 게임 설정 가져오기 */
-export function getGameConfig(mode: GameMode) {
+export function getGameConfig(mode: GameMode): GameConfig {
   const config = GAME_MODE_CONFIG[mode];
   return {
     INITIAL_BALANCE: config.initialBalance,

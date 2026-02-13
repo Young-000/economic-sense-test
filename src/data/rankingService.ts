@@ -161,12 +161,9 @@ export async function getTodayTopPlayer(): Promise<{ nickname: string; totalRetu
       .gte('created_at', today.toISOString())
       .order('total_return', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
-    if (error) {
-      if (error.code === 'PGRST116') return null;
-      throw error;
-    }
+    if (error) throw error;
 
     return data ? { nickname: data.nickname, totalReturn: data.total_return } : null;
   } catch (err) {
@@ -190,13 +187,9 @@ export async function getTopPlayerRoundResults(): Promise<RoundResultData[] | nu
       .select('round_results')
       .order('total_return', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
-    if (error) {
-      // 데이터가 없는 경우
-      if (error.code === 'PGRST116') return null;
-      throw error;
-    }
+    if (error) throw error;
 
     return (data?.round_results as RoundResultData[]) ?? null;
   } catch (err) {

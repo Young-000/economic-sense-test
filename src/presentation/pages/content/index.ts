@@ -1,0 +1,10 @@
+export { AboutPage } from './AboutPage';
+export { PrivacyPage } from './PrivacyPage';
+export { TermsPage } from './TermsPage';
+export { GuidePage } from './GuidePage';
+export { TierGuidePage } from './TierGuidePage';
+export { InvestorTypesPage } from './InvestorTypesPage';
+export { TipsPage } from './TipsPage';
+export { FaqPage } from './FaqPage';
+export { UpdatesPage } from './UpdatesPage';
+export { RankingGuidePage } from './RankingGuidePage';

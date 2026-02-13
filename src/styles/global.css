@@ -3386,11 +3386,18 @@ input:focus-visible {
   text-underline-offset: 2px;
 }
 
+.content-body .table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 16px;
+}
+
 .content-body table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 16px;
   font-size: 13px;
+  min-width: 320px;
 }
 
 .content-body th {
@@ -3450,6 +3457,9 @@ input:focus-visible {
   margin-top: 40px;
   padding-top: 24px;
   border-top: 1px solid var(--border);
+}
+
+.footer-nav {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
@@ -3814,4 +3824,19 @@ input:focus-visible {
 
 .guide-link-card span {
   font-size: 16px;
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 480px) {
+  .footer-nav {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .footer-nav .footer-section:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .type-detail-grid {
+    grid-template-columns: 1fr;
+  }
 }
