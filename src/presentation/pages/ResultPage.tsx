@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import { useMemo, useState, useEffect, useRef, useCallback, type CSSProperties } from 'react';
 import type { RoundResult, Question, GameMode } from '@domain/entities';
 import { getGameConfig, investorProfiles } from '@domain/entities';
 import { calculateFinalResult } from '@domain/usecases';
@@ -15,8 +15,9 @@ import {
   calculateGameStats,
   type Achievement,
 } from '@data/achievementService';
-import { AssetProgressChart, Confetti, NewAchievementsPopup, AchievementList, ShareImageCard, AdBanner } from '@presentation/components';
-import { formatBalance } from '@lib/formatUtils';
+import { AssetProgressChart, Confetti, NewAchievementsPopup, AchievementList, ShareImageCard, AdBanner, SiteFooter } from '@presentation/components';
+import { Link } from 'react-router-dom';
+import { formatBalance, getLuckLabel } from '@lib/formatUtils';
 import {
   elementToBlob,
   shareImage,
@@ -237,16 +238,38 @@ export function ResultPage() {
     );
   }, [finalResult]);
 
+  // 모달 닫기 (hooks는 early return 전에 선언)
+  const handleCloseShareModal = useCallback(() => {
+    setShowShareModal(false);
+    if (shareImageUrl) {
+      URL.revokeObjectURL(shareImageUrl);
+      setShareImageUrl(null);
+    }
+  }, [shareImageUrl]);
+
+  // 공유 모달 ESC 키 닫기
+  useEffect(() => {
+    if (!showShareModal) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleCloseShareModal();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showShareModal, handleCloseShareModal]);
+
   if (!finalResult) {
     return (
-      <div className="result-page">
-        <div className="result-error">
+      <main className="result-page">
+        <div className="result-error" role="alert">
           <p>결과를 찾을 수 없습니다.</p>
           <button className="retry-button" onClick={() => navigate('/')}>
             다시 시작하기
           </button>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -259,13 +282,7 @@ export function ResultPage() {
     return 'return-terrible';
   })();
 
-  const luckLabel = (() => {
-    if (luckScore >= 50) return '대박 행운! 🍀🍀';
-    if (luckScore >= 20) return '운 좋았어요 🍀';
-    if (luckScore >= -20) return '평균적인 운';
-    if (luckScore >= -50) return '운이 없었네요 😢';
-    return '극심한 불운 😭';
-  })();
+  const luckLabel = getLuckLabel(luckScore, true);
 
   const nicknameValidation = validateNickname(nickname);
 
@@ -418,21 +435,12 @@ export function ResultPage() {
     alert('이미지가 저장되었습니다!');
   };
 
-  // 모달 닫기
-  const handleCloseShareModal = () => {
-    setShowShareModal(false);
-    if (shareImageUrl) {
-      URL.revokeObjectURL(shareImageUrl);
-      setShareImageUrl(null);
-    }
-  };
-
   const handleShare = async () => {
     await handleGenerateShareImage();
   };
 
   return (
-    <div className="result-page">
+    <main className="result-page" aria-labelledby="result-type-name">
       {/* 컨페티 효과 */}
       <Confetti active={isNewRecord || newAchievements.length > 0} count={60} duration={3500} />
 
@@ -452,20 +460,23 @@ export function ResultPage() {
 
         {/* 티어 배지 - 핵심 히어로 요소 */}
         <div
-          className="tier-badge-hero"
-          style={{ '--tier-color': tier.color, '--tier-bg': tier.bgColor } as React.CSSProperties}
+          className={`tier-badge-hero tier-${tier.grade}`}
+          style={{ '--tier-color': tier.color, '--tier-bg': tier.bgColor } as CSSProperties}
         >
           <div className="tier-grade-display">
             <span className="tier-grade-letter">{tier.grade}</span>
           </div>
           <span className="tier-name">{tier.name}</span>
           <span className="tier-description">{tier.description}</span>
+          <span className="tier-rarity-text">
+            전체 플레이어의 약 {tier.rarity}%만 달성한 등급!
+          </span>
         </div>
 
         {/* 투자자 유형 */}
         <div className="investor-type-card">
           <span className="type-emoji">{profile.emoji}</span>
-          <h1 className="type-name">{profile.name}</h1>
+          <h1 id="result-type-name" className="type-name">{profile.name}</h1>
           <span className="type-tag">#{profile.tag}</span>
         </div>
 
@@ -732,7 +743,14 @@ export function ResultPage() {
               <span className="stat-label">공격성</span>
               <span className="stat-value">{riskScore}%</span>
             </div>
-            <div className="stat-bar">
+            <div
+              className="stat-bar"
+              role="progressbar"
+              aria-valuenow={riskScore}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="공격성"
+            >
               <div className="stat-fill risk" style={{ width: `${riskScore}%` }} />
             </div>
             <div className="stat-labels">
@@ -746,7 +764,14 @@ export function ResultPage() {
               <span className="stat-label">합리성</span>
               <span className="stat-value">{rationalityScore}%</span>
             </div>
-            <div className="stat-bar">
+            <div
+              className="stat-bar"
+              role="progressbar"
+              aria-valuenow={rationalityScore}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="합리성"
+            >
               <div className="stat-fill rational" style={{ width: `${rationalityScore}%` }} />
             </div>
             <div className="stat-labels">
@@ -760,7 +785,14 @@ export function ResultPage() {
               <span className="stat-label">운</span>
               <span className="stat-value">{luckLabel}</span>
             </div>
-            <div className="stat-bar luck-bar">
+            <div
+              className="stat-bar luck-bar"
+              role="meter"
+              aria-valuenow={luckScore}
+              aria-valuemin={-100}
+              aria-valuemax={100}
+              aria-label="운"
+            >
               <div
                 className={`stat-fill luck ${luckScore >= 0 ? 'positive' : 'negative'}`}
                 style={{
@@ -819,8 +851,29 @@ export function ResultPage() {
           </button>
         </div>
 
+        {/* 가이드 링크 */}
+        <div className="result-guide-links">
+          <h2 className="section-title">📖 더 알아보기</h2>
+          <div className="guide-link-grid">
+            <Link to="/guide" className="guide-link-card">
+              <span>🎮</span> 게임 가이드
+            </Link>
+            <Link to="/guide/tiers" className="guide-link-card">
+              <span>🏆</span> 티어 등급
+            </Link>
+            <Link to="/guide/types" className="guide-link-card">
+              <span>🎭</span> 투자자 유형
+            </Link>
+            <Link to="/guide/tips" className="guide-link-card">
+              <span>💡</span> 고득점 꿀팁
+            </Link>
+          </div>
+        </div>
+
         {/* Google AdSense 배너 */}
         <AdBanner className="result-ad" />
+
+        <SiteFooter />
       </div>
 
       {/* 공유용 이미지 카드 (오프스크린 렌더링) */}
@@ -840,9 +893,15 @@ export function ResultPage() {
 
       {/* 공유 이미지 모달 */}
       {showShareModal && shareImageUrl && (
-        <div className="share-modal-overlay" onClick={handleCloseShareModal}>
-          <div className="share-modal" onClick={(e) => e.stopPropagation()}>
-            <h2 className="share-modal-title">공유 이미지 미리보기</h2>
+        <div className="share-modal-overlay" onClick={handleCloseShareModal} role="presentation">
+          <div
+            className="share-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="share-modal-title"
+          >
+            <h2 id="share-modal-title" className="share-modal-title">공유 이미지 미리보기</h2>
             <div className="share-modal-preview">
               <img src={shareImageUrl} alt="공유 이미지" />
             </div>
@@ -891,12 +950,13 @@ export function ResultPage() {
             <button
               className="share-modal-close"
               onClick={handleCloseShareModal}
+              aria-label="공유 모달 닫기"
             >
               닫기
             </button>
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }

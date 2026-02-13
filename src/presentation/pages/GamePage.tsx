@@ -7,8 +7,8 @@ import { AssetProgressChart } from '@presentation/components';
 import { formatBalance, formatMoney } from '@lib/formatUtils';
 import { getReactionMessage, getLuckText } from '@data/reactions';
 
-// formatMoney는 이제 @lib/formatUtils에서 import
-// 작은 금액도 '천' 단위로 정확히 표시됨 (예: -8000원 → -8천)
+/** 연속 스트릭 배지 표시 최소 횟수 */
+const STREAK_BADGE_THRESHOLD = 3;
 
 const renderOutcomes = (outcomes: Outcome[]): JSX.Element[] => {
   return outcomes.map((outcome, idx) => (
@@ -110,19 +110,19 @@ export function GamePage() {
   // 로딩 상태 표시
   if (isLoadingQuestions && !currentQuestion) {
     return (
-      <div className="game-page">
-        <div className="loading-state">
-          <span className="loading-emoji">🎲</span>
+      <main className="game-page">
+        <div className="loading-state" role="status" aria-live="polite">
+          <span className="loading-emoji" aria-hidden="true">🎲</span>
           <p>질문을 불러오는 중...</p>
         </div>
-      </div>
+      </main>
     );
   }
 
   if (gameState.isComplete || !currentQuestion) return null;
 
   return (
-    <div className="game-page">
+    <main className="game-page" aria-labelledby="game-situation">
       {/* 상단 헤더 */}
       <div className="game-header">
         {/* 1라운드에서만 뒤로가기 버튼 표시 */}
@@ -215,7 +215,7 @@ export function GamePage() {
               })}
             </div>
             {/* 연속 스트릭 표시 */}
-            {currentStreak.count >= 3 && (
+            {currentStreak.count >= STREAK_BADGE_THRESHOLD && (
               <div className={`streak-badge ${currentStreak.type}`}>
                 {currentStreak.type === 'win' ? '🔥' : '💧'} {currentStreak.count}연속 {currentStreak.type === 'win' ? '수익!' : '손실'}
               </div>
@@ -229,7 +229,7 @@ export function GamePage() {
         <div key={currentQuestion.id} className="question-container">
           {/* 상황 카드 */}
           <div className="situation-card">
-            <span className="situation-text">{currentQuestion.situation}</span>
+            <span id="game-situation" className="situation-text">{currentQuestion.situation}</span>
           </div>
 
           {/* 선택지 카드들 */}
@@ -270,6 +270,6 @@ export function GamePage() {
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }

@@ -15,3 +15,6 @@ coverage/
 playwright-report/
 test-results/
 
+# Supabase temp files (auto-generated, may contain infra details)
+supabase/.temp/
+

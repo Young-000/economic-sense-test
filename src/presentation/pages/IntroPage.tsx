@@ -4,7 +4,11 @@ import { GAME_MODE_CONFIG, type GameMode, investorProfiles } from '@domain/entit
 import { getTotalPlayers, getTodayTopPlayer } from '@data/rankingService';
 import { extractAndSaveChallenge, type ChallengeData } from '@lib/challengeUtils';
 import { getCurrentTheme, formatSeasonInfo } from '@lib/seasonUtils';
-import { AdBanner } from '@presentation/components';
+import { formatBalance } from '@lib/formatUtils';
+import { AdBanner, SiteFooter } from '@presentation/components';
+
+/** 소셜 증거 메시지 롤링 주기 (ms) */
+const SOCIAL_PROOF_INTERVAL_MS = 4000;
 
 // 소셜 증거 메시지 생성
 const SOCIAL_PROOF_MESSAGES = [
@@ -51,7 +55,7 @@ export function IntroPage() {
       setSocialMessage(SOCIAL_PROOF_MESSAGES[randomIndex]);
     };
     updateMessage();
-    const interval = setInterval(updateMessage, 4000);
+    const interval = setInterval(updateMessage, SOCIAL_PROOF_INTERVAL_MS);
     return () => clearInterval(interval);
   }, []);
 
@@ -61,10 +65,6 @@ export function IntroPage() {
 
   const handleStart = () => {
     navigate(`/game?mode=${selectedMode}`);
-  };
-
-  const formatBalance = (value: number) => {
-    return `${Math.round(value / 10_000).toLocaleString()}만원`;
   };
 
   // 참여자 수 포맷팅 (1000 이상이면 천 단위로)
@@ -79,7 +79,7 @@ export function IntroPage() {
   const challengeProfile = challenge ? investorProfiles[challenge.type] : null;
 
   return (
-    <main className="intro-page" role="main" aria-labelledby="intro-title">
+    <main className="intro-page" aria-labelledby="intro-title">
       <div className="intro-content">
         {/* 시즌/이벤트 배너 */}
         <div
@@ -204,6 +204,8 @@ export function IntroPage() {
 
         {/* Google AdSense 배너 */}
         <AdBanner className="intro-ad" />
+
+        <SiteFooter />
       </div>
     </main>
   );

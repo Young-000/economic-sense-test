@@ -25,9 +25,11 @@ export function encodeChallengeData(data: Omit<ChallengeData, 'ts'>): string {
     ...data,
     ts: Date.now(),
   };
-  // 간단한 Base64 인코딩 (URL-safe)
+  // UTF-8 안전 Base64 인코딩 (URL-safe)
   const json = JSON.stringify(payload);
-  return btoa(json).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  const bytes = new TextEncoder().encode(json);
+  const binary = Array.from(bytes, (b) => String.fromCharCode(b)).join('');
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
 /**
@@ -35,10 +37,12 @@ export function encodeChallengeData(data: Omit<ChallengeData, 'ts'>): string {
  */
 export function decodeChallengeData(encoded: string): ChallengeData | null {
   try {
-    // URL-safe Base64 복원
+    // URL-safe Base64 복원 (UTF-8 안전)
     const base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
     const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
-    const json = atob(padded);
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    const json = new TextDecoder().decode(bytes);
     const data = JSON.parse(json) as ChallengeData;
 
     // 유효성 검사

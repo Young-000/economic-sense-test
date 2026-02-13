@@ -63,11 +63,13 @@ export const getReturnClass = (totalReturn: number): string => {
 
 /**
  * 운 점수에 따른 라벨 반환
+ * @param luckScore 운 점수
+ * @param withEmoji 이모지 포함 여부 (기본: false)
  */
-export const getLuckLabel = (luckScore: number): string => {
-  if (luckScore > 50) return '대박 행운';
-  if (luckScore > 20) return '행운';
-  if (luckScore > -20) return '보통';
-  if (luckScore > -50) return '불운';
-  return '극심한 불운';
+export const getLuckLabel = (luckScore: number, withEmoji = false): string => {
+  if (luckScore >= 50) return withEmoji ? '대박 행운! 🍀🍀' : '대박 행운!';
+  if (luckScore >= 20) return withEmoji ? '운 좋았어요 🍀' : '운 좋았어요';
+  if (luckScore >= -20) return withEmoji ? '평균적인 운' : '평균적인 운';
+  if (luckScore >= -50) return withEmoji ? '운이 없었네요 😢' : '운이 없었네요';
+  return withEmoji ? '극심한 불운 😭' : '극심한 불운';
 };

@@ -86,18 +86,30 @@ describe('formatUtils', () => {
 
   describe('getLuckLabel', () => {
     it('should return appropriate labels for luck scores', () => {
-      expect(getLuckLabel(60)).toBe('대박 행운');
-      expect(getLuckLabel(30)).toBe('행운');
-      expect(getLuckLabel(0)).toBe('보통');
-      expect(getLuckLabel(-30)).toBe('불운');
+      expect(getLuckLabel(60)).toBe('대박 행운!');
+      expect(getLuckLabel(30)).toBe('운 좋았어요');
+      expect(getLuckLabel(0)).toBe('평균적인 운');
+      expect(getLuckLabel(-30)).toBe('운이 없었네요');
       expect(getLuckLabel(-60)).toBe('극심한 불운');
     });
 
-    it('should handle boundary values', () => {
-      expect(getLuckLabel(50)).toBe('행운'); // exactly 50 is not > 50
-      expect(getLuckLabel(51)).toBe('대박 행운');
-      expect(getLuckLabel(20)).toBe('보통'); // exactly 20 is not > 20
-      expect(getLuckLabel(21)).toBe('행운');
+    it('should handle boundary values (>= thresholds)', () => {
+      expect(getLuckLabel(50)).toBe('대박 행운!'); // exactly 50 is >= 50
+      expect(getLuckLabel(49)).toBe('운 좋았어요');
+      expect(getLuckLabel(20)).toBe('운 좋았어요'); // exactly 20 is >= 20
+      expect(getLuckLabel(19)).toBe('평균적인 운');
+      expect(getLuckLabel(-20)).toBe('평균적인 운'); // exactly -20 is >= -20
+      expect(getLuckLabel(-21)).toBe('운이 없었네요');
+      expect(getLuckLabel(-50)).toBe('운이 없었네요'); // exactly -50 is >= -50
+      expect(getLuckLabel(-51)).toBe('극심한 불운');
+    });
+
+    it('should return labels with emojis when withEmoji is true', () => {
+      expect(getLuckLabel(60, true)).toBe('대박 행운! 🍀🍀');
+      expect(getLuckLabel(30, true)).toBe('운 좋았어요 🍀');
+      expect(getLuckLabel(0, true)).toBe('평균적인 운');
+      expect(getLuckLabel(-30, true)).toBe('운이 없었네요 😢');
+      expect(getLuckLabel(-60, true)).toBe('극심한 불운 😭');
     });
   });
 });

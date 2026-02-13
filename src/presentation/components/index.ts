@@ -6,3 +6,5 @@ export type { AchievementBadgeProps, AchievementListProps, NewAchievementsPopupP
 export { ShareImageCard } from './ShareImageCard';
 export type { ShareImageCardProps } from './ShareImageCard';
 export { AdBanner } from './AdBanner';
+export { ContentLayout } from './ContentLayout';
+export { SiteFooter } from './SiteFooter';

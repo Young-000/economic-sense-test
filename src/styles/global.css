@@ -28,6 +28,20 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* 글로벌 키보드 포커스 스타일 */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 .app {
   min-height: 100vh;
   min-height: 100dvh;
@@ -294,8 +308,7 @@ body {
 .intro-disclaimer {
   margin-top: 16px;
   font-size: 12px;
-  color: var(--text-secondary);
-  opacity: 0.6;
+  color: #7a7a7a;
 }
 
 .intro-features {
@@ -2990,6 +3003,77 @@ body {
   color: #a78bfa;
 }
 
+/* ==================== 티어 등급별 애니메이션 (ResultPage) ==================== */
+
+/* SS등급 - 금색 shimmer 애니메이션 */
+.tier-badge-hero.tier-SS {
+  background: linear-gradient(135deg, #3D2E00 0%, #5A4400 50%, #3D2E00 100%);
+  border-color: #FFD700;
+  border-width: 3px;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);
+  animation: tier-ss-shimmer 3s ease-in-out infinite;
+}
+
+.tier-badge-hero.tier-SS .tier-grade-display {
+  border-width: 4px;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.5);
+}
+
+.tier-badge-hero.tier-SS .tier-grade-letter {
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+}
+
+@keyframes tier-ss-shimmer {
+  0%, 100% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.6), 0 0 80px rgba(255, 215, 0, 0.2);
+  }
+}
+
+/* S등급 - 주황 glow 애니메이션 */
+.tier-badge-hero.tier-S {
+  animation: tier-s-glow 2.5s ease-in-out infinite;
+}
+
+@keyframes tier-s-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(255, 107, 53, 0.5);
+  }
+}
+
+/* F등급 - 빨간 pulse 애니메이션 */
+.tier-badge-hero.tier-F {
+  animation: tier-f-pulse 2s ease-in-out infinite;
+}
+
+@keyframes tier-f-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 82, 82, 0.2);
+    border-color: var(--tier-color);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(255, 82, 82, 0.5), 0 0 60px rgba(255, 82, 82, 0.15);
+    border-color: #FF5252;
+  }
+}
+
+/* Rarity 텍스트 스타일 */
+.tier-rarity-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-top: 10px;
+  padding: 6px 14px;
+  background: rgba(251, 191, 36, 0.1);
+  border-radius: 20px;
+  display: inline-block;
+}
+
 /* 공유 버튼 섹션 */
 .share-buttons {
   display: flex;
@@ -3195,4 +3279,564 @@ body {
 
 .result-ad {
   margin-top: 24px;
+}
+
+.content-ad {
+  margin-top: 24px;
+}
+
+/* ==================== Content Pages ==================== */
+.content-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 16px 20px;
+  padding-bottom: env(safe-area-inset-bottom, 24px);
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.content-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.content-back-btn {
+  padding: 8px 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.content-back-btn:active {
+  transform: scale(0.96);
+  background: var(--card-hover);
+}
+
+.content-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  flex: 1;
+}
+
+/* Content Body Typography */
+.content-body {
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.content-body section {
+  margin-bottom: 32px;
+}
+
+.content-body h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.content-body h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.content-body p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+
+.content-body ul,
+.content-body ol {
+  padding-left: 20px;
+  margin-bottom: 12px;
+}
+
+.content-body li {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.content-body li strong {
+  color: var(--text);
+}
+
+.content-body a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.content-body .table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 16px;
+}
+
+.content-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+  font-size: 13px;
+  min-width: 320px;
+}
+
+.content-body th {
+  background: var(--card);
+  color: var(--text);
+  font-weight: 700;
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+}
+
+.content-body td {
+  padding: 10px 12px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.content-body tr:last-child td {
+  border-bottom: none;
+}
+
+.policy-updated {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  padding: 8px 12px;
+  background: var(--card);
+  border-radius: 8px;
+  display: inline-block;
+}
+
+/* Content CTA */
+.content-cta {
+  margin-top: 32px;
+  text-align: center;
+}
+
+.cta-button {
+  display: inline-block;
+  padding: 16px 32px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.cta-button:active {
+  transform: scale(0.98);
+  background: var(--primary-dark);
+}
+
+/* ==================== Site Footer ==================== */
+.site-footer {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.footer-nav {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.footer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.footer-section a {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.footer-section a:hover {
+  color: var(--primary);
+}
+
+.footer-copy {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  text-align: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* ==================== FAQ Accordion ==================== */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.faq-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.faq-item.open {
+  border-color: var(--primary);
+}
+
+.faq-question {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.faq-question:hover {
+  background: var(--card-hover);
+}
+
+.faq-q-mark {
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.faq-q-text {
+  flex: 1;
+}
+
+.faq-arrow {
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.faq-answer {
+  padding: 0 16px 16px 42px;
+  animation: faqSlideDown 0.2s ease-out;
+}
+
+.faq-answer p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin: 0;
+}
+
+@keyframes faqSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==================== Tier Guide ==================== */
+.tier-guide-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tier-guide-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--tier-card-bg, var(--card));
+  border: 2px solid var(--tier-card-color, var(--border));
+  border-radius: 16px;
+}
+
+.tier-guide-grade {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+}
+
+.tier-guide-letter {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -1px;
+}
+
+.tier-guide-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.tier-guide-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.tier-guide-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.tier-guide-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tier-guide-condition {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.tier-guide-rarity {
+  font-size: 12px;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* ==================== Investor Types Detail ==================== */
+.type-detail-section {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 16px;
+}
+
+.type-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.type-detail-emoji {
+  font-size: 40px;
+}
+
+.type-detail-header h2 {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.type-detail-tag {
+  font-size: 13px;
+  color: var(--primary);
+  opacity: 0.8;
+}
+
+.type-detail-quote {
+  background: rgba(99, 102, 241, 0.1);
+  border-left: 3px solid #6366f1;
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.type-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.type-detail-grid > div {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.type-detail-grid h3 {
+  margin-top: 0;
+}
+
+.type-detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.tag-example {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+}
+
+.tag-investment {
+  background: rgba(16, 185, 129, 0.15);
+  color: #6ee7b7;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+}
+
+/* ==================== Updates Timeline ==================== */
+.updates-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.update-entry {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 16px;
+  border-left: 3px solid var(--primary);
+}
+
+.update-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.update-version {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--primary);
+  background: rgba(16, 185, 129, 0.15);
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.update-date {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.update-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.update-changes {
+  padding-left: 18px;
+  margin: 0;
+}
+
+.update-changes li {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+/* ==================== Result Guide Links ==================== */
+.result-guide-links {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 20px;
+  margin-top: 16px;
+}
+
+.guide-link-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.guide-link-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.guide-link-card:hover {
+  background: var(--card-hover);
+  color: var(--text);
+  border-color: var(--primary);
+}
+
+.guide-link-card span {
+  font-size: 16px;
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 480px) {
+  .footer-nav {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .footer-nav .footer-section:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .type-detail-grid {
+    grid-template-columns: 1fr;
+  }
 }

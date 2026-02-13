@@ -2,7 +2,7 @@
  * 엔티티 테스트
  */
 import { describe, it, expect } from 'vitest';
-import { GAME_CONFIG } from '../entities';
+import { GAME_CONFIG, TIER_THRESHOLDS, calculateTier, getTierRarityText } from '../entities';
 import type {
   Choice,
   Outcome,
@@ -159,11 +159,50 @@ describe('Type definitions', () => {
       luckScore: 10,
       investorType: 'balanced_investor',
       profile,
-      tier: { grade: 'A', name: '제법 하는데?', color: '#4ECDC4', bgColor: '#0F2E2C', description: '꽤 괜찮은 결과!', minReturn: 20 },
+      tier: { grade: 'A', name: '제법 하는데?', color: '#4ECDC4', bgColor: '#0F2E2C', description: '꽤 괜찮은 결과!', minReturn: 20, rarity: 20 },
     };
 
     expect(finalResult.finalBalance).toBe(12_000_000);
     expect(finalResult.totalReturn).toBe(20);
     expect(finalResult.profile.name).toBe('균형잡힌 투자자');
+  });
+});
+
+describe('calculateTier', () => {
+  it('should return correct tier with rarity for each threshold', () => {
+    const ss = calculateTier(100);
+    expect(ss.grade).toBe('SS');
+    expect(ss.rarity).toBe(2);
+
+    const s = calculateTier(60);
+    expect(s.grade).toBe('S');
+    expect(s.rarity).toBe(8);
+
+    const a = calculateTier(30);
+    expect(a.grade).toBe('A');
+    expect(a.rarity).toBe(20);
+
+    const f = calculateTier(-100);
+    expect(f.grade).toBe('F');
+    expect(f.rarity).toBe(3);
+  });
+
+  it('should have rarity field on all TIER_THRESHOLDS', () => {
+    for (const tier of TIER_THRESHOLDS) {
+      expect(tier.rarity).toBeGreaterThan(0);
+      expect(tier.rarity).toBeLessThanOrEqual(100);
+    }
+  });
+});
+
+describe('getTierRarityText', () => {
+  it('should return formatted rarity text', () => {
+    const tier = calculateTier(100); // SS
+    expect(getTierRarityText(tier)).toBe('전체의 약 2%만 달성!');
+  });
+
+  it('should work for F tier', () => {
+    const tier = calculateTier(-100); // F
+    expect(getTierRarityText(tier)).toBe('전체의 약 3%만 달성!');
   });
 });
