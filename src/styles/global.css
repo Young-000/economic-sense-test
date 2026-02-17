@@ -364,6 +364,22 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.round-badge.final-round {
+  border-color: var(--gold);
+  animation: finalRoundPulse 2s ease-in-out infinite;
+}
+
+@keyframes finalRoundPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 12px 4px rgba(251, 191, 36, 0.2);
+  }
 }
 
 .progress-bar-wrapper {
@@ -389,6 +405,41 @@ body {
   font-size: 24px;
   font-weight: 700;
   color: var(--text);
+  transition: all 0.3s ease;
+}
+
+.balance-amount.increase {
+  color: var(--positive);
+  animation: balanceIncrease 500ms ease-out;
+}
+
+.balance-amount.decrease {
+  color: var(--negative);
+  animation: balanceDecrease 500ms ease-out;
+}
+
+@keyframes balanceIncrease {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes balanceDecrease {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-2px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(2px);
+  }
 }
 
 .situation-card {
@@ -487,15 +538,15 @@ body {
 
 .probability-bar-container {
   flex: 1;
-  height: 8px;
+  height: 20px;
   background: var(--border);
-  border-radius: 4px;
+  border-radius: 10px;
   overflow: hidden;
 }
 
 .probability-bar {
   height: 100%;
-  border-radius: 4px;
+  border-radius: 10px;
   transition: width 0.3s ease;
 }
 
@@ -513,6 +564,8 @@ body {
   color: var(--text-secondary);
   min-width: 40px;
   text-align: right;
+  display: flex;
+  align-items: center;
 }
 
 .vs-badge {
@@ -545,6 +598,18 @@ body {
   text-align: center;
   width: 100%;
   max-width: 380px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.result-popup.positive-result {
+  border-color: var(--positive);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.result-popup.negative-result {
+  border-color: var(--negative);
+  box-shadow: 0 0 20px rgba(255, 71, 87, 0.3);
 }
 
 .result-amount {
@@ -2184,8 +2249,20 @@ body {
 }
 
 .round-dot.current {
-  transform: scale(1.3);
+  transform: scale(1.5);
   box-shadow: 0 0 8px currentColor;
+  animation: currentDotPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes currentDotPulse {
+  0%, 100% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.7);
+    opacity: 0.8;
+  }
 }
 
 /* 1등 그래프 비교 래퍼 */

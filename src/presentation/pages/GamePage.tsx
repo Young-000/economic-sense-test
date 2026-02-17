@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useCallback } from 'react';
+import { useEffect, useMemo, useCallback, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGame } from '../hooks/useGame';
 import { getGameConfig, type Outcome, type GameMode } from '@domain/entities';
@@ -46,6 +46,10 @@ export function GamePage() {
     topPlayerData,
   } = useGame({ mode });
 
+  // Balance change feedback
+  const previousBalanceRef = useRef<number>(gameState.balance);
+  const [balanceChangeClass, setBalanceChangeClass] = useState<'increase' | 'decrease' | ''>('');
+
   useEffect(() => {
     if (gameState.isComplete) {
       // URL 길이 제한 문제 해결: sessionStorage 사용
@@ -55,6 +59,29 @@ export function GamePage() {
       navigate('/result', { replace: true });
     }
   }, [gameState.isComplete, gameState.results, questions, navigate, mode]);
+
+  // Balance change animation
+  useEffect(() => {
+    const currentBalance = gameState.balance;
+    const previousBalance = previousBalanceRef.current;
+
+    if (currentBalance !== previousBalance) {
+      if (currentBalance > previousBalance) {
+        setBalanceChangeClass('increase');
+      } else if (currentBalance < previousBalance) {
+        setBalanceChangeClass('decrease');
+      }
+
+      // Reset class after animation duration (500ms)
+      const timer = setTimeout(() => {
+        setBalanceChangeClass('');
+      }, 500);
+
+      previousBalanceRef.current = currentBalance;
+
+      return () => clearTimeout(timer);
+    }
+  }, [gameState.balance]);
 
   // 라운드별 결과 요약 (미니 차트용)
   const roundSummary = useMemo(() => {
@@ -121,6 +148,8 @@ export function GamePage() {
 
   if (gameState.isComplete || !currentQuestion) return null;
 
+  const isFinalRound = gameState.currentRound + 1 >= gameConfig.TOTAL_ROUNDS;
+
   return (
     <div className="game-page">
       {/* 상단 헤더 */}
@@ -133,7 +162,7 @@ export function GamePage() {
         ) : (
           <div className="back-button-placeholder" />
         )}
-        <div className="round-badge">
+        <div className={`round-badge ${isFinalRound ? 'final-round' : ''}`}>
           <span>{gameState.currentRound + 1}/{gameConfig.TOTAL_ROUNDS}</span>
           <div
             className="progress-bar-wrapper"
@@ -150,7 +179,7 @@ export function GamePage() {
           </div>
         </div>
         <div className="balance-display">
-          <span className="balance-amount">{formatBalance(gameState.balance)}</span>
+          <span className={`balance-amount ${balanceChangeClass}`}>{formatBalance(gameState.balance)}</span>
         </div>
       </div>
 
@@ -194,7 +223,7 @@ export function GamePage() {
       {/* 결과 오버레이 */}
       {isWaitingResult && lastResult ? (
         <div className="result-overlay">
-          <div className="result-popup">
+          <div className={`result-popup ${lastResult.actualOutcome >= 0 ? 'positive-result' : 'negative-result'}`}>
             <div className={`result-amount ${lastResult.actualOutcome >= 0 ? 'positive' : 'negative'}`}>
               {formatMoney(lastResult.actualOutcome)}
             </div>
