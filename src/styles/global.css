@@ -18,6 +18,15 @@
   --positive-bg: rgba(16, 185, 129, 0.15);
   --negative-bg: rgba(255, 71, 87, 0.15);
   --gold: #fbbf24;
+
+  /* Responsive fluid custom properties */
+  --content-max-width: clamp(300px, 90vw, 720px);
+  --content-padding: clamp(12px, 4vw, 32px);
+  --title-size: clamp(28px, 5vw, 44px);
+  --subtitle-size: clamp(15px, 2.8vw, 20px);
+  --body-size: clamp(14px, 2.5vw, 18px);
+  --card-padding: clamp(16px, 3.5vw, 32px);
+  --section-gap: clamp(12px, 2.5vw, 24px);
 }
 
 body {
@@ -3125,4 +3134,586 @@ body {
 
 .result-ad {
   margin-top: 24px;
+}
+
+/* ==================== Responsive Breakpoints ==================== */
+/* Mobile-first approach: base styles above are for ~375-767px (standard phones).
+   Below we handle small-phone edge cases, then scale up for tablet/desktop. */
+
+/* --- Small phones (max-width: 374px) --- */
+@media (max-width: 374px) {
+  .intro-content {
+    max-width: calc(100% - 24px);
+  }
+
+  .intro-title {
+    font-size: 26px;
+  }
+
+  .intro-subtitle {
+    font-size: 15px;
+  }
+
+  .game-page {
+    padding: 12px;
+    max-width: 100%;
+  }
+
+  .situation-text {
+    font-size: 17px;
+  }
+
+  .choice-card {
+    padding: 16px;
+  }
+
+  .choice-label {
+    font-size: 16px;
+  }
+
+  .outcome-value {
+    font-size: 14px;
+    min-width: 58px;
+  }
+
+  .probability-text {
+    font-size: 12px;
+    min-width: 34px;
+  }
+
+  .result-amount {
+    font-size: 36px;
+  }
+
+  .result-popup {
+    padding: 24px 16px;
+    max-width: calc(100% - 16px);
+  }
+
+  .result-content {
+    max-width: calc(100% - 16px);
+  }
+
+  .final-balance-card .balance-value {
+    font-size: 34px;
+  }
+
+  .ranking-form {
+    flex-wrap: wrap;
+  }
+
+  .nickname-input-wrapper {
+    flex-basis: 100%;
+  }
+
+  .submit-ranking-btn {
+    flex-basis: 100%;
+  }
+
+  .share-modal {
+    max-width: calc(100% - 16px);
+    padding: 20px 16px;
+  }
+
+  .share-platform-btn {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .balance-amount {
+    font-size: 20px;
+  }
+
+  .mode-btn {
+    padding: 10px 8px;
+  }
+
+  .mode-name {
+    font-size: 13px;
+  }
+
+  .mode-desc {
+    font-size: 10px;
+  }
+}
+
+/* --- 375px edge case handling: prevent overflow --- */
+@media (max-width: 413px) {
+  .result-amount {
+    font-size: clamp(36px, 10vw, 56px);
+    word-break: break-all;
+  }
+
+  .outcome-row {
+    gap: 8px;
+  }
+
+  .outcome-value {
+    min-width: 60px;
+    font-size: 14px;
+  }
+
+  .probability-text {
+    min-width: 36px;
+    font-size: 13px;
+  }
+
+  .expected-value {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+
+  .choice-header {
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
+
+/* --- Tablet (768px and up) --- */
+@media (min-width: 768px) {
+  .intro-page {
+    padding: 24px 32px;
+  }
+
+  .intro-content {
+    max-width: 560px;
+    padding-top: 40px;
+  }
+
+  .intro-title {
+    font-size: 38px;
+    margin-bottom: 12px;
+  }
+
+  .intro-subtitle {
+    font-size: 19px;
+    margin-bottom: 20px;
+  }
+
+  .mode-selector {
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .mode-btn {
+    padding: 18px 16px;
+    gap: 6px;
+  }
+
+  .mode-emoji {
+    font-size: 28px;
+  }
+
+  .mode-name {
+    font-size: 16px;
+  }
+
+  .mode-desc {
+    font-size: 12px;
+  }
+
+  .feature {
+    padding: 14px 18px;
+    gap: 12px;
+  }
+
+  .feature-icon {
+    font-size: 28px;
+  }
+
+  .feature-text {
+    font-size: 16px;
+  }
+
+  .start-button {
+    padding: 20px 28px;
+    font-size: 18px;
+    min-height: 56px;
+  }
+
+  .game-page {
+    max-width: 560px;
+    padding: 20px 24px;
+  }
+
+  .situation-card {
+    padding: 28px 24px;
+    margin-bottom: 24px;
+  }
+
+  .situation-text {
+    font-size: 22px;
+  }
+
+  .choices {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .choice-card {
+    flex: 1;
+    padding: 24px;
+  }
+
+  .vs-badge {
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+    font-size: 14px;
+  }
+
+  .balance-amount {
+    font-size: 26px;
+  }
+
+  .result-overlay {
+    padding-top: 32px;
+  }
+
+  .result-popup {
+    max-width: 480px;
+    padding: 36px 28px;
+  }
+
+  .result-amount {
+    font-size: 56px;
+  }
+
+  .result-page {
+    padding: 32px;
+  }
+
+  .result-content {
+    max-width: 560px;
+  }
+
+  .tier-badge-hero {
+    padding: 40px 32px;
+  }
+
+  .tier-grade-display {
+    width: 120px;
+    height: 120px;
+  }
+
+  .tier-grade-letter {
+    font-size: 56px;
+  }
+
+  .tier-name {
+    font-size: 24px;
+  }
+
+  .investor-type-card {
+    padding: 48px 32px;
+  }
+
+  .type-emoji {
+    font-size: 72px;
+  }
+
+  .type-name {
+    font-size: 32px;
+  }
+
+  .final-balance-card {
+    padding: 32px;
+  }
+
+  .final-balance-card .balance-value {
+    font-size: 48px;
+  }
+
+  .return-value {
+    font-size: 24px;
+  }
+
+  .analysis-section {
+    padding: 28px;
+  }
+
+  .stat-bar {
+    height: 12px;
+  }
+
+  .ranking-section {
+    padding: 28px;
+  }
+
+  .share-button,
+  .retry-button {
+    padding: 20px 28px;
+    font-size: 18px;
+    min-height: 56px;
+  }
+
+  .share-modal {
+    max-width: 520px;
+    padding: 28px;
+  }
+
+  .share-modal-btn {
+    min-height: 48px;
+  }
+
+  .next-btn {
+    padding: 20px 28px;
+    font-size: 18px;
+    min-height: 56px;
+  }
+
+  .challenge-btn {
+    min-height: 48px;
+  }
+
+  .share-image-button {
+    min-height: 48px;
+  }
+
+  .investor-detail-card {
+    padding: 28px;
+  }
+
+  .detail-emoji {
+    font-size: 56px;
+  }
+
+  .detail-type-name {
+    font-size: 22px;
+  }
+}
+
+/* --- Small desktop / laptop (1024px and up) --- */
+@media (min-width: 1024px) {
+  .intro-content {
+    max-width: 640px;
+    padding-top: 48px;
+  }
+
+  .intro-title {
+    font-size: 42px;
+  }
+
+  .intro-subtitle {
+    font-size: 20px;
+  }
+
+  .game-page {
+    max-width: 640px;
+    padding: 24px 32px;
+  }
+
+  .situation-text {
+    font-size: 24px;
+  }
+
+  .choice-card {
+    padding: 28px;
+  }
+
+  .choice-label {
+    font-size: 20px;
+  }
+
+  .outcome-value {
+    font-size: 17px;
+  }
+
+  .result-popup {
+    max-width: 540px;
+    padding: 40px 32px;
+  }
+
+  .result-content {
+    max-width: 640px;
+  }
+
+  .tier-badge-hero {
+    padding: 48px 40px;
+  }
+
+  .investor-type-card {
+    padding: 56px 40px;
+  }
+
+  .type-name {
+    font-size: 34px;
+  }
+
+  .final-balance-card .balance-value {
+    font-size: 52px;
+  }
+
+  .analysis-section {
+    padding: 32px;
+  }
+
+  .section-title {
+    font-size: 18px;
+  }
+
+  .stat-bar {
+    height: 14px;
+  }
+
+  .share-modal {
+    max-width: 560px;
+    padding: 32px;
+  }
+
+  .share-modal-title {
+    font-size: 22px;
+  }
+}
+
+/* --- Large desktop (1920px and up) --- */
+@media (min-width: 1920px) {
+  .intro-content {
+    max-width: 720px;
+    padding-top: 56px;
+  }
+
+  .intro-title {
+    font-size: 44px;
+  }
+
+  .intro-subtitle {
+    font-size: 21px;
+    line-height: 1.7;
+  }
+
+  .game-page {
+    max-width: 720px;
+  }
+
+  .situation-card {
+    padding: 32px 28px;
+  }
+
+  .situation-text {
+    font-size: 26px;
+  }
+
+  .result-popup {
+    max-width: 600px;
+  }
+
+  .result-content {
+    max-width: 720px;
+  }
+
+  .tier-badge-hero {
+    padding: 56px 48px;
+  }
+
+  .tier-grade-display {
+    width: 140px;
+    height: 140px;
+  }
+
+  .tier-grade-letter {
+    font-size: 64px;
+  }
+
+  .tier-name {
+    font-size: 28px;
+  }
+
+  .investor-type-card {
+    padding: 64px 48px;
+  }
+
+  .type-emoji {
+    font-size: 80px;
+  }
+
+  .type-name {
+    font-size: 36px;
+  }
+
+  .final-balance-card {
+    padding: 40px;
+  }
+
+  .final-balance-card .balance-value {
+    font-size: 56px;
+  }
+
+  .return-value {
+    font-size: 26px;
+  }
+
+  .analysis-section {
+    padding: 36px;
+  }
+
+  .stat-bar {
+    height: 16px;
+  }
+
+  .ranking-section {
+    padding: 32px;
+  }
+
+  .share-modal {
+    max-width: 600px;
+  }
+
+  .share-button,
+  .retry-button,
+  .next-btn,
+  .start-button {
+    min-height: 60px;
+  }
+
+  .investor-detail-card {
+    padding: 32px;
+  }
+
+  .detail-emoji {
+    font-size: 64px;
+  }
+
+  .detail-type-name {
+    font-size: 24px;
+  }
+}
+
+/* --- Ensure minimum 44px tap targets at all breakpoints --- */
+.start-button,
+.next-btn,
+.share-button,
+.retry-button,
+.share-modal-btn,
+.challenge-btn,
+.share-image-button,
+.toggle-rankings-btn,
+.toggle-achievements-btn,
+.submit-ranking-btn,
+.popup-close-btn,
+.toss-leaderboard-btn,
+.challenge-btn-secondary {
+  min-height: 44px;
+}
+
+.mode-btn {
+  min-height: 44px;
+}
+
+.choice-card {
+  min-height: 44px;
+}
+
+.back-button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.share-platform-btn {
+  min-height: 44px;
+}
+
+.share-modal-close {
+  min-height: 44px;
 }
