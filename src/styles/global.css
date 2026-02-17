@@ -54,7 +54,7 @@ body {
   display: flex;
   flex-direction: column;
   flex: 1;
-  justify-content: center;
+  padding-top: 24px;
 }
 
 /* 시즌/이벤트 배너 */
@@ -109,94 +109,22 @@ body {
   letter-spacing: 0.5px;
 }
 
-/* 소셜 증거 배너 */
-.social-proof-banner {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(251, 191, 36, 0.1));
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  border-radius: 16px;
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  text-align: left;
-}
-
-.social-proof-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
+/* 참여자 수 (간소화된 소셜 증거) */
+.intro-participant-count {
+  font-size: 14px;
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
-.player-count {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.player-count strong {
+.intro-participant-count strong {
   color: var(--primary);
   font-weight: 700;
-}
-
-.today-top {
-  font-size: 12px;
-  color: var(--gold);
-  font-weight: 600;
-}
-
-.social-proof-live {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.live-dot {
-  width: 8px;
-  height: 8px;
-  background: #ef4444;
-  border-radius: 50%;
-  animation: live-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes live-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
-}
-
-.live-message {
-  font-size: 12px;
-  color: var(--text-secondary);
-  animation: fade-in 0.3s ease;
-}
-
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.intro-badge {
-  display: inline-block;
-  padding: 6px 14px;
-  background: linear-gradient(135deg, var(--primary), var(--gold));
-  color: #000;
-  font-size: 12px;
-  font-weight: 700;
-  border-radius: 20px;
-  margin-bottom: 16px;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
 }
 
 .intro-title {
   font-size: 32px;
   font-weight: 800;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   background: linear-gradient(135deg, #fff, var(--primary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -206,7 +134,7 @@ body {
 .intro-subtitle {
   font-size: 17px;
   color: var(--text-secondary);
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   line-height: 1.6;
 }
 
@@ -275,10 +203,10 @@ body {
   gap: 8px;
   padding: 10px 16px;
   background: var(--card);
-  border: 1px solid var(--primary);
+  border: 1px solid var(--border);
   border-radius: 30px;
-  margin-top: 16px;
-  margin-bottom: 16px;
+  margin-top: 12px;
+  margin-bottom: 20px;
 }
 
 .hook-emoji {
@@ -288,7 +216,7 @@ body {
 .hook-text {
   font-size: 16px;
   font-weight: 600;
-  color: var(--primary);
+  color: var(--text-secondary);
 }
 
 .intro-disclaimer {
@@ -1772,7 +1700,7 @@ body {
 .start-button:hover {
   background: var(--primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(49, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 /* 게임 페이지 애니메이션 */
