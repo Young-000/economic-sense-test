@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import type { RefObject } from 'react';
 import type { FinalResult } from '@domain/entities';
 import { elementToBlob } from '@lib/shareUtils';
 import {
@@ -7,7 +8,7 @@ import {
 } from '@data/viralTemplates';
 
 export interface UseShareImageReturn {
-  shareCardRef: React.RefObject<HTMLDivElement | null>;
+  shareCardRef: RefObject<HTMLDivElement | null>;
   isGeneratingImage: boolean;
   showShareModal: boolean;
   shareImageUrl: string | null;

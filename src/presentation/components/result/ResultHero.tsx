@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { TierInfo } from '@domain/entities';
 
 export interface ResultHeroProps {
@@ -16,7 +17,7 @@ export function ResultHero({ tier, isNewRecord }: ResultHeroProps) {
       {/* 티어 배지 - 핵심 히어로 요소 */}
       <div
         className="tier-badge-hero"
-        style={{ '--tier-color': tier.color, '--tier-bg': tier.bgColor } as React.CSSProperties}
+        style={{ '--tier-color': tier.color, '--tier-bg': tier.bgColor } as CSSProperties}
       >
         <div className="tier-grade-display">
           <span className="tier-grade-letter">{tier.grade}</span>
