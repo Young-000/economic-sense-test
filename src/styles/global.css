@@ -203,7 +203,7 @@ body {
   gap: 8px;
   padding: 10px 16px;
   background: var(--card);
-  border: 1px solid var(--primary);
+  border: 1px solid var(--border);
   border-radius: 30px;
   margin-top: 12px;
   margin-bottom: 20px;
@@ -216,7 +216,7 @@ body {
 .hook-text {
   font-size: 16px;
   font-weight: 600;
-  color: var(--primary);
+  color: var(--text-secondary);
 }
 
 .intro-disclaimer {
@@ -1700,7 +1700,7 @@ body {
 .start-button:hover {
   background: var(--primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(49, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 /* 게임 페이지 애니메이션 */
