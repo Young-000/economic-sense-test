@@ -1,17 +1,33 @@
+# Dependencies
 node_modules/
+
+# Build outputs
 dist/
-.DS_Store
-*.log
+
+# Environment variables
 .env
 .env.local
+
+# Deployment
 .vercel
 
-# Generated files
-coverage/
-.playwright-mcp/
-.claude/
+# System files
+.DS_Store
 
-# Playwright test results (generated, not needed in repo)
+# Logs
+*.log
+
+# Test coverage and results
+coverage/
 playwright-report/
 test-results/
 
+# Tool directories
+.playwright-mcp/
+.claude/
+
+# Screenshots (debugging/review - not tracked)
+# Allow only assets in src/ and public/
+*.png
+!src/**/*.png
+!public/**/*.png
