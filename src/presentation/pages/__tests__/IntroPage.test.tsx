@@ -20,7 +20,6 @@ vi.mock('react-router-dom', async () => {
 // rankingService 모킹
 vi.mock('@data/rankingService', () => ({
   getTotalPlayers: vi.fn().mockResolvedValue(1234),
-  getTodayTopPlayer: vi.fn().mockResolvedValue({ nickname: '테스트', totalReturn: 50 }),
 }));
 
 // challengeUtils 모킹
@@ -48,10 +47,10 @@ describe('IntroPage', () => {
       expect(screen.getByText('💸 돈 감각 테스트')).toBeInTheDocument();
     });
 
-    it('should render MZ badge', () => {
+    it('should not render MZ badge (removed)', () => {
       renderIntroPage();
 
-      expect(screen.getByText('MZ 필수 테스트')).toBeInTheDocument();
+      expect(screen.queryByText('MZ 필수 테스트')).not.toBeInTheDocument();
     });
 
     it('should render start button', () => {
@@ -78,6 +77,21 @@ describe('IntroPage', () => {
       renderIntroPage();
 
       expect(screen.getByText(new RegExp(`${GAME_MODE_CONFIG.normal.totalRounds}번 선택`))).toBeInTheDocument();
+    });
+
+    it('should not render fake social proof messages', () => {
+      renderIntroPage();
+
+      // Verify none of the old fake messages appear
+      expect(screen.queryByText(/방금 누군가/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/지금 3명이 테스트 중/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/오늘 127명이 도전했어요/)).not.toBeInTheDocument();
+    });
+
+    it('should not render today top player', () => {
+      renderIntroPage();
+
+      expect(screen.queryByText(/오늘 1위/)).not.toBeInTheDocument();
     });
   });
 
@@ -248,6 +262,15 @@ describe('IntroPage', () => {
 
       // extreme: '파산 각오됐어?'
       expect(screen.getByText('파산 각오됐어?')).toBeInTheDocument();
+    });
+  });
+
+  describe('시즌 배너', () => {
+    it('should not render season banner during normal season', () => {
+      const { container } = renderIntroPage();
+
+      // During normal season (no special event), season banner should not appear
+      expect(container.querySelector('.season-banner')).not.toBeInTheDocument();
     });
   });
 });

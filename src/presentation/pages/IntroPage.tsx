@@ -1,27 +1,15 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GAME_MODE_CONFIG, type GameMode, investorProfiles } from '@domain/entities';
-import { getTotalPlayers, getTodayTopPlayer } from '@data/rankingService';
+import { getTotalPlayers } from '@data/rankingService';
 import { extractAndSaveChallenge, type ChallengeData } from '@lib/challengeUtils';
 import { getCurrentTheme, formatSeasonInfo } from '@lib/seasonUtils';
 import { AdBanner } from '@presentation/components';
 
-// 소셜 증거 메시지 생성
-const SOCIAL_PROOF_MESSAGES = [
-  '방금 누군가 "금손 전략가" 획득! 👑',
-  '지금 3명이 테스트 중... 🎲',
-  '오늘 127명이 도전했어요 🔥',
-  '방금 +85% 수익률 달성! 💰',
-  '"운빨 도전가" 탄생! 🍀',
-  '누군가 -50% 풀빵됨 😭',
-];
-
-export function IntroPage() {
+export function IntroPage(): React.JSX.Element {
   const navigate = useNavigate();
   const [selectedMode, setSelectedMode] = useState<GameMode>('normal');
   const [totalPlayers, setTotalPlayers] = useState<number>(0);
-  const [todayTop, setTodayTop] = useState<{ nickname: string; totalReturn: number } | null>(null);
-  const [socialMessage, setSocialMessage] = useState('');
   // URL 파라미터에서 도전 데이터 추출 (lazy initialization)
   const [challenge] = useState<ChallengeData | null>(() => extractAndSaveChallenge());
 
@@ -31,39 +19,24 @@ export function IntroPage() {
   const seasonTheme = useMemo(() => getCurrentTheme(), []);
   const seasonInfo = useMemo(() => formatSeasonInfo(seasonTheme), [seasonTheme]);
 
-  // 소셜 증거 데이터 로드
+  // 참여자 수 데이터 로드
   useEffect(() => {
-    const loadSocialProof = async () => {
-      const [players, top] = await Promise.all([
-        getTotalPlayers(),
-        getTodayTopPlayer(),
-      ]);
+    const loadSocialProof = async (): Promise<void> => {
+      const players = await getTotalPlayers();
       setTotalPlayers(players);
-      setTodayTop(top);
     };
     loadSocialProof();
   }, []);
 
-  // 소셜 증거 메시지 롤링
-  useEffect(() => {
-    const updateMessage = () => {
-      const randomIndex = Math.floor(Math.random() * SOCIAL_PROOF_MESSAGES.length);
-      setSocialMessage(SOCIAL_PROOF_MESSAGES[randomIndex]);
-    };
-    updateMessage();
-    const interval = setInterval(updateMessage, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleModeChange = (mode: GameMode) => {
+  const handleModeChange = (mode: GameMode): void => {
     setSelectedMode(mode);
   };
 
-  const handleStart = () => {
+  const handleStart = (): void => {
     navigate(`/game?mode=${selectedMode}`);
   };
 
-  const formatBalance = (value: number) => {
+  const formatBalance = (value: number): string => {
     return `${Math.round(value / 10_000).toLocaleString()}만원`;
   };
 
@@ -71,8 +44,8 @@ export function IntroPage() {
   const formatPlayerCount = (count: number): string => {
     if (count >= 10000) return `${(count / 10000).toFixed(1)}만`;
     if (count >= 1000) return `${(count / 1000).toFixed(1)}천`;
-    // 최소 표시값 (소셜 증거 효과)
-    return count > 0 ? count.toLocaleString() : '1,234';
+    if (count > 0) return count.toLocaleString();
+    return '';
   };
 
   // 도전자 프로필 정보
@@ -81,19 +54,10 @@ export function IntroPage() {
   return (
     <main className="intro-page" role="main" aria-labelledby="intro-title">
       <div className="intro-content">
-        {/* 시즌/이벤트 배너 */}
-        <div
-          className={`season-banner ${seasonInfo.isSpecialEvent ? 'special-event' : ''}`}
-          style={{ '--season-color': seasonTheme.accentColor } as React.CSSProperties}
-        >
-          <span className="season-emoji">{seasonTheme.emoji}</span>
-          <span className="season-message">{seasonTheme.bannerMessage}</span>
-          {seasonInfo.isSpecialEvent && (
-            <span className="event-badge">EVENT</span>
-          )}
-        </div>
 
-        {/* 친구 도전 배너 */}
+        {/* === Fold 위: 즉시 보이는 영역 === */}
+
+        {/* 1. 친구 도전 배너 (조건부 — challenge URL only) */}
         {challenge && challengeProfile && (
           <div className="challenge-banner">
             <div className="challenge-header">
@@ -112,36 +76,49 @@ export function IntroPage() {
                 {challenge.return >= 0 ? '+' : ''}{challenge.return.toFixed(1)}%
               </span>
             </div>
-            <p className="challenge-prompt">이 기록을 이길 수 있을까요? 🔥</p>
+            <p className="challenge-prompt">이 기록을 이길 수 있을까요?</p>
           </div>
         )}
 
-        {/* 소셜 증거 배너 */}
-        <div className="social-proof-banner" aria-live="polite">
-          <div className="social-proof-stats">
-            <span className="player-count">
-              🔥 <strong>{formatPlayerCount(totalPlayers)}</strong>명 참여!
-            </span>
-            {todayTop && (
-              <span className="today-top">
-                👑 오늘 1위: {todayTop.nickname} (+{todayTop.totalReturn.toFixed(0)}%)
-              </span>
-            )}
+        {/* 2. 시즌 배너 (특별 이벤트 시만) */}
+        {seasonInfo.isSpecialEvent && (
+          <div
+            className="season-banner special-event"
+            style={{ '--season-color': seasonTheme.accentColor } as React.CSSProperties}
+          >
+            <span className="season-emoji">{seasonTheme.emoji}</span>
+            <span className="season-message">{seasonTheme.bannerMessage}</span>
+            <span className="event-badge">EVENT</span>
           </div>
-          <div className="social-proof-live">
-            <span className="live-dot" aria-hidden="true" />
-            <span className="live-message">{socialMessage}</span>
-          </div>
-        </div>
+        )}
 
-        <div className="intro-badge" aria-hidden="true">MZ 필수 테스트</div>
+        {/* 3. Hero: 이모지 + 제목 + 부제목 */}
         <h1 id="intro-title" className="intro-title">💸 돈 감각 테스트</h1>
         <p className="intro-subtitle">
           {formatBalance(currentConfig.initialBalance)} 받았다.<br />
           <strong>{currentConfig.totalRounds}번 선택</strong> 후 얼마 남을까?
         </p>
 
-        {/* 모드 선택 */}
+        {/* 4. CTA 버튼 — fold 위 보장 */}
+        <button
+          className={`start-button ${selectedMode === 'extreme' ? 'extreme' : ''}`}
+          onClick={handleStart}
+          aria-label={`${currentConfig.name}로 게임 시작하기`}
+        >
+          {selectedMode === 'extreme' ? '🔥 극한 도전!' : '돈 불려보기'}
+        </button>
+
+        {/* 5. 훅 문구 */}
+        <div className="intro-hook" aria-hidden="true">
+          <span className="hook-emoji">🤔</span>
+          <span className="hook-text">
+            {selectedMode === 'extreme' ? '파산 각오됐어?' : '당신은 금손? 흙손?'}
+          </span>
+        </div>
+
+        {/* === Fold 아래: 스크롤 후 보이는 영역 === */}
+
+        {/* 6. 모드 선택 (일반/극한) */}
         <div className="mode-selector" role="group" aria-label="게임 모드 선택">
           <button
             className={`mode-btn ${selectedMode === 'normal' ? 'active' : ''}`}
@@ -163,22 +140,7 @@ export function IntroPage() {
           </button>
         </div>
 
-        {/* 시작 버튼 - 상단으로 이동 */}
-        <button
-          className={`start-button ${selectedMode === 'extreme' ? 'extreme' : ''}`}
-          onClick={handleStart}
-          aria-label={`${currentConfig.name}로 게임 시작하기`}
-        >
-          {selectedMode === 'extreme' ? '🔥 극한 도전!' : '돈 불려보기'}
-        </button>
-
-        <div className="intro-hook" aria-hidden="true">
-          <span className="hook-emoji">🤔</span>
-          <span className="hook-text">
-            {selectedMode === 'extreme' ? '파산 각오됐어?' : '당신은 금손? 흙손?'}
-          </span>
-        </div>
-
+        {/* 7. 특징 리스트 (3개, 간소화) */}
         <ul className="intro-features" aria-label="게임 특징">
           <li className="feature">
             <span className="feature-icon" aria-hidden="true">🎲</span>
@@ -198,11 +160,19 @@ export function IntroPage() {
           </li>
         </ul>
 
+        {/* 8. 참여자 수 (실제 DB 데이터, 한 줄) */}
+        {totalPlayers > 0 && (
+          <p className="intro-participant-count" aria-live="polite">
+            🔥 <strong>{formatPlayerCount(totalPlayers)}</strong>명이 참여했어요
+          </p>
+        )}
+
+        {/* 9. 면책 고지 */}
         <p className="intro-disclaimer" role="note">
           * 실제 돈이 아닙니다. 재미로만 즐겨주세요!
         </p>
 
-        {/* Google AdSense 배너 */}
+        {/* 10. AdSense 배너 */}
         <AdBanner className="intro-ad" />
       </div>
     </main>
