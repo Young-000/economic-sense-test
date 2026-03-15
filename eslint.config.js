@@ -46,6 +46,10 @@ export default [
         KeyboardEvent: 'readonly',
         global: 'readonly',
         JSX: 'readonly',
+        React: 'readonly',
+        AbortController: 'readonly',
+        performance: 'readonly',
+        cancelAnimationFrame: 'readonly',
       },
     },
     plugins: {

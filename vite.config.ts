@@ -10,6 +10,8 @@ export default defineConfig({
       '@data': resolve(__dirname, './src/data'),
       '@presentation': resolve(__dirname, './src/presentation'),
       '@lib': resolve(__dirname, './src/lib'),
+      '@infrastructure': resolve(__dirname, './src/infrastructure'),
+      '@constants': resolve(__dirname, './src/constants'),
     },
   },
   build: {

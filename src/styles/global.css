@@ -5,19 +5,20 @@
 }
 
 :root {
+  color-scheme: light only;
   --primary: #10B981;
   --primary-dark: #059669;
-  --bg: #0a0a0a;
-  --card: #1a1a1a;
-  --card-hover: #252525;
-  --text: #ffffff;
-  --text-secondary: #888888;
-  --border: #333333;
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --card-hover: #F1F5F9;
+  --text: #1F2937;
+  --text-secondary: #6B7280;
+  --border: #E5E7EB;
   --positive: #10B981;
-  --negative: #ff4757;
-  --positive-bg: rgba(16, 185, 129, 0.15);
-  --negative-bg: rgba(255, 71, 87, 0.15);
-  --gold: #fbbf24;
+  --negative: #EF4444;
+  --positive-bg: rgba(16, 185, 129, 0.1);
+  --negative-bg: rgba(239, 68, 68, 0.1);
+  --gold: #F59E0B;
 
   /* Responsive fluid custom properties */
   --content-max-width: clamp(300px, 90vw, 720px);
@@ -134,7 +135,7 @@ body {
   font-size: 32px;
   font-weight: 800;
   margin-bottom: 8px;
-  background: linear-gradient(135deg, #fff, var(--primary));
+  background: linear-gradient(135deg, #1F2937, var(--primary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -283,7 +284,7 @@ body {
 }
 
 .start-button.extreme {
-  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  background: linear-gradient(135deg, #FFFFFF, #F1F5F9);
   border: 2px solid var(--negative);
   color: var(--negative);
   animation: extremePulse 1.5s ease-in-out infinite;
@@ -750,7 +751,7 @@ body {
   text-align: center;
   padding: 32px 24px;
   margin-bottom: 16px;
-  background: var(--tier-bg, #1a1a1a);
+  background: var(--tier-bg, #FFFFFF);
   border: 2px solid var(--tier-color, #888);
   border-radius: 28px;
   position: relative;
@@ -2655,7 +2656,7 @@ body {
 /* 카드 베이스 - 400px 고정 (html2canvas 호환) */
 .share-image-card {
   width: 400px;
-  background: linear-gradient(180deg, #0f0f0f 0%, #141418 50%, #1a1a1a 100%);
+  background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 50%, #FFFFFF 100%);
   border-radius: 24px;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
   overflow: hidden;
@@ -2759,7 +2760,7 @@ body {
 
 .share-balance-label {
   font-size: 13px;
-  color: #888888;
+  color: var(--text-secondary);
   display: block;
   margin-bottom: 6px;
 }
@@ -2782,7 +2783,7 @@ body {
 
 .share-initial-note {
   font-size: 12px;
-  color: #888888;
+  color: var(--text-secondary);
   display: block;
   margin-top: 8px;
 }
@@ -2798,7 +2799,7 @@ body {
 
 .share-card-url {
   font-size: 12px;
-  color: #888888;
+  color: var(--text-secondary);
 }
 
 .share-card-cta {
@@ -3597,4 +3598,405 @@ body {
 
 .share-modal-close {
   min-height: 44px;
+}
+
+/* ==================== AIT: Coin Balance ==================== */
+
+.coin-balance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.intro-coin-balance {
+  align-self: flex-end;
+  margin-bottom: 8px;
+}
+
+.coin-balance-main {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.coin-icon {
+  font-size: 14px;
+  color: var(--gold);
+  font-weight: 800;
+}
+
+.coin-exchange-info {
+  font-size: 12px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ==================== AIT: Coin Particle ==================== */
+
+.coin-particle-container {
+  position: relative;
+  pointer-events: none;
+}
+
+.coin-particle-text {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--primary);
+  text-align: center;
+  animation: coinFloat 1.2s ease-out forwards;
+}
+
+.coin-particle-container.gold .coin-particle-text {
+  font-size: 28px;
+  color: var(--gold);
+}
+
+.coin-particle-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 50%;
+  left: var(--start-x);
+  top: var(--start-y);
+  animation: coinBurst 0.8s ease-out forwards;
+}
+
+.coin-particle-container.gold .coin-particle-dot {
+  background: var(--gold);
+  width: 10px;
+  height: 10px;
+}
+
+@keyframes coinFloat {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-40px) scale(0.5); opacity: 0; }
+}
+
+@keyframes coinBurst {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+}
+
+/* ==================== AIT: Mission Panel ==================== */
+
+.mission-panel {
+  margin: 16px 0;
+}
+
+.mission-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.mission-panel-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.mission-completed-count {
+  font-size: 12px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.mission-cards-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mission-cards-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.mission-card {
+  flex: 0 0 160px;
+  scroll-snap-align: start;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  transition: border-color 0.2s;
+}
+
+.mission-card.completed {
+  opacity: 0.6;
+  border-color: var(--primary);
+}
+
+.mission-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.mission-emoji {
+  font-size: 18px;
+}
+
+.mission-track-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.mission-level {
+  font-size: 11px;
+  color: var(--primary);
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.mission-complete-badge {
+  font-size: 10px;
+  color: #fff;
+  background: var(--primary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.mission-description {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.mission-progress-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.mission-progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.mission-progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mission-progress-text {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.mission-reward {
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+/* ==================== AIT: Mission Toast ==================== */
+
+.mission-toast {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-120%);
+  z-index: 1000;
+  background: var(--card);
+  border: 2px solid var(--primary);
+  border-radius: 16px;
+  padding: 12px 20px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.mission-toast.visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+.mission-toast-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mission-toast-emoji {
+  font-size: 24px;
+}
+
+.mission-toast-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.mission-toast-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.mission-toast-reward {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+/* ==================== AIT: Coin Reward Section ==================== */
+
+.coin-reward-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+  position: relative;
+}
+
+/* ==================== AIT: Rewarded Ad ==================== */
+
+.rewarded-ad-section {
+  margin: 16px 0;
+  text-align: center;
+}
+
+.rewarded-ad-button {
+  padding: 14px 24px;
+  background: linear-gradient(135deg, var(--gold), #D97706);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 0.2s;
+}
+
+.rewarded-ad-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rewarded-ad-button:active:not(:disabled) {
+  opacity: 0.8;
+}
+
+/* ==================== AIT: Exchange Section ==================== */
+
+.exchange-section {
+  margin: 16px 0;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  text-align: center;
+}
+
+.exchange-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.exchange-rate-info {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.exchange-button {
+  padding: 12px 24px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 0.2s;
+}
+
+.exchange-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.exchange-message {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ==================== AIT: Error Boundary ==================== */
+
+.error-boundary {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+}
+
+.error-boundary-content {
+  text-align: center;
+  max-width: 320px;
+}
+
+.error-boundary-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.error-boundary-message {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.error-boundary-button {
+  padding: 12px 24px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* ==================== AIT: Confetti Animation ==================== */
+
+@keyframes confettiBurst {
+  0% { transform: translate(0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(720deg) scale(0); opacity: 0; }
+}
+
+@keyframes missionBanner {
+  0% { transform: translateY(-100%); }
+  10% { transform: translateY(0); }
+  90% { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
 }
