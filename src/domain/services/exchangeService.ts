@@ -28,6 +28,14 @@ interface PromotionErrorResponse {
 
 type EdgeFunctionResponse = PromotionSuccessResponse | PromotionErrorResponse;
 
+const ERROR_MESSAGES: Record<string, string> = {
+  '4100': '프로모션을 찾을 수 없어요',
+  '4109': '프로모션이 종료되었어요',
+  '4112': '예산이 소진되었어요',
+  '4113': '이미 받은 보상이에요',
+  'ALREADY_CLAIMED': '이미 교환한 내역이에요',
+};
+
 function isAlreadyClaimed(promotionCode: string): boolean {
   try {
     const claimed = JSON.parse(localStorage.getItem(EXCHANGE_CLAIMED_KEY) ?? '[]') as string[];
@@ -108,13 +116,10 @@ export async function exchangeForTossPoints(
 
     if (result.error === 'ALREADY_CLAIMED') {
       markClaimed(promotionCode);
-      return { success: false, error: '이미 교환된 프로모션입니다' };
     }
 
-    return {
-      success: false,
-      error: `[${result.error}] ${result.message}`,
-    };
+    const userMessage = ERROR_MESSAGES[result.error] ?? `[${result.error}] ${result.message}`;
+    return { success: false, error: userMessage };
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     return { success: false, error: `교환 요청 실패: ${message}` };
