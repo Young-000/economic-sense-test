@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useCallback, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGame } from '../hooks/useGame';
+import { useInterstitialAd } from '../hooks/useInterstitialAd';
 import { getGameConfig, type Outcome, type GameMode } from '@domain/entities';
 import { calculateExpectedValue } from '@domain/usecases/gameEngine';
 import { AssetProgressChart } from '@presentation/components';
@@ -46,6 +47,8 @@ export function GamePage() {
     topPlayerData,
   } = useGame({ mode });
 
+  const { showInterstitialIfNeeded } = useInterstitialAd();
+
   // Balance change feedback
   const previousBalanceRef = useRef<number>(gameState.balance);
   const [balanceChangeClass, setBalanceChangeClass] = useState<'increase' | 'decrease' | ''>('');
@@ -56,9 +59,13 @@ export function GamePage() {
       sessionStorage.setItem('gameResults', JSON.stringify(gameState.results));
       sessionStorage.setItem('gameQuestions', JSON.stringify(questions));
       sessionStorage.setItem('gameMode', mode);
-      navigate('/result', { replace: true });
+
+      // 전면 광고 표시 후 결과 페이지로 이동
+      showInterstitialIfNeeded(() => {
+        navigate('/result', { replace: true });
+      });
     }
-  }, [gameState.isComplete, gameState.results, questions, navigate, mode]);
+  }, [gameState.isComplete, gameState.results, questions, navigate, mode, showInterstitialIfNeeded]);
 
   // Balance change animation
   useEffect(() => {
