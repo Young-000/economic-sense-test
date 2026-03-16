@@ -299,7 +299,25 @@ describe('calculateLuckScore', () => {
 });
 
 describe('determineInvestorType', () => {
-  it('should return lucky_gambler for aggressive unlucky', () => {
+  // Wild card: 극단적 수익률
+  it('should return wild_card for extremely high return (>=150%)', () => {
+    expect(determineInvestorType(70, 70, 30, 200)).toBe('wild_card');
+  });
+
+  it('should return wild_card for extremely low return (<=-80%)', () => {
+    expect(determineInvestorType(30, 50, -30, -90)).toBe('wild_card');
+  });
+
+  it('should return wild_card at exact boundary (150%)', () => {
+    expect(determineInvestorType(50, 50, 0, 150)).toBe('wild_card');
+  });
+
+  it('should NOT return wild_card for moderate return', () => {
+    expect(determineInvestorType(50, 50, 0, 100)).toBe('balanced_investor');
+  });
+
+  // 공격적 투자자 (risk > 60)
+  it('should return lucky_gambler for aggressive irrational lucky', () => {
     expect(determineInvestorType(70, 40, 30)).toBe('lucky_gambler');
   });
 
@@ -315,6 +333,17 @@ describe('determineInvestorType', () => {
     expect(determineInvestorType(70, 40, -30)).toBe('unlucky_gambler');
   });
 
+  it('should return smart_winner for aggressive rational with neutral luck', () => {
+    // 공격적(70) + 합리적(70) + 중간 운(0) = smart_winner
+    expect(determineInvestorType(70, 70, 0)).toBe('smart_winner');
+  });
+
+  it('should return lucky_gambler for aggressive irrational with neutral luck', () => {
+    // 공격적(70) + 비합리적(40) + 중간 운(0) = lucky_gambler
+    expect(determineInvestorType(70, 40, 0)).toBe('lucky_gambler');
+  });
+
+  // 보수적 투자자 (risk < 40)
   it('should return steady_grower for conservative lucky', () => {
     expect(determineInvestorType(30, 50, 30)).toBe('steady_grower');
   });
@@ -323,18 +352,22 @@ describe('determineInvestorType', () => {
     expect(determineInvestorType(30, 50, -30)).toBe('careful_realist');
   });
 
+  it('should return careful_realist for conservative with neutral luck (fallback)', () => {
+    // 보수적(30) + 중간 운(0) = careful_realist 기본값
+    expect(determineInvestorType(30, 50, 0)).toBe('careful_realist');
+  });
+
+  // 균형잡힌 투자자 (risk 40-60)
   it('should return balanced_investor for middle scores', () => {
     expect(determineInvestorType(50, 50, 0)).toBe('balanced_investor');
   });
 
-  it('should return lucky_gambler for aggressive with neutral luck (fallback)', () => {
-    // 공격적(70) + 비합리적(40) + 중간 운(0) = lucky_gambler 기본값
-    expect(determineInvestorType(70, 40, 0)).toBe('lucky_gambler');
+  it('should return balanced_investor at lower boundary (risk=40)', () => {
+    expect(determineInvestorType(40, 50, 0)).toBe('balanced_investor');
   });
 
-  it('should return careful_realist for conservative with neutral luck (fallback)', () => {
-    // 보수적(30) + 중간 운(0) = careful_realist 기본값
-    expect(determineInvestorType(30, 50, 0)).toBe('careful_realist');
+  it('should return balanced_investor at upper boundary (risk=60)', () => {
+    expect(determineInvestorType(60, 50, 0)).toBe('balanced_investor');
   });
 });
 

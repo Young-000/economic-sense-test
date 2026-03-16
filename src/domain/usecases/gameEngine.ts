@@ -170,32 +170,38 @@ export function calculateLuckScore(results: RoundResult[]): number {
 export function determineInvestorType(
   riskScore: number,
   rationalityScore: number,
-  luckScore: number
+  luckScore: number,
+  totalReturn: number = 0
 ): InvestorType {
-  const isAggressive = riskScore >= 60;
-  const isConservative = riskScore <= 40;
+  // Wild card: 극단적 결과 (전략 무관하게 YOLO 수준의 수익/손실)
+  if (totalReturn >= 150 || totalReturn <= -80) {
+    return 'wild_card';
+  }
+
   const isRational = rationalityScore >= 60;
   const isLucky = luckScore >= 20;
   const isUnlucky = luckScore <= -20;
 
-  // 공격적 투자자
-  if (isAggressive) {
+  // 균형잡힌 투자자 (risk 40-60)
+  if (riskScore >= 40 && riskScore <= 60) {
+    return 'balanced_investor';
+  }
+
+  // 공격적 투자자 (risk > 60)
+  if (riskScore > 60) {
     if (isRational && isLucky) return 'smart_winner';
     if (isRational && isUnlucky) return 'smart_unlucky';
     if (!isRational && isLucky) return 'lucky_gambler';
     if (!isRational && isUnlucky) return 'unlucky_gambler';
-    return 'lucky_gambler'; // 기본
+    // 중간 운(-20 ~ 20): 합리성으로 결정
+    return isRational ? 'smart_winner' : 'lucky_gambler';
   }
 
-  // 보수적 투자자
-  if (isConservative) {
-    if (isLucky) return 'steady_grower';
-    if (isUnlucky) return 'careful_realist';
-    return 'careful_realist'; // 기본
-  }
-
-  // 중간
-  return 'balanced_investor';
+  // 보수적 투자자 (risk < 40)
+  // 보수적 선택은 대부분 저위험이므로 합리성 차이가 미미 — 운 기반으로 분류
+  if (isLucky) return 'steady_grower';
+  if (isUnlucky) return 'careful_realist';
+  return 'careful_realist';
 }
 
 /**
@@ -217,7 +223,7 @@ export function calculateFinalResult(
   const rationalityScore = calculateRationalityScore(results, questions);
   const luckScore = calculateLuckScore(results);
 
-  const investorType = determineInvestorType(riskScore, rationalityScore, luckScore);
+  const investorType = determineInvestorType(riskScore, rationalityScore, luckScore, totalReturn);
   const profile = investorProfiles[investorType];
 
   const tier = calculateTier(totalReturn);
