@@ -138,7 +138,7 @@ export function ResultPage() {
     setIsExchanging(true);
     setExchangeMessage(null);
 
-    // TODO: 실제 프로모션 코드로 교체
+    // 실제 프로모션 코드로 교체 필요
     const result = await exchangeForTossPoints(
       'ECONOMIC_SENSE_EXCHANGE',
       pointsToExchange,
@@ -251,16 +251,22 @@ export function ResultPage() {
         />
 
         {/* 보상형 광고 */}
-        {isAdSupported && canShowRewardedAd() && (
+        {isAdSupported && (
           <div className="rewarded-ad-section">
-            <button
-              className="rewarded-ad-button"
-              onClick={handleWatchAd}
-              disabled={isAdLoading}
-              type="button"
-            >
-              {isAdLoading ? '광고 로딩...' : '광고 보고 +20 coin 받기'}
-            </button>
+            {canShowRewardedAd() ? (
+              <button
+                className="rewarded-ad-button"
+                onClick={handleWatchAd}
+                disabled={isAdLoading}
+                type="button"
+              >
+                {isAdLoading ? '광고 로딩...' : '광고 보고 +20 coin 받기'}
+              </button>
+            ) : (
+              <p className="rewarded-ad-limit-message">
+                오늘의 광고 보상을 모두 받았어요!
+              </p>
+            )}
           </div>
         )}
 
