@@ -5,7 +5,7 @@
  * -> userKey 추출 -> 클라이언트 캐싱
  */
 
-import { appLogin } from '@apps-in-toss/web-framework';
+import { appLogin, closeView } from '@apps-in-toss/web-framework';
 
 // --- 상수 ---
 
@@ -192,6 +192,13 @@ export function getLastAuthError(): string | null {
   return lastAuthError;
 }
 
+/**
+ * 미니앱 종료 (appLogin 실패/취소 시 호출)
+ */
+export async function exitApp(): Promise<void> {
+  await closeView();
+}
+
 export function resetUserIdentityCache(): void {
   cachedUserKey = null;
   lastAuthError = null;
@@ -217,12 +224,17 @@ export function checkUnlinkReferrer(): boolean {
 }
 
 /**
- * 모든 사용자 데이터 삭제 (UNLINK 시 호출)
+ * 앱 전용 사용자 데이터만 삭제 (UNLINK 시 호출)
  */
 export function clearAllUserData(): void {
+  const APP_PREFIXES = ['economic-sense-', 'est-'];
   try {
     const keys = Object.keys(localStorage);
-    keys.forEach((key) => localStorage.removeItem(key));
+    keys.forEach((key) => {
+      if (APP_PREFIXES.some((prefix) => key.startsWith(prefix))) {
+        localStorage.removeItem(key);
+      }
+    });
   } catch {
     // localStorage 접근 실패
   }

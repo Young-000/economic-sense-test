@@ -13,6 +13,7 @@ import {
   rewardShareResult,
   getBalance,
   EXCHANGE_RATE,
+  exchangeCoinsForPoints,
 } from '@domain/services/coinService';
 import {
   incrementGameCount,
@@ -148,6 +149,8 @@ export function ResultPage() {
     setIsExchanging(false);
 
     if (result.success) {
+      // 교환 성공 시 코인 차감
+      exchangeCoinsForPoints(pointsToExchange);
       setExchangeMessage(result.message);
     } else {
       setExchangeMessage(result.error);

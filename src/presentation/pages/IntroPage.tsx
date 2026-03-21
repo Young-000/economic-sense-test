@@ -4,7 +4,7 @@ import { GAME_MODE_CONFIG, type GameMode, investorProfiles } from '@domain/entit
 import { getTotalPlayers } from '@data/rankingService';
 import { extractAndSaveChallenge, type ChallengeData } from '@lib/challengeUtils';
 import { getCurrentTheme, formatSeasonInfo } from '@lib/seasonUtils';
-import { initializeUserIdentity } from '@infrastructure/userIdentity';
+import { initializeUserIdentity, isAppsInTossEnvironment, exitApp } from '@infrastructure/userIdentity';
 import { updateStreak, checkMissions, type MissionCompletionResult } from '@domain/services/missionService';
 import { MissionPanel, MissionToast, CoinBalance } from '@presentation/components';
 
@@ -50,10 +50,19 @@ export function IntroPage(): React.JSX.Element {
     if (!isAuthReady) {
       setIsAuthLoading(true);
       try {
-        await initializeUserIdentity();
+        const userKey = await initializeUserIdentity();
+        if (!userKey || userKey.startsWith('local-') || userKey.startsWith('temp-')) {
+          if (isAppsInTossEnvironment()) {
+            await exitApp();
+            return;
+          }
+        }
         setIsAuthReady(true);
-      } catch (err) {
-        console.warn('[IntroPage] Auth failed, proceeding as guest:', err);
+      } catch {
+        if (isAppsInTossEnvironment()) {
+          await exitApp();
+          return;
+        }
         setIsAuthReady(true);
       } finally {
         setIsAuthLoading(false);
