@@ -207,8 +207,8 @@ export function IntroPage(): React.JSX.Element {
           </li>
         </ul>
 
-        {/* 참여자 수 */}
-        {totalPlayers > 0 && (
+        {/* 참여자 수 (100명 미만이면 비노출) */}
+        {totalPlayers >= 100 && (
           <p className="intro-participant-count" aria-live="polite">
             <strong>{formatPlayerCount(totalPlayers)}</strong>명이 참여했어요
           </p>
