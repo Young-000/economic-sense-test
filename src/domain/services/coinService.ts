@@ -18,6 +18,7 @@ const COIN_BALANCE_KEY = 'economic-sense-coin-balance';
 const COIN_HISTORY_KEY = 'economic-sense-coin-history';
 const DAILY_LOGIN_KEY = 'economic-sense-daily-login';
 const DAILY_SHARE_KEY = 'economic-sense-daily-share';
+const DAILY_STREAK_KEY = 'economic-sense-daily-streak';
 
 // --- 적립 상수 ---
 
@@ -193,9 +194,24 @@ export function rewardShareResult(): number {
   return addCoins(COIN_REWARDS.SHARE_RESULT, 'share_result', '결과 공유 보상');
 }
 
-// --- 스트릭 보너스 ---
+// --- 스트릭 보너스 (일 1회) ---
+
+function hasStreakBonusToday(): boolean {
+  try {
+    return localStorage.getItem(DAILY_STREAK_KEY) === getTodayStr();
+  } catch {
+    return false;
+  }
+}
 
 export function rewardStreakBonus(streak: number): number | null {
+  if (hasStreakBonusToday()) return null;
+  if (streak < 3) return null;
+
+  try {
+    localStorage.setItem(DAILY_STREAK_KEY, getTodayStr());
+  } catch { /* ignore */ }
+
   if (streak >= 30) {
     return addCoins(COIN_REWARDS.STREAK_30, 'streak_bonus', '30일 연속 도전 보너스');
   }
@@ -205,8 +221,5 @@ export function rewardStreakBonus(streak: number): number | null {
   if (streak >= 7) {
     return addCoins(COIN_REWARDS.STREAK_7, 'streak_bonus', '7일 연속 도전 보너스');
   }
-  if (streak >= 3) {
-    return addCoins(COIN_REWARDS.STREAK_3, 'streak_bonus', '3일 연속 도전 보너스');
-  }
-  return null;
+  return addCoins(COIN_REWARDS.STREAK_3, 'streak_bonus', '3일 연속 도전 보너스');
 }

@@ -11,8 +11,10 @@ import {
   rewardHighTier,
   rewardRewardedAd,
   rewardShareResult,
+  hasDailyShareToday,
   getBalance,
   EXCHANGE_RATE,
+  COIN_REWARDS,
   exchangeCoinsForPoints,
 } from '@domain/services/coinService';
 import {
@@ -73,13 +75,13 @@ export function ResultPage() {
     // 코인 보상
     let totalReward = 0;
     rewardGameComplete();
-    totalReward = totalReward + 5;
+    totalReward = totalReward + COIN_REWARDS.GAME_COMPLETE;
 
     // 고티어 보너스 (S, SS)
     const highTiers = ['S', 'S+', 'SS', 'SS+'];
     if (highTiers.includes(finalResult.tier.grade)) {
       rewardHighTier();
-      totalReward = totalReward + 10;
+      totalReward = totalReward + COIN_REWARDS.HIGH_TIER;
     }
 
     setCoinRewardAmount(totalReward);
@@ -114,13 +116,15 @@ export function ResultPage() {
     });
   }, [loadAndShowAd]);
 
+  const canEarnShareReward = !hasShared && !hasDailyShareToday();
+
   const handleShareWithReward = useCallback(() => {
     handleShareText();
-    if (!hasShared) {
+    if (canEarnShareReward) {
       rewardShareResult();
       setHasShared(true);
     }
-  }, [handleShareText, hasShared]);
+  }, [handleShareText, canEarnShareReward]);
 
   const handleExchange = useCallback(async () => {
     const balance = getBalance();
@@ -205,7 +209,7 @@ export function ResultPage() {
             />
           )}
           {showAdBonus && (
-            <CoinParticle amount={20} isGold onComplete={() => setShowAdBonus(false)} />
+            <CoinParticle amount={COIN_REWARDS.REWARDED_AD} isGold onComplete={() => setShowAdBonus(false)} />
           )}
         </div>
 
@@ -263,7 +267,7 @@ export function ResultPage() {
                 disabled={isAdLoading}
                 type="button"
               >
-                {isAdLoading ? '광고 로딩...' : '광고 보고 +20 coin 받기'}
+                {isAdLoading ? '광고 로딩...' : `광고 보고 +${COIN_REWARDS.REWARDED_AD} coin 받기`}
               </button>
             ) : (
               <p className="rewarded-ad-limit-message">
@@ -297,7 +301,7 @@ export function ResultPage() {
             </button>
           </div>
           <button className="share-button" onClick={handleShareWithReward}>
-            텍스트로 공유하기 {!hasShared && '(+5 coin)'}
+            텍스트로 공유하기 {canEarnShareReward && `(+${COIN_REWARDS.SHARE_RESULT} coin)`}
           </button>
           <button className="retry-button" onClick={() => navigate('/')}>다시 도전하기</button>
         </div>
