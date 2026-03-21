@@ -33,18 +33,6 @@ export function useInterstitialAd(): UseInterstitialAdReturn {
       return;
     }
 
-    // AIT 가이드라인: 전면 광고 표시 전 사전 안내
-    const toast = document.createElement('div');
-    toast.textContent = '잠시 후 광고가 표시됩니다';
-    Object.assign(toast.style, {
-      position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-      padding: '12px 24px', background: 'rgba(0,0,0,0.8)', color: '#fff',
-      borderRadius: '8px', fontSize: '14px', zIndex: '99999', pointerEvents: 'none',
-    });
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      toast.remove();
     try {
       const cleanup = loadFullScreenAd({
         options: { adGroupId: INTERSTITIAL_AD_GROUP_ID },
@@ -76,7 +64,6 @@ export function useInterstitialAd(): UseInterstitialAdReturn {
     } catch {
       onComplete();
     }
-    }, 500);
   }, [isAdSupported]);
 
   return { isAdSupported, showInterstitialIfNeeded };
