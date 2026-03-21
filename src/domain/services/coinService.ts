@@ -6,7 +6,7 @@
  * 일일 목표: ~1000코인 = ~10P (적극 사용자 기준)
  *
  * 적립 경로:
- * - 게임 완료 (10문제): +15 코인 (medium-action)
+ * - 게임 완료 (10문제): +30 코인 (medium-action)
  * - 고티어 (S/SS): +30 코인
  * - 보상형 광고 시청: +100 코인 (최대 5회/일)
  * - 결과 공유: +20 코인 (일 1회)
@@ -23,7 +23,7 @@ const DAILY_STREAK_KEY = 'economic-sense-daily-streak';
 // --- 적립 상수 ---
 
 export const COIN_REWARDS = {
-  GAME_COMPLETE: 15,
+  GAME_COMPLETE: 30,
   HIGH_TIER: 30,
   REWARDED_AD: 100,
   SHARE_RESULT: 20,
@@ -222,4 +222,53 @@ export function rewardStreakBonus(streak: number): number | null {
     return addCoins(COIN_REWARDS.STREAK_7, 'streak_bonus', '7일 연속 도전 보너스');
   }
   return addCoins(COIN_REWARDS.STREAK_3, 'streak_bonus', '3일 연속 도전 보너스');
+}
+
+// --- 일일 목표 (오늘의 퀴즈 3회 = 100코인) ---
+
+const DAILY_GOAL_KEY = 'economic-sense-daily-goal';
+const DAILY_GAME_COUNT_KEY = 'economic-sense-daily-game-count';
+
+export const DAILY_GOAL_TARGET = 3;
+export const DAILY_GOAL_REWARD = 100;
+
+export function getDailyGameCount(): number {
+  try {
+    const stored = localStorage.getItem(DAILY_GAME_COUNT_KEY);
+    if (!stored) return 0;
+    const data = JSON.parse(stored) as { date: string; count: number };
+    if (data.date !== getTodayStr()) return 0;
+    return data.count;
+  } catch {
+    return 0;
+  }
+}
+
+export function incrementDailyGameCount(): number {
+  const today = getTodayStr();
+  const current = getDailyGameCount();
+  const next = current + 1;
+  try {
+    localStorage.setItem(DAILY_GAME_COUNT_KEY, JSON.stringify({ date: today, count: next }));
+  } catch { /* ignore */ }
+  return next;
+}
+
+export function hasDailyGoalToday(): boolean {
+  try {
+    return localStorage.getItem(DAILY_GOAL_KEY) === getTodayStr();
+  } catch {
+    return false;
+  }
+}
+
+export function rewardDailyGoal(): number | null {
+  if (hasDailyGoalToday()) return null;
+  if (getDailyGameCount() < DAILY_GOAL_TARGET) return null;
+
+  try {
+    localStorage.setItem(DAILY_GOAL_KEY, getTodayStr());
+  } catch { /* ignore */ }
+
+  return addCoins(DAILY_GOAL_REWARD, 'daily_login', '오늘의 퀴즈 3회 달성 보너스');
 }

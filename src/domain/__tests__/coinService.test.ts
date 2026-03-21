@@ -51,7 +51,7 @@ describe('coinService', () => {
 
   describe('보상 상수', () => {
     it('should have correct reward values', () => {
-      expect(COIN_REWARDS.GAME_COMPLETE).toBe(15);
+      expect(COIN_REWARDS.GAME_COMPLETE).toBe(30);
       expect(COIN_REWARDS.HIGH_TIER).toBe(30);
       expect(COIN_REWARDS.REWARDED_AD).toBe(100);
       expect(COIN_REWARDS.SHARE_RESULT).toBe(20);
@@ -99,9 +99,9 @@ describe('coinService', () => {
   });
 
   describe('게임 완료 보상', () => {
-    it('should reward 15 coins per game', () => {
+    it('should reward 30 coins per game', () => {
       rewardGameComplete();
-      expect(getBalance()).toBe(15);
+      expect(getBalance()).toBe(30);
     });
 
     it('should reward high tier 30 coins', () => {
@@ -112,7 +112,7 @@ describe('coinService', () => {
     it('should accumulate rewards', () => {
       rewardGameComplete();
       rewardHighTier();
-      expect(getBalance()).toBe(45);
+      expect(getBalance()).toBe(60);
     });
   });
 
@@ -242,14 +242,14 @@ describe('coinService', () => {
   });
 
   describe('일일 시나리오 (10P 목표)', () => {
-    it('should reach ~665 coins for active user (3 quizzes, 5 ads, share, 7-day streak)', () => {
+    it('should reach ~710 coins for active user (3 quizzes, 5 ads, share, 7-day streak)', () => {
       // 일일 출석: +50
       rewardDailyLogin();
 
       // 스트릭 보너스 (7일): +20
       rewardStreakBonus(7);
 
-      // 3 퀴즈 완료: 3 x 15 = +45
+      // 3 퀴즈 완료: 3 x 30 = +90
       rewardGameComplete();
       rewardGameComplete();
       rewardGameComplete();
@@ -268,19 +268,19 @@ describe('coinService', () => {
       rewardShareResult();
 
       const balance = getBalance();
-      // 50 + 20 + 45 + 30 + 500 + 20 = 665
-      expect(balance).toBe(665);
-      expect(Math.floor(balance / EXCHANGE_RATE)).toBe(6);
+      // 50 + 20 + 90 + 30 + 500 + 20 = 710
+      expect(balance).toBe(710);
+      expect(Math.floor(balance / EXCHANGE_RATE)).toBe(7);
     });
 
-    it('should reach ~1015 coins with missions on early days', () => {
+    it('should reach ~1010 coins with missions on early days', () => {
       // 일일 출석: +50
       rewardDailyLogin();
 
       // 스트릭 보너스 (7일): +20
       rewardStreakBonus(7);
 
-      // 3 퀴즈 완료: 3 x 15 = +45
+      // 3 퀴즈 완료: 3 x 30 = +90
       rewardGameComplete();
       rewardGameComplete();
       rewardGameComplete();
@@ -298,16 +298,16 @@ describe('coinService', () => {
       // 1 공유: +20
       rewardShareResult();
 
-      // 미션 달성 (개미 투자자 + 습관 투자자): 60 + 60 + 80 + 100 = 300 (다양한 미션 조합)
+      // 미션 달성: 60 + 60 + 80 + 100 = 300 (다양한 미션 조합)
       rewardMission(60, '개미 투자자 달성');
       rewardMission(60, '습관 투자자 달성');
       rewardMission(80, '큰손 투자자 달성');
       rewardMission(100, '슈퍼개미 달성');
 
       const balance = getBalance();
-      // 665 + 300 = 965
-      expect(balance).toBe(965);
-      expect(Math.floor(balance / EXCHANGE_RATE)).toBe(9);
+      // 710 + 300 = 1010
+      expect(balance).toBe(1010);
+      expect(Math.floor(balance / EXCHANGE_RATE)).toBe(10);
     });
   });
 });
