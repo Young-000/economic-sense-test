@@ -6,7 +6,8 @@ import { extractAndSaveChallenge, type ChallengeData } from '@lib/challengeUtils
 import { getCurrentTheme, formatSeasonInfo } from '@lib/seasonUtils';
 import { initializeUserIdentity, isAppsInTossEnvironment, exitApp } from '@infrastructure/userIdentity';
 import { updateStreak, checkMissions, type MissionCompletionResult } from '@domain/services/missionService';
-import { MissionPanel, MissionToast, CoinBalance } from '@presentation/components';
+import { rewardDailyLogin, rewardStreakBonus, COIN_REWARDS } from '@domain/services/coinService';
+import { MissionPanel, MissionToast, CoinBalance, CoinParticle } from '@presentation/components';
 
 export function IntroPage(): React.JSX.Element {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ export function IntroPage(): React.JSX.Element {
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [missionCompletions, setMissionCompletions] = useState<MissionCompletionResult[]>([]);
+  const [dailyLoginReward, setDailyLoginReward] = useState<number | null>(null);
+  const [streakBonusReward, setStreakBonusReward] = useState<number | null>(null);
   const [challenge] = useState<ChallengeData | null>(() => extractAndSaveChallenge());
 
   const currentConfig = GAME_MODE_CONFIG[selectedMode];
@@ -31,9 +34,27 @@ export function IntroPage(): React.JSX.Element {
     loadSocialProof();
   }, []);
 
-  // 스트릭 업데이트 + 미션 체크 (앱 진입 시)
+  // 일일 출석 + 스트릭 업데이트 + 미션 체크 (앱 진입 시)
   useEffect(() => {
-    updateStreak();
+    // 일일 출석 보상
+    const loginResult = rewardDailyLogin();
+    if (loginResult !== null) {
+      setDailyLoginReward(COIN_REWARDS.DAILY_LOGIN);
+    }
+
+    // 스트릭 업데이트 + 스트릭 보너스
+    const currentStreak = updateStreak();
+    const streakResult = rewardStreakBonus(currentStreak);
+    if (streakResult !== null) {
+      setTimeout(() => {
+        if (currentStreak >= 30) setStreakBonusReward(COIN_REWARDS.STREAK_30);
+        else if (currentStreak >= 14) setStreakBonusReward(COIN_REWARDS.STREAK_14);
+        else if (currentStreak >= 7) setStreakBonusReward(COIN_REWARDS.STREAK_7);
+        else if (currentStreak >= 3) setStreakBonusReward(COIN_REWARDS.STREAK_3);
+      }, 1200);
+    }
+
+    // 미션 체크
     const results = checkMissions();
     if (results.length > 0) {
       setMissionCompletions(results);
@@ -100,8 +121,23 @@ export function IntroPage(): React.JSX.Element {
 
       <div className="intro-content">
 
-        {/* 코인 잔액 */}
-        <CoinBalance className="intro-coin-balance" showExchangeInfo />
+        {/* 코인 잔액 + 일일 보상 */}
+        <div className="intro-coin-section">
+          <CoinBalance className="intro-coin-balance" showExchangeInfo />
+          {dailyLoginReward !== null && (
+            <CoinParticle
+              amount={dailyLoginReward}
+              onComplete={() => setDailyLoginReward(null)}
+            />
+          )}
+          {streakBonusReward !== null && (
+            <CoinParticle
+              amount={streakBonusReward}
+              isGold
+              onComplete={() => setStreakBonusReward(null)}
+            />
+          )}
+        </div>
 
         {/* 친구 도전 배너 */}
         {challenge && challengeProfile && (

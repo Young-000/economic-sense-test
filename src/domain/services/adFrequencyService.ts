@@ -1,14 +1,20 @@
 /**
  * 광고 빈도 제어 서비스
  * - 전면 광고: 게임 완료 시마다, 하루 최대 10회
- * - 보상형 광고: 최소 60초 간격, 하루 최대 15회
+ * - 보상형 광고: 최소 60초 간격, 하루 최대 5회 (+100코인/회)
+ *
+ * 수익 목표: ~30원/일/유저
+ * - 전면 광고 3회/일 x ~3원 = ~9원
+ * - 보상형 광고 5회/일 x ~4원 = ~20원
+ * - 배너 노출 = ~1원
+ * - 합계 ~30원
  */
 
 const INTERSTITIAL_KEY = 'est-ad-interstitial-freq';
 const REWARDED_KEY = 'est-ad-rewarded-freq';
 const MAX_INTERSTITIAL_PER_DAY = 10;
 const REWARDED_COOLDOWN_MS = 60 * 1000;
-const MAX_REWARDED_PER_DAY = 15;
+const MAX_REWARDED_PER_DAY = 5;
 
 interface InterstitialData {
   gameCount: number;

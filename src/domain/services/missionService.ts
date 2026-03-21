@@ -1,9 +1,11 @@
 /**
- * 미션 서비스 - 스테이지형 3트랙 미션 시스템
+ * 미션 서비스 - 투자자 등급 테마 3트랙 미션 시스템
  *
- * Track 1: 투자자 (games played)
- * Track 2: 연속 도전 (streak)
- * Track 3: 수익왕 (tier achievements)
+ * Track 1: 투자자 (games played) - 씨앗 -> 개미 -> 큰손 -> 슈퍼개미
+ * Track 2: 연속 도전 (streak) - 초보 -> 습관 -> 프로 -> 전설
+ * Track 3: 수익왕 (tier achievements) - 인턴 -> 매니저 -> 임원 -> CEO
+ *
+ * 보상: 50/60/80/100 코인 per stage
  */
 
 import { rewardMission } from './coinService';
@@ -48,10 +50,10 @@ export const MISSION_TRACKS: MissionTrack[] = [
     name: '투자자',
     emoji: '🏦',
     stages: [
-      { level: 1, target: 1, reward: 15, description: '1회 게임 완료' },
-      { level: 2, target: 5, reward: 25, description: '5회 게임 완료' },
-      { level: 3, target: 20, reward: 40, description: '20회 게임 완료' },
-      { level: 4, target: 50, reward: 60, description: '50회 게임 완료' },
+      { level: 1, target: 1, reward: 50, description: '씨앗 투자자: 첫 게임 완료' },
+      { level: 2, target: 5, reward: 60, description: '개미 투자자: 5회 게임 완료' },
+      { level: 3, target: 20, reward: 80, description: '큰손 투자자: 20회 게임 완료' },
+      { level: 4, target: 50, reward: 100, description: '슈퍼개미: 50회 게임 완료' },
     ],
   },
   {
@@ -59,10 +61,10 @@ export const MISSION_TRACKS: MissionTrack[] = [
     name: '연속 도전',
     emoji: '🔥',
     stages: [
-      { level: 1, target: 3, reward: 20, description: '3일 연속 도전' },
-      { level: 2, target: 7, reward: 40, description: '7일 연속 도전' },
-      { level: 3, target: 14, reward: 60, description: '14일 연속 도전' },
-      { level: 4, target: 30, reward: 80, description: '30일 연속 도전' },
+      { level: 1, target: 3, reward: 50, description: '초보 도전자: 3일 연속' },
+      { level: 2, target: 7, reward: 60, description: '습관 투자자: 7일 연속' },
+      { level: 3, target: 14, reward: 80, description: '프로 투자자: 14일 연속' },
+      { level: 4, target: 30, reward: 100, description: '전설의 투자자: 30일 연속' },
     ],
   },
   {
@@ -70,10 +72,10 @@ export const MISSION_TRACKS: MissionTrack[] = [
     name: '수익왕',
     emoji: '💰',
     stages: [
-      { level: 1, target: 1, reward: 15, description: 'B티어 이상 달성' },
-      { level: 2, target: 2, reward: 25, description: 'A티어 이상 달성' },
-      { level: 3, target: 3, reward: 40, description: 'S티어 이상 달성' },
-      { level: 4, target: 4, reward: 80, description: 'SS티어 달성' },
+      { level: 1, target: 1, reward: 50, description: '인턴: B티어 이상 달성' },
+      { level: 2, target: 2, reward: 60, description: '매니저: A티어 이상 달성' },
+      { level: 3, target: 3, reward: 80, description: '임원: S티어 이상 달성' },
+      { level: 4, target: 4, reward: 100, description: 'CEO: SS티어 달성' },
     ],
   },
 ];

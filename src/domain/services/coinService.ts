@@ -3,31 +3,49 @@
  *
  * 인앱 화폐: 코인
  * 교환비: 100코인 = 1P (토스포인트)
+ * 일일 목표: ~1000코인 = ~10P (적극 사용자 기준)
  *
  * 적립 경로:
- * - 게임 완료 (10문제): +5 코인
- * - 고티어 (S/SS): +10 코인
- * - 보상형 광고 시청: +20 코인
- * - 결과 공유: +5 코인
+ * - 게임 완료 (10문제): +15 코인 (medium-action)
+ * - 고티어 (S/SS): +30 코인
+ * - 보상형 광고 시청: +100 코인 (최대 5회/일)
+ * - 결과 공유: +20 코인 (일 1회)
+ * - 일일 출석: +50 코인
+ * - 스트릭 보너스: +10/20/30/50 코인 (3/7/14/30일 연속)
  */
 
 const COIN_BALANCE_KEY = 'economic-sense-coin-balance';
 const COIN_HISTORY_KEY = 'economic-sense-coin-history';
+const DAILY_LOGIN_KEY = 'economic-sense-daily-login';
+const DAILY_SHARE_KEY = 'economic-sense-daily-share';
 
 // --- 적립 상수 ---
 
 export const COIN_REWARDS = {
-  GAME_COMPLETE: 5,
-  HIGH_TIER: 10,
-  REWARDED_AD: 20,
-  SHARE_RESULT: 5,
+  GAME_COMPLETE: 15,
+  HIGH_TIER: 30,
+  REWARDED_AD: 100,
+  SHARE_RESULT: 20,
+  DAILY_LOGIN: 50,
+  STREAK_3: 10,
+  STREAK_7: 20,
+  STREAK_14: 30,
+  STREAK_30: 50,
 } as const;
 
 export const EXCHANGE_RATE = 100; // 100코인 = 1P
 
 // --- 코인 히스토리 ---
 
-type CoinAction = 'game_complete' | 'high_tier' | 'rewarded_ad' | 'share_result' | 'exchange' | 'mission';
+type CoinAction =
+  | 'game_complete'
+  | 'high_tier'
+  | 'rewarded_ad'
+  | 'share_result'
+  | 'exchange'
+  | 'mission'
+  | 'daily_login'
+  | 'streak_bonus';
 
 interface CoinHistoryEntry {
   action: CoinAction;
@@ -127,10 +145,68 @@ export function rewardRewardedAd(): number {
   return addCoins(COIN_REWARDS.REWARDED_AD, 'rewarded_ad', '광고 시청 보상');
 }
 
+export function rewardMission(amount: number, description: string): number {
+  return addCoins(amount, 'mission', description);
+}
+
+// --- 일일 출석 ---
+
+function getTodayStr(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+export function hasDailyLoginToday(): boolean {
+  try {
+    return localStorage.getItem(DAILY_LOGIN_KEY) === getTodayStr();
+  } catch {
+    return false;
+  }
+}
+
+export function rewardDailyLogin(): number | null {
+  if (hasDailyLoginToday()) return null;
+
+  try {
+    localStorage.setItem(DAILY_LOGIN_KEY, getTodayStr());
+  } catch { /* ignore */ }
+
+  return addCoins(COIN_REWARDS.DAILY_LOGIN, 'daily_login', '일일 출석 보상');
+}
+
+// --- 일일 공유 (1회 제한) ---
+
+export function hasDailyShareToday(): boolean {
+  try {
+    return localStorage.getItem(DAILY_SHARE_KEY) === getTodayStr();
+  } catch {
+    return false;
+  }
+}
+
 export function rewardShareResult(): number {
+  if (hasDailyShareToday()) return getBalance();
+
+  try {
+    localStorage.setItem(DAILY_SHARE_KEY, getTodayStr());
+  } catch { /* ignore */ }
+
   return addCoins(COIN_REWARDS.SHARE_RESULT, 'share_result', '결과 공유 보상');
 }
 
-export function rewardMission(amount: number, description: string): number {
-  return addCoins(amount, 'mission', description);
+// --- 스트릭 보너스 ---
+
+export function rewardStreakBonus(streak: number): number | null {
+  if (streak >= 30) {
+    return addCoins(COIN_REWARDS.STREAK_30, 'streak_bonus', '30일 연속 도전 보너스');
+  }
+  if (streak >= 14) {
+    return addCoins(COIN_REWARDS.STREAK_14, 'streak_bonus', '14일 연속 도전 보너스');
+  }
+  if (streak >= 7) {
+    return addCoins(COIN_REWARDS.STREAK_7, 'streak_bonus', '7일 연속 도전 보너스');
+  }
+  if (streak >= 3) {
+    return addCoins(COIN_REWARDS.STREAK_3, 'streak_bonus', '3일 연속 도전 보너스');
+  }
+  return null;
 }
