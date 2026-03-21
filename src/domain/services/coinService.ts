@@ -2,7 +2,7 @@
  * 코인 서비스 - 인앱 화폐 관리
  *
  * 인앱 화폐: 코인
- * 교환비: 10코인 = 1P (토스포인트)
+ * 교환비: 100코인 = 1P (토스포인트)
  *
  * 적립 경로:
  * - 게임 완료 (10문제): +5 코인
@@ -23,7 +23,7 @@ export const COIN_REWARDS = {
   SHARE_RESULT: 5,
 } as const;
 
-export const EXCHANGE_RATE = 10; // 10코인 = 1P
+export const EXCHANGE_RATE = 100; // 100코인 = 1P
 
 // --- 코인 히스토리 ---
 
