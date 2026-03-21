@@ -45,8 +45,9 @@ export function ResultPage() {
   const [coinRewardAmount, setCoinRewardAmount] = useState<number | null>(null);
   const [showAdBonus, setShowAdBonus] = useState(false);
   const [missionCompletions, setMissionCompletions] = useState<MissionCompletionResult[]>([]);
-  const [isExchanging, setIsExchanging] = useState(false);
-  const [exchangeMessage, setExchangeMessage] = useState<string | null>(null);
+  // Exchange disabled (준비 중) - keeping code for future use
+  const [_isExchanging, setIsExchanging] = useState(false);
+  const [_exchangeMessage, setExchangeMessage] = useState<string | null>(null);
   const [hasShared, setHasShared] = useState(false);
 
   const {
@@ -126,7 +127,9 @@ export function ResultPage() {
     }
   }, [handleShareText, canEarnShareReward]);
 
-  const handleExchange = useCallback(async () => {
+  // @ts-expect-error Exchange disabled (준비 중) - keeping for future use
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _handleExchange = useCallback(async () => {
     const balance = getBalance();
     const pointsToExchange = Math.floor(balance / EXCHANGE_RATE);
     if (pointsToExchange <= 0) {
@@ -277,21 +280,21 @@ export function ResultPage() {
           </div>
         )}
 
-        {/* 교환 섹션 */}
+        {/* 교환 섹션 (준비 중) */}
         <div className="exchange-section">
           <h3 className="exchange-title">코인 교환소</h3>
           <p className="exchange-rate-info">{EXCHANGE_RATE}coin = 1P</p>
           <button
             className="exchange-button"
-            onClick={handleExchange}
-            disabled={isExchanging || getBalance() < EXCHANGE_RATE}
+            disabled={true}
             type="button"
+            style={{ opacity: 0.5, cursor: 'not-allowed' }}
           >
-            {isExchanging ? '교환 중...' : '토스포인트로 교환'}
+            토스 포인트 교환 준비 중
           </button>
-          {exchangeMessage && (
-            <p className="exchange-message">{exchangeMessage}</p>
-          )}
+          <p className="exchange-message" style={{ color: '#888' }}>
+            토스 포인트 교환 기능은 곧 오픈됩니다
+          </p>
         </div>
 
         <div className="action-buttons">
