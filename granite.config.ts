@@ -5,7 +5,7 @@ export default defineConfig({
   brand: {
     displayName: '경제 센스 테스트',
     primaryColor: '#10B981',
-    icon: '/app-icon-600.png',
+    icon: 'https://economic-sense-test.vercel.app/app-icon-600.png',
   },
   web: {
     host: 'localhost',

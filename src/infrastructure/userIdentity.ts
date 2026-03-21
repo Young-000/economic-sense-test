@@ -202,3 +202,28 @@ export function resetUserIdentityCache(): void {
     // localStorage 접근 실패
   }
 }
+
+/**
+ * UNLINK referrer 체크
+ * 토스앱 설정에서 연결 해제 시 URL에 referrer=UNLINK 파라미터가 전달됨
+ */
+export function checkUnlinkReferrer(): boolean {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('referrer') === 'UNLINK';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * 모든 사용자 데이터 삭제 (UNLINK 시 호출)
+ */
+export function clearAllUserData(): void {
+  try {
+    const keys = Object.keys(localStorage);
+    keys.forEach((key) => localStorage.removeItem(key));
+  } catch {
+    // localStorage 접근 실패
+  }
+}
