@@ -272,7 +272,7 @@ export function ResultPage() {
 
         {/* 교환 섹션 */}
         <div className="exchange-section">
-          <h3 className="exchange-title">포인트 교환소</h3>
+          <h3 className="exchange-title">코인 교환소</h3>
           <p className="exchange-rate-info">{EXCHANGE_RATE}coin = 1P</p>
           <button
             className="exchange-button"
