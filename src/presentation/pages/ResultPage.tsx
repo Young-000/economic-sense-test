@@ -46,8 +46,8 @@ export function ResultPage() {
   const [showAdBonus, setShowAdBonus] = useState(false);
   const [missionCompletions, setMissionCompletions] = useState<MissionCompletionResult[]>([]);
   // Exchange disabled (준비 중) - keeping code for future use
-  const [_isExchanging, setIsExchanging] = useState(false);
-  const [_exchangeMessage, setExchangeMessage] = useState<string | null>(null);
+  const [, setIsExchanging] = useState(false);
+  const [, setExchangeMessage] = useState<string | null>(null);
   const [hasShared, setHasShared] = useState(false);
 
   const {
