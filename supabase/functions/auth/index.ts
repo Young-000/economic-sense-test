@@ -8,7 +8,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { handleCorsPreflightRequest, getCorsHeaders } from './_shared/cors.ts';
-import { generateToken } from './_shared/toss-api-client.ts';
+import { generateToken, refreshToken } from './_shared/toss-api-client.ts';
 import { ErrorCode } from './_shared/types.ts';
 import type { AuthRequest, AuthSuccessResponse, AuthErrorResponse } from './_shared/types.ts';
 
@@ -121,6 +121,32 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   try {
     const body = await req.json();
+
+    // refresh_token 플로우
+    if (body.grant_type === 'refresh_token' && body.refresh_token) {
+      const result = await refreshToken(body.refresh_token as string);
+
+      await storeUserSession(
+        result.userKey,
+        result.accessToken,
+        result.refreshToken,
+        result.expiresIn,
+      );
+
+      const expiresAt = new Date(Date.now() + result.expiresIn * 1000).toISOString();
+      const successResponse = {
+        userKey: result.userKey,
+        expiresAt,
+        refreshToken: result.refreshToken,
+      };
+
+      return new Response(JSON.stringify(successResponse), {
+        status: 200,
+        headers: { ...headers, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // authorization_code 플로우
     const { authorizationCode } = validateRequest(body);
     const result = await generateToken(authorizationCode);
 
@@ -132,9 +158,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
     );
 
     const expiresAt = new Date(Date.now() + result.expiresIn * 1000).toISOString();
-    const successResponse: AuthSuccessResponse = {
+    const successResponse = {
       userKey: result.userKey,
       expiresAt,
+      refreshToken: result.refreshToken,
     };
 
     return new Response(JSON.stringify(successResponse), {

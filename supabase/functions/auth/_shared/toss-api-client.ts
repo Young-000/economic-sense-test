@@ -99,6 +99,44 @@ export interface GenerateTokenResult {
   expiresIn: number;
 }
 
+/**
+ * refreshToken을 사용하여 새 토큰을 발급받는다.
+ *
+ * POST /api-partner/v1/apps-in-toss/user/oauth2/refresh-token
+ */
+export async function refreshToken(
+  token: string,
+): Promise<GenerateTokenResult> {
+  const endpoint = '/api-partner/v1/apps-in-toss/user/oauth2/refresh-token';
+
+  let response: Response;
+  try {
+    response = await tossApiFetch(endpoint, { refreshToken: token });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    if (message.startsWith(ErrorCode.SERVER_CONFIG_ERROR)) {
+      throw err;
+    }
+    throw new Error(`${ErrorCode.NETWORK_ERROR}: ${message}`);
+  }
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error(`[auth] Toss refresh API error (HTTP ${response.status}):`, errorBody);
+    throw new Error(`${ErrorCode.TOSS_SERVER_ERROR}: HTTP ${response.status} - ${errorBody}`);
+  }
+
+  const data = (await response.json()) as TossGenerateTokenResponse;
+  const userKey = extractUserKeyFromToken(data.accessToken);
+
+  return {
+    accessToken: data.accessToken,
+    refreshToken: data.refreshToken,
+    userKey,
+    expiresIn: data.expiresIn,
+  };
+}
+
 export async function generateToken(
   authorizationCode: string,
 ): Promise<GenerateTokenResult> {
