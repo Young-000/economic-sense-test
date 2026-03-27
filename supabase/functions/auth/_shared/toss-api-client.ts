@@ -137,14 +137,36 @@ export async function refreshToken(
   };
 }
 
+export async function disconnect(accessToken: string): Promise<{ success: boolean }> {
+  const endpoint = '/api-partner/v1/apps-in-toss/user/oauth2/access/remove-by-access-token';
+  const baseUrl = Deno.env.get('TOSS_API_BASE_URL') ?? 'https://apps-in-toss-api.toss.im';
+
+  try {
+    const response = await fetch(`${baseUrl}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    return { success: response.ok };
+  } catch {
+    return { success: false };
+  }
+}
+
 export async function generateToken(
   authorizationCode: string,
+  referrer?: string,
 ): Promise<GenerateTokenResult> {
   const endpoint = '/api-partner/v1/apps-in-toss/user/oauth2/generate-token';
 
+  const body: Record<string, unknown> = { authorizationCode };
+  if (referrer) body.referrer = referrer;
+
   let response: Response;
   try {
-    response = await tossApiFetch(endpoint, { authorizationCode });
+    response = await tossApiFetch(endpoint, body);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     if (message.startsWith(ErrorCode.SERVER_CONFIG_ERROR)) {

@@ -146,9 +146,10 @@ export function ResultPage() {
     setIsExchanging(true);
     setExchangeMessage(null);
 
-    // 실제 프로모션 코드로 교체 필요
+    const PROD_CODE = '01KMATK7D77QHW1PKD9B8DCZK2';
+    const promotionCode = import.meta.env.DEV ? `TEST_${PROD_CODE}` : PROD_CODE;
     const result = await exchangeForTossPoints(
-      'ECONOMIC_SENSE_EXCHANGE',
+      promotionCode,
       pointsToExchange,
       userKey,
     );
@@ -270,7 +271,7 @@ export function ResultPage() {
                 disabled={isAdLoading}
                 type="button"
               >
-                {isAdLoading ? '광고 로딩...' : `광고 보고 +${COIN_REWARDS.REWARDED_AD} coin 받기`}
+                {isAdLoading ? '광고 로딩...' : '광고 보고 결과 기록하기'}
               </button>
             ) : (
               <p className="rewarded-ad-limit-message">
@@ -294,6 +295,9 @@ export function ResultPage() {
           </button>
           <p className="exchange-message" style={{ color: '#888' }}>
             토스 포인트 교환 기능은 곧 오픈됩니다
+          </p>
+          <p style={{ fontSize: '11px', color: '#888', marginTop: '8px', textAlign: 'center' }}>
+            본 프로모션은 사전 고지 없이 중단될 수 있습니다
           </p>
         </div>
 

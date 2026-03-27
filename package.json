@@ -18,7 +18,7 @@
     "build:ait": "./scripts/build-ait.sh"
   },
   "dependencies": {
-    "@apps-in-toss/web-framework": "^2.0.5",
+    "@apps-in-toss/web-framework": "^2.0.6",
     "@supabase/supabase-js": "^2.89.0",
     "@toss/tds-mobile": "^2.2.1",
     "@toss/tds-mobile-ait": "^2.2.1",

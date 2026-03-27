@@ -3825,6 +3825,9 @@ body {
   padding: 12px 20px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
+  max-width: calc(100% - 32px);
+  width: auto;
+  pointer-events: none;
 }
 
 .mission-toast.visible {
@@ -3835,6 +3838,12 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.mission-toast-content + .mission-toast-content {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .mission-toast-emoji {
@@ -3856,6 +3865,16 @@ body {
   font-size: 13px;
   font-weight: 600;
   color: var(--gold);
+}
+
+.mission-toast-summary {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  text-align: center;
 }
 
 /* ==================== AIT: Coin Reward Section ==================== */

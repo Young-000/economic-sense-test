@@ -4,7 +4,7 @@ import { GAME_MODE_CONFIG, type GameMode, investorProfiles } from '@domain/entit
 import { getTotalPlayers } from '@data/rankingService';
 import { extractAndSaveChallenge, type ChallengeData } from '@lib/challengeUtils';
 import { getCurrentTheme, formatSeasonInfo } from '@lib/seasonUtils';
-import { initializeUserIdentity, isAppsInTossEnvironment, exitApp } from '@infrastructure/userIdentity';
+import { initializeUserIdentity } from '@infrastructure/userIdentity';
 import { updateStreak, checkMissions, type MissionCompletionResult } from '@domain/services/missionService';
 import { rewardDailyLogin, rewardStreakBonus, COIN_REWARDS } from '@domain/services/coinService';
 import { MissionPanel, MissionToast, CoinBalance, CoinParticle } from '@presentation/components';
@@ -71,19 +71,10 @@ export function IntroPage(): React.JSX.Element {
     if (!isAuthReady) {
       setIsAuthLoading(true);
       try {
-        const userKey = await initializeUserIdentity();
-        if (!userKey || userKey.startsWith('local-') || userKey.startsWith('temp-')) {
-          if (isAppsInTossEnvironment()) {
-            await exitApp();
-            return;
-          }
-        }
+        await initializeUserIdentity();
         setIsAuthReady(true);
       } catch {
-        if (isAppsInTossEnvironment()) {
-          await exitApp();
-          return;
-        }
+        // 로그인 실패해도 게임은 진행 가능
         setIsAuthReady(true);
       } finally {
         setIsAuthLoading(false);
@@ -226,16 +217,16 @@ export function IntroPage(): React.JSX.Element {
         {/* 특징 리스트 */}
         <ul className="intro-features" aria-label="게임 특징">
           <li className="feature">
-            <span className="feature-icon" aria-hidden="true">dice</span>
+            <span className="feature-icon" aria-hidden="true">{'\uD83C\uDFB2'}</span>
             <span className="feature-text">진짜 확률로 결과 결정</span>
           </li>
           <li className="feature">
-            <span className="feature-icon" aria-hidden="true">brain</span>
+            <span className="feature-icon" aria-hidden="true">{'\uD83E\uDDE0'}</span>
             <span className="feature-text">투자 성향 + 운빨 분석</span>
           </li>
           <li className="feature">
             <span className="feature-icon" aria-hidden="true">
-              {selectedMode === 'extreme' ? 'skull' : 'fire'}
+              {selectedMode === 'extreme' ? '\uD83D\uDC80' : '\uD83D\uDD25'}
             </span>
             <span className="feature-text">
               {selectedMode === 'extreme' ? '극한의 하이리스크' : '친구랑 수익률 배틀'}

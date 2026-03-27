@@ -5,7 +5,7 @@ import { checkUnlinkReferrer, clearAllUserData } from '@infrastructure/userIdent
 
 // AIT: UNLINK referrer 처리 (연결 해제 시 모든 데이터 삭제)
 if (checkUnlinkReferrer()) {
-  clearAllUserData();
+  void clearAllUserData();
   window.history.replaceState('', '', window.location.pathname);
 }
 

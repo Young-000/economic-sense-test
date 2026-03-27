@@ -8,7 +8,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { handleCorsPreflightRequest, getCorsHeaders } from './_shared/cors.ts';
-import { generateToken, refreshToken } from './_shared/toss-api-client.ts';
+import { generateToken, refreshToken, disconnect } from './_shared/toss-api-client.ts';
 import { ErrorCode } from './_shared/types.ts';
 import type { AuthRequest, AuthSuccessResponse, AuthErrorResponse } from './_shared/types.ts';
 
@@ -122,6 +122,22 @@ Deno.serve(async (req: Request): Promise<Response> => {
   try {
     const body = await req.json();
 
+    // disconnect 플로우
+    if (body.action === 'disconnect') {
+      const accessToken = body.accessToken as string;
+      if (!accessToken) {
+        return new Response(JSON.stringify({ success: false, error: 'accessToken is required' }), {
+          status: 400,
+          headers: { ...headers, 'Content-Type': 'application/json' },
+        });
+      }
+      const resp = await disconnect(accessToken);
+      return new Response(JSON.stringify(resp), {
+        status: 200,
+        headers: { ...headers, 'Content-Type': 'application/json' },
+      });
+    }
+
     // refresh_token 플로우
     if (body.grant_type === 'refresh_token' && body.refresh_token) {
       const result = await refreshToken(body.refresh_token as string);
@@ -138,6 +154,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
         userKey: result.userKey,
         expiresAt,
         refreshToken: result.refreshToken,
+        accessToken: result.accessToken,
       };
 
       return new Response(JSON.stringify(successResponse), {
@@ -148,7 +165,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     // authorization_code 플로우
     const { authorizationCode } = validateRequest(body);
-    const result = await generateToken(authorizationCode);
+    const referrer = typeof body.referrer === 'string' ? body.referrer : undefined;
+    const result = await generateToken(authorizationCode, referrer);
 
     await storeUserSession(
       result.userKey,
@@ -162,6 +180,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       userKey: result.userKey,
       expiresAt,
       refreshToken: result.refreshToken,
+      accessToken: result.accessToken,
     };
 
     return new Response(JSON.stringify(successResponse), {

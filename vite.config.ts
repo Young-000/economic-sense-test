@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+import { aitMock } from './src/vite-plugin-ait-mock';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [aitMock(), react()],
   resolve: {
     alias: {
       '@domain': resolve(__dirname, './src/domain'),

@@ -51,15 +51,15 @@ describe('coinService', () => {
 
   describe('보상 상수', () => {
     it('should have correct reward values', () => {
-      expect(COIN_REWARDS.GAME_COMPLETE).toBe(30);
-      expect(COIN_REWARDS.HIGH_TIER).toBe(30);
+      expect(COIN_REWARDS.GAME_COMPLETE).toBe(20);
+      expect(COIN_REWARDS.HIGH_TIER).toBe(20);
       expect(COIN_REWARDS.REWARDED_AD).toBe(100);
-      expect(COIN_REWARDS.SHARE_RESULT).toBe(20);
-      expect(COIN_REWARDS.DAILY_LOGIN).toBe(50);
-      expect(COIN_REWARDS.STREAK_3).toBe(10);
-      expect(COIN_REWARDS.STREAK_7).toBe(20);
-      expect(COIN_REWARDS.STREAK_14).toBe(30);
-      expect(COIN_REWARDS.STREAK_30).toBe(50);
+      expect(COIN_REWARDS.SHARE_RESULT).toBe(15);
+      expect(COIN_REWARDS.DAILY_LOGIN).toBe(30);
+      expect(COIN_REWARDS.STREAK_3).toBe(5);
+      expect(COIN_REWARDS.STREAK_7).toBe(10);
+      expect(COIN_REWARDS.STREAK_14).toBe(20);
+      expect(COIN_REWARDS.STREAK_30).toBe(30);
     });
 
     it('should have exchange rate of 100 coins = 1P', () => {
@@ -99,20 +99,20 @@ describe('coinService', () => {
   });
 
   describe('게임 완료 보상', () => {
-    it('should reward 30 coins per game', () => {
+    it('should reward 20 coins per game', () => {
       rewardGameComplete();
-      expect(getBalance()).toBe(30);
+      expect(getBalance()).toBe(20);
     });
 
-    it('should reward high tier 30 coins', () => {
+    it('should reward high tier 20 coins', () => {
       rewardHighTier();
-      expect(getBalance()).toBe(30);
+      expect(getBalance()).toBe(20);
     });
 
     it('should accumulate rewards', () => {
       rewardGameComplete();
       rewardHighTier();
-      expect(getBalance()).toBe(60);
+      expect(getBalance()).toBe(40);
     });
   });
 
@@ -124,17 +124,17 @@ describe('coinService', () => {
   });
 
   describe('일일 출석', () => {
-    it('should reward 50 coins on first login', () => {
+    it('should reward 30 coins on first login', () => {
       const result = rewardDailyLogin();
       expect(result).not.toBeNull();
-      expect(getBalance()).toBe(50);
+      expect(getBalance()).toBe(30);
     });
 
     it('should not reward twice on same day', () => {
       rewardDailyLogin();
       const second = rewardDailyLogin();
       expect(second).toBeNull();
-      expect(getBalance()).toBe(50);
+      expect(getBalance()).toBe(30);
     });
 
     it('should track daily login status', () => {
@@ -145,15 +145,15 @@ describe('coinService', () => {
   });
 
   describe('일일 공유', () => {
-    it('should reward 20 coins on first share', () => {
+    it('should reward 15 coins on first share', () => {
       rewardShareResult();
-      expect(getBalance()).toBe(20);
+      expect(getBalance()).toBe(15);
     });
 
     it('should not reward twice on same day', () => {
       rewardShareResult();
       rewardShareResult();
-      expect(getBalance()).toBe(20);
+      expect(getBalance()).toBe(15);
     });
 
     it('should track daily share status', () => {
@@ -170,35 +170,35 @@ describe('coinService', () => {
       expect(getBalance()).toBe(0);
     });
 
-    it('should reward 10 coins for 3-day streak', () => {
+    it('should reward 5 coins for 3-day streak', () => {
       const result = rewardStreakBonus(3);
+      expect(result).not.toBeNull();
+      expect(getBalance()).toBe(5);
+    });
+
+    it('should reward 10 coins for 7-day streak', () => {
+      const result = rewardStreakBonus(7);
       expect(result).not.toBeNull();
       expect(getBalance()).toBe(10);
     });
 
-    it('should reward 20 coins for 7-day streak', () => {
-      const result = rewardStreakBonus(7);
+    it('should reward 20 coins for 14-day streak', () => {
+      const result = rewardStreakBonus(14);
       expect(result).not.toBeNull();
       expect(getBalance()).toBe(20);
     });
 
-    it('should reward 30 coins for 14-day streak', () => {
-      const result = rewardStreakBonus(14);
-      expect(result).not.toBeNull();
-      expect(getBalance()).toBe(30);
-    });
-
-    it('should reward 50 coins for 30-day streak', () => {
+    it('should reward 30 coins for 30-day streak', () => {
       const result = rewardStreakBonus(30);
       expect(result).not.toBeNull();
-      expect(getBalance()).toBe(50);
+      expect(getBalance()).toBe(30);
     });
 
     it('should not reward twice on same day', () => {
       rewardStreakBonus(7);
       const second = rewardStreakBonus(7);
       expect(second).toBeNull();
-      expect(getBalance()).toBe(20);
+      expect(getBalance()).toBe(10);
     });
   });
 
@@ -241,20 +241,20 @@ describe('coinService', () => {
     });
   });
 
-  describe('일일 시나리오 (10P 목표)', () => {
-    it('should reach ~710 coins for active user (3 quizzes, 5 ads, share, 7-day streak)', () => {
-      // 일일 출석: +50
+  describe('일일 시나리오 (v2 리밸런스: 무료 2P + 광고5회 8P = 10P)', () => {
+    it('should reach ~595 coins for active user (3 quizzes, 5 ads, share, 7-day streak)', () => {
+      // 일일 출석: +30
       rewardDailyLogin();
 
-      // 스트릭 보너스 (7일): +20
+      // 스트릭 보너스 (7일): +10
       rewardStreakBonus(7);
 
-      // 3 퀴즈 완료: 3 x 30 = +90
+      // 3 퀴즈 완료: 3 x 20 = +60
       rewardGameComplete();
       rewardGameComplete();
       rewardGameComplete();
 
-      // 1 고티어: +30
+      // 1 고티어: +20
       rewardHighTier();
 
       // 5 보상형 광고: 5 x 100 = +500
@@ -264,28 +264,28 @@ describe('coinService', () => {
       rewardRewardedAd();
       rewardRewardedAd();
 
-      // 1 공유: +20
+      // 1 공유: +15
       rewardShareResult();
 
       const balance = getBalance();
-      // 50 + 20 + 90 + 30 + 500 + 20 = 710
-      expect(balance).toBe(710);
-      expect(Math.floor(balance / EXCHANGE_RATE)).toBe(7);
+      // 30 + 10 + 60 + 20 + 500 + 15 = 635
+      expect(balance).toBe(635);
+      expect(Math.floor(balance / EXCHANGE_RATE)).toBe(6);
     });
 
-    it('should reach ~1010 coins with missions on early days', () => {
-      // 일일 출석: +50
+    it('should reach ~1000 coins with missions + daily goal on early days', () => {
+      // 일일 출석: +30
       rewardDailyLogin();
 
-      // 스트릭 보너스 (7일): +20
+      // 스트릭 보너스 (7일): +10
       rewardStreakBonus(7);
 
-      // 3 퀴즈 완료: 3 x 30 = +90
+      // 3 퀴즈 완료: 3 x 20 = +60
       rewardGameComplete();
       rewardGameComplete();
       rewardGameComplete();
 
-      // 1 고티어: +30
+      // 1 고티어: +20
       rewardHighTier();
 
       // 5 보상형 광고: 5 x 100 = +500
@@ -295,7 +295,7 @@ describe('coinService', () => {
       rewardRewardedAd();
       rewardRewardedAd();
 
-      // 1 공유: +20
+      // 1 공유: +15
       rewardShareResult();
 
       // 미션 달성: 60 + 60 + 80 + 100 = 300 (다양한 미션 조합)
@@ -305,9 +305,9 @@ describe('coinService', () => {
       rewardMission(100, '슈퍼개미 달성');
 
       const balance = getBalance();
-      // 710 + 300 = 1010
-      expect(balance).toBe(1010);
-      expect(Math.floor(balance / EXCHANGE_RATE)).toBe(10);
+      // 635 + 300 = 935
+      expect(balance).toBe(935);
+      expect(Math.floor(balance / EXCHANGE_RATE)).toBe(9);
     });
   });
 });

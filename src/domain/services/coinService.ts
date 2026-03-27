@@ -3,15 +3,13 @@
  *
  * 인앱 화폐: 코인
  * 교환비: 100코인 = 1P (토스포인트)
- * 일일 목표: ~1000코인 = ~10P (적극 사용자 기준)
  *
- * 적립 경로:
- * - 게임 완료 (10문제): +30 코인 (medium-action)
- * - 고티어 (S/SS): +30 코인
- * - 보상형 광고 시청: +100 코인 (최대 5회/일)
- * - 결과 공유: +20 코인 (일 1회)
- * - 일일 출석: +50 코인
- * - 스트릭 보너스: +10/20/30/50 코인 (3/7/14/30일 연속)
+ * 경제 모델 (v2 리밸런스):
+ * - 무료: 최대 2P/일 = 200코인
+ *   - 출석 30 + 게임 20x3 + 고티어 20 + 공유 15 + 스트릭 ~15 + 일일목표 50 = ~190
+ * - 광고 5회: 추가 8P = 800코인
+ *   - 100x5 = 500 + 추가 게임/미션 ~300 = ~800
+ * - 총합: 최대 10P/일 = 1000코인
  */
 
 const COIN_BALANCE_KEY = 'economic-sense-coin-balance';
@@ -23,15 +21,15 @@ const DAILY_STREAK_KEY = 'economic-sense-daily-streak';
 // --- 적립 상수 ---
 
 export const COIN_REWARDS = {
-  GAME_COMPLETE: 30,
-  HIGH_TIER: 30,
+  GAME_COMPLETE: 20,
+  HIGH_TIER: 20,
   REWARDED_AD: 100,
-  SHARE_RESULT: 20,
-  DAILY_LOGIN: 50,
-  STREAK_3: 10,
-  STREAK_7: 20,
-  STREAK_14: 30,
-  STREAK_30: 50,
+  SHARE_RESULT: 15,
+  DAILY_LOGIN: 30,
+  STREAK_3: 5,
+  STREAK_7: 10,
+  STREAK_14: 20,
+  STREAK_30: 30,
 } as const;
 
 export const EXCHANGE_RATE = 100; // 100코인 = 1P
@@ -230,7 +228,7 @@ const DAILY_GOAL_KEY = 'economic-sense-daily-goal';
 const DAILY_GAME_COUNT_KEY = 'economic-sense-daily-game-count';
 
 export const DAILY_GOAL_TARGET = 3;
-export const DAILY_GOAL_REWARD = 100;
+export const DAILY_GOAL_REWARD = 50;
 
 export function getDailyGameCount(): number {
   try {

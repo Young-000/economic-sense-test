@@ -96,6 +96,7 @@ function clearAllCaches(): void {
     localStorage.removeItem(USER_KEY_CACHE);
     localStorage.removeItem(USER_KEY_EXPIRY);
     localStorage.removeItem(REFRESH_TOKEN_CACHE);
+    localStorage.removeItem(ACCESS_TOKEN_CACHE);
   } catch {
     // localStorage 접근 실패
   }
@@ -124,10 +125,13 @@ function fallbackToLocalId(): string {
 
 // --- Edge Function 통신 ---
 
+const ACCESS_TOKEN_CACHE = 'economic-sense-access-token';
+
 type AuthResponse = {
   readonly userKey: string;
   readonly expiresAt: string;
   readonly refreshToken?: string;
+  readonly accessToken?: string;
 };
 
 type AuthErrorResponse = {
@@ -166,10 +170,23 @@ async function callEdgeFunction(body: Record<string, string>): Promise<AuthRespo
   }
 }
 
-async function exchangeAuthCode(authorizationCode: string): Promise<string> {
-  const data = await callEdgeFunction({ authorizationCode });
+function setCachedAccessToken(accessToken: string): void {
+  try {
+    localStorage.setItem(ACCESS_TOKEN_CACHE, accessToken);
+  } catch {
+    // localStorage 저장 실패 — 무시
+  }
+}
+
+async function exchangeAuthCode(authorizationCode: string, referrer?: string): Promise<string> {
+  const body: Record<string, string> = { authorizationCode };
+  if (referrer) body.referrer = referrer;
+  const data = await callEdgeFunction(body);
   if (data.refreshToken) {
     setCachedRefreshToken(data.refreshToken);
+  }
+  if (data.accessToken) {
+    setCachedAccessToken(data.accessToken);
   }
   return data.userKey;
 }
@@ -185,6 +202,9 @@ async function refreshUserToken(): Promise<string | null> {
     });
     if (data.refreshToken) {
       setCachedRefreshToken(data.refreshToken);
+    }
+    if (data.accessToken) {
+      setCachedAccessToken(data.accessToken);
     }
     return data.userKey;
   } catch (err) {
@@ -218,32 +238,27 @@ export async function initializeUserIdentity(): Promise<string> {
     return refreshedKey;
   }
 
-  // 3. AIT 환경이면 appLogin 플로우
-  if (isAppsInTossEnvironment()) {
-    try {
-      const loginResult = await appLogin();
+  // 3. appLogin 시도 (환경 무관 — SDK가 미지원이면 catch로 fallback)
+  try {
+    const loginResult = await appLogin();
 
-      if (!loginResult) {
-        console.warn('[userIdentity] appLogin not supported');
-        return fallbackToLocalId();
-      }
-
-      const { authorizationCode } = loginResult;
-      const userKey = await exchangeAuthCode(authorizationCode);
-      setCachedUserKey(userKey);
-      return userKey;
-    } catch (err) {
-      const errorMsg = err instanceof Error
-        ? `${err.name}: ${err.message}`
-        : String(err);
-      console.warn('[userIdentity] appLogin flow failed:', errorMsg);
-      lastAuthError = errorMsg;
+    if (!loginResult) {
+      console.warn('[userIdentity] appLogin not supported');
       return fallbackToLocalId();
     }
-  }
 
-  // 4. 비AIT 환경
-  return fallbackToLocalId();
+    const { authorizationCode, referrer } = loginResult;
+    const userKey = await exchangeAuthCode(authorizationCode, referrer);
+    setCachedUserKey(userKey);
+    return userKey;
+  } catch (err) {
+    const errorMsg = err instanceof Error
+      ? `${err.name}: ${err.message}`
+      : String(err);
+    console.warn('[userIdentity] appLogin flow failed:', errorMsg);
+    lastAuthError = errorMsg;
+    return fallbackToLocalId();
+  }
 }
 
 // --- Public API ---
@@ -291,7 +306,22 @@ export function checkUnlinkReferrer(): boolean {
 /**
  * 앱 전용 사용자 데이터만 삭제 (UNLINK 시 호출)
  */
-export function clearAllUserData(): void {
+export async function clearAllUserData(): Promise<void> {
+  // disconnect API 호출 (토큰이 남아있는 동안)
+  try {
+    const accessToken = localStorage.getItem(ACCESS_TOKEN_CACHE);
+    if (accessToken) {
+      await fetch(EDGE_FUNCTION_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ action: 'disconnect', accessToken }),
+      });
+    }
+  } catch { /* best effort */ }
+
   cachedUserKey = null;
   lastAuthError = null;
   const APP_PREFIXES = ['economic-sense-', 'est-'];
