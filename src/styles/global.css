@@ -757,6 +757,22 @@ body {
   justify-content: center;
   padding: 24px;
   overflow-y: auto;
+  position: relative;
+}
+
+/* Scroll hint: gradient fade at viewport bottom, disappears once user scrolls */
+.result-page::after {
+  content: '';
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  margin-top: -48px;
+  display: block;
+  background: linear-gradient(to bottom, transparent, var(--background, #ffffff));
+  pointer-events: none;
+  flex-shrink: 0;
 }
 
 .result-content {
@@ -4071,6 +4087,7 @@ body {
 
 .ad-banner-container {
   margin-top: 16px;
+  padding-bottom: env(safe-area-inset-bottom, 8px);
   width: 100%;
   min-height: 50px;
 }
