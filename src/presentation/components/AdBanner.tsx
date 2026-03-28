@@ -1,81 +1,74 @@
-import { useEffect, useRef } from 'react';
-
-declare global {
-  interface Window {
-    adsbygoogle: unknown[];
-  }
-}
+import { useEffect, useRef, useState } from 'react';
+import { TossAds } from '@apps-in-toss/web-framework';
+import { BANNER_TEXT_AD_GROUP_ID } from '@constants/ad';
 
 interface AdBannerProps {
   className?: string;
 }
 
-/**
- * Google AdSense 광고 배너 컴포넌트
- *
- * AdSense 계정: ca-pub-1379707580934572
- *
- * 참고:
- * - localhost에서는 광고가 표시되지 않음 (AdSense 정책)
- * - 프로덕션에서 400 에러 발생 시 → AdSense 계정/사이트 승인 대기 중
- * - 승인 완료 후 24-48시간 내 광고 표시 시작
- */
-export function AdBanner({ className = '' }: AdBannerProps) {
-  const adRef = useRef<HTMLModElement>(null);
-  const isAdLoaded = useRef(false);
+function checkTossAdsSupported(): boolean {
+  try {
+    return TossAds.attachBanner.isSupported?.() ?? false;
+  } catch {
+    return false;
+  }
+}
 
-  // 개발 환경 감지 (localhost 또는 127.0.0.1)
-  const isDevelopment = typeof window !== 'undefined' &&
-    (window.location.hostname === 'localhost' ||
-     window.location.hostname === '127.0.0.1');
+/**
+ * AIT TossAds 배너 광고 컴포넌트
+ *
+ * TossAds.initialize + TossAds.attachBanner 사용
+ * 앱인토스 환경이 아닐 경우 아무것도 렌더링하지 않음
+ */
+export function AdBanner({ className = '' }: AdBannerProps): React.JSX.Element | null {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isAttached = useRef(false);
+  const [isVisible, setIsVisible] = useState(() => checkTossAdsSupported());
 
   useEffect(() => {
-    // 개발 환경에서는 광고 로드 시도하지 않음
-    if (isDevelopment || isAdLoaded.current || !adRef.current) return;
+    if (isAttached.current || !isVisible || !containerRef.current) return;
 
-    try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-      isAdLoaded.current = true;
-    } catch (error) {
-      // 광고 로드 실패는 정상 상황 (승인 대기 등)
-      // 프로덕션에서도 console.error 대신 warn 사용
-      console.warn('AdSense:', error);
-    }
-  }, [isDevelopment]);
+    TossAds.initialize({
+      callbacks: {
+        onInitialized: () => {
+          if (!containerRef.current || isAttached.current) return;
 
-  // 개발 환경: placeholder 표시
-  if (isDevelopment) {
-    return (
-      <div className={`ad-banner-container ${className}`}>
-        <div
-          style={{
-            minHeight: '100px',
-            background: 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#999',
-            fontSize: '12px',
-          }}
-        >
-          📢 광고 영역 (개발 환경)
-        </div>
-      </div>
-    );
+          const result = TossAds.attachBanner(
+            BANNER_TEXT_AD_GROUP_ID,
+            containerRef.current,
+            {
+              theme: 'light',
+              variant: 'card',
+              callbacks: {
+                onAdFailedToRender: (payload) => {
+                  console.warn('[AdBanner] Failed to render:', payload.error.message);
+                  setIsVisible(false);
+                },
+              },
+            },
+          );
+
+          isAttached.current = true;
+
+          return () => {
+            result.destroy();
+          };
+        },
+        onInitializationFailed: (error) => {
+          console.warn('[AdBanner] Initialization failed:', error.message);
+          setIsVisible(false);
+        },
+      },
+    });
+  }, [isVisible]);
+
+  if (!isVisible) {
+    return null;
   }
 
   return (
     <div className={`ad-banner-container ${className}`}>
-      <ins
-        ref={adRef}
-        className="adsbygoogle"
-        style={{ display: 'block' }}
-        data-ad-client="ca-pub-1379707580934572"
-        data-ad-slot="auto"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      />
+      <div ref={containerRef} />
     </div>
   );
 }

@@ -14,10 +14,14 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:report": "playwright show-report",
     "lint": "eslint src --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:ait": "./scripts/build-ait.sh"
   },
   "dependencies": {
+    "@apps-in-toss/web-framework": "^2.0.6",
     "@supabase/supabase-js": "^2.89.0",
+    "@toss/tds-mobile": "^2.2.1",
+    "@toss/tds-mobile-ait": "^2.2.1",
     "html2canvas": "^1.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

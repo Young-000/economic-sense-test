@@ -5,4 +5,9 @@ export { AchievementBadge, AchievementList, NewAchievementsPopup } from './Achie
 export type { AchievementBadgeProps, AchievementListProps, NewAchievementsPopupProps } from './AchievementBadge';
 export { ShareImageCard } from './ShareImageCard';
 export type { ShareImageCardProps } from './ShareImageCard';
+export { ErrorBoundary } from './ErrorBoundary';
+export { MissionPanel } from './MissionPanel';
+export { MissionToast } from './MissionToast';
+export { CoinBalance } from './CoinBalance';
+export { CoinParticle } from './CoinParticle';
 export { AdBanner } from './AdBanner';

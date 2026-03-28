@@ -3,6 +3,9 @@ node_modules/
 
 # Build outputs
 dist/
+builds/
+*.ait
+.granite/
 
 # Environment variables
 .env
@@ -31,3 +34,4 @@ test-results/
 *.png
 !src/**/*.png
 !public/**/*.png
+!docs/assets/**/*.png

@@ -1,6 +1,6 @@
 <svg width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Background Circle -->
-  <circle cx="300" cy="300" r="300" fill="#0a0a0a"/>
+  <circle cx="300" cy="300" r="300" fill="#10B981"/>
 
   <!-- Gradient Definitions -->
   <defs>

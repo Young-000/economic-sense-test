@@ -1,21 +1,27 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GAME_MODE_CONFIG, type GameMode, investorProfiles } from '@domain/entities';
 import { getTotalPlayers } from '@data/rankingService';
 import { extractAndSaveChallenge, type ChallengeData } from '@lib/challengeUtils';
 import { getCurrentTheme, formatSeasonInfo } from '@lib/seasonUtils';
-import { AdBanner } from '@presentation/components';
+import { initializeUserIdentity } from '@infrastructure/userIdentity';
+import { updateStreak, checkMissions, type MissionCompletionResult } from '@domain/services/missionService';
+import { rewardDailyLogin, rewardStreakBonus, COIN_REWARDS } from '@domain/services/coinService';
+import { MissionPanel, MissionToast, CoinBalance, CoinParticle, AdBanner } from '@presentation/components';
 
 export function IntroPage(): React.JSX.Element {
   const navigate = useNavigate();
   const [selectedMode, setSelectedMode] = useState<GameMode>('normal');
   const [totalPlayers, setTotalPlayers] = useState<number>(0);
-  // URL 파라미터에서 도전 데이터 추출 (lazy initialization)
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
+  const [missionCompletions, setMissionCompletions] = useState<MissionCompletionResult[]>([]);
+  const [dailyLoginReward, setDailyLoginReward] = useState<number | null>(null);
+  const [streakBonusReward, setStreakBonusReward] = useState<number | null>(null);
   const [challenge] = useState<ChallengeData | null>(() => extractAndSaveChallenge());
 
   const currentConfig = GAME_MODE_CONFIG[selectedMode];
 
-  // 현재 시즌/이벤트 테마
   const seasonTheme = useMemo(() => getCurrentTheme(), []);
   const seasonInfo = useMemo(() => formatSeasonInfo(seasonTheme), [seasonTheme]);
 
@@ -28,19 +34,64 @@ export function IntroPage(): React.JSX.Element {
     loadSocialProof();
   }, []);
 
+  // 일일 출석 + 스트릭 업데이트 + 미션 체크 (앱 진입 시)
+  useEffect(() => {
+    // 일일 출석 보상
+    const loginResult = rewardDailyLogin();
+    if (loginResult !== null) {
+      setDailyLoginReward(COIN_REWARDS.DAILY_LOGIN);
+    }
+
+    // 스트릭 업데이트 + 스트릭 보너스
+    const currentStreak = updateStreak();
+    const streakResult = rewardStreakBonus(currentStreak);
+    if (streakResult !== null) {
+      setTimeout(() => {
+        if (currentStreak >= 30) setStreakBonusReward(COIN_REWARDS.STREAK_30);
+        else if (currentStreak >= 14) setStreakBonusReward(COIN_REWARDS.STREAK_14);
+        else if (currentStreak >= 7) setStreakBonusReward(COIN_REWARDS.STREAK_7);
+        else if (currentStreak >= 3) setStreakBonusReward(COIN_REWARDS.STREAK_3);
+      }, 1200);
+    }
+
+    // 미션 체크
+    const results = checkMissions();
+    if (results.length > 0) {
+      setMissionCompletions(results);
+    }
+  }, []);
+
   const handleModeChange = (mode: GameMode): void => {
     setSelectedMode(mode);
   };
 
-  const handleStart = (): void => {
+  const handleStart = useCallback(async (): Promise<void> => {
+    if (isAuthLoading) return;
+
+    if (!isAuthReady) {
+      setIsAuthLoading(true);
+      try {
+        await initializeUserIdentity();
+        setIsAuthReady(true);
+      } catch {
+        // 로그인 실패해도 게임은 진행 가능
+        setIsAuthReady(true);
+      } finally {
+        setIsAuthLoading(false);
+      }
+    }
+
     navigate(`/game?mode=${selectedMode}`);
-  };
+  }, [isAuthReady, isAuthLoading, selectedMode, navigate]);
+
+  const handleDismissMissionToast = useCallback((): void => {
+    setMissionCompletions([]);
+  }, []);
 
   const formatBalance = (value: number): string => {
     return `${Math.round(value / 10_000).toLocaleString()}만원`;
   };
 
-  // 참여자 수 포맷팅 (1000 이상이면 천 단위로)
   const formatPlayerCount = (count: number): string => {
     if (count >= 10000) return `${(count / 10000).toFixed(1)}만`;
     if (count >= 1000) return `${(count / 1000).toFixed(1)}천`;
@@ -48,20 +99,42 @@ export function IntroPage(): React.JSX.Element {
     return '';
   };
 
-  // 도전자 프로필 정보
   const challengeProfile = challenge ? investorProfiles[challenge.type] : null;
 
   return (
     <main className="intro-page" role="main" aria-labelledby="intro-title">
+      {missionCompletions.length > 0 && (
+        <MissionToast
+          completions={missionCompletions}
+          onDismiss={handleDismissMissionToast}
+        />
+      )}
+
       <div className="intro-content">
 
-        {/* === Fold 위: 즉시 보이는 영역 === */}
+        {/* 코인 잔액 + 일일 보상 */}
+        <div className="intro-coin-section">
+          <CoinBalance className="intro-coin-balance" showExchangeInfo />
+          {dailyLoginReward !== null && (
+            <CoinParticle
+              amount={dailyLoginReward}
+              onComplete={() => setDailyLoginReward(null)}
+            />
+          )}
+          {streakBonusReward !== null && (
+            <CoinParticle
+              amount={streakBonusReward}
+              isGold
+              onComplete={() => setStreakBonusReward(null)}
+            />
+          )}
+        </div>
 
-        {/* 1. 친구 도전 배너 (조건부 — challenge URL only) */}
+        {/* 친구 도전 배너 */}
         {challenge && challengeProfile && (
           <div className="challenge-banner">
             <div className="challenge-header">
-              <span className="challenge-icon">⚔️</span>
+              <span className="challenge-icon">vs</span>
               <span className="challenge-title">친구의 도전장!</span>
             </div>
             <div className="challenge-content">
@@ -80,7 +153,7 @@ export function IntroPage(): React.JSX.Element {
           </div>
         )}
 
-        {/* 2. 시즌 배너 (특별 이벤트 시만) */}
+        {/* 시즌 배너 */}
         {seasonInfo.isSpecialEvent && (
           <div
             className="season-banner special-event"
@@ -92,33 +165,31 @@ export function IntroPage(): React.JSX.Element {
           </div>
         )}
 
-        {/* 3. Hero: 이모지 + 제목 + 부제목 */}
-        <h1 id="intro-title" className="intro-title">💸 돈 감각 테스트</h1>
+        {/* Hero */}
+        <h1 id="intro-title" className="intro-title">경제 센스 테스트</h1>
         <p className="intro-subtitle">
           {formatBalance(currentConfig.initialBalance)} 받았다.<br />
           <strong>{currentConfig.totalRounds}번 선택</strong> 후 얼마 남을까?
         </p>
 
-        {/* 4. CTA 버튼 — fold 위 보장 */}
+        {/* CTA 버튼 */}
         <button
           className={`start-button ${selectedMode === 'extreme' ? 'extreme' : ''}`}
           onClick={handleStart}
+          disabled={isAuthLoading}
           aria-label={`${currentConfig.name}로 게임 시작하기`}
         >
-          {selectedMode === 'extreme' ? '🔥 극한 도전!' : '돈 불려보기'}
+          {isAuthLoading ? '준비 중...' : selectedMode === 'extreme' ? '극한 도전!' : '시작하기'}
         </button>
 
-        {/* 5. 훅 문구 */}
+        {/* 훅 문구 */}
         <div className="intro-hook" aria-hidden="true">
-          <span className="hook-emoji">🤔</span>
           <span className="hook-text">
             {selectedMode === 'extreme' ? '파산 각오됐어?' : '당신은 금손? 흙손?'}
           </span>
         </div>
 
-        {/* === Fold 아래: 스크롤 후 보이는 영역 === */}
-
-        {/* 6. 모드 선택 (일반/극한) */}
+        {/* 모드 선택 */}
         <div className="mode-selector" role="group" aria-label="게임 모드 선택">
           <button
             className={`mode-btn ${selectedMode === 'normal' ? 'active' : ''}`}
@@ -140,19 +211,22 @@ export function IntroPage(): React.JSX.Element {
           </button>
         </div>
 
-        {/* 7. 특징 리스트 (3개, 간소화) */}
+        {/* 미션 패널 */}
+        <MissionPanel />
+
+        {/* 특징 리스트 */}
         <ul className="intro-features" aria-label="게임 특징">
           <li className="feature">
-            <span className="feature-icon" aria-hidden="true">🎲</span>
+            <span className="feature-icon" aria-hidden="true">{'\uD83C\uDFB2'}</span>
             <span className="feature-text">진짜 확률로 결과 결정</span>
           </li>
           <li className="feature">
-            <span className="feature-icon" aria-hidden="true">🧠</span>
+            <span className="feature-icon" aria-hidden="true">{'\uD83E\uDDE0'}</span>
             <span className="feature-text">투자 성향 + 운빨 분석</span>
           </li>
           <li className="feature">
             <span className="feature-icon" aria-hidden="true">
-              {selectedMode === 'extreme' ? '💀' : '🔥'}
+              {selectedMode === 'extreme' ? '\uD83D\uDC80' : '\uD83D\uDD25'}
             </span>
             <span className="feature-text">
               {selectedMode === 'extreme' ? '극한의 하이리스크' : '친구랑 수익률 배틀'}
@@ -160,20 +234,20 @@ export function IntroPage(): React.JSX.Element {
           </li>
         </ul>
 
-        {/* 8. 참여자 수 (실제 DB 데이터, 한 줄) */}
-        {totalPlayers > 0 && (
+        {/* 참여자 수 (100명 미만이면 비노출) */}
+        {totalPlayers >= 100 && (
           <p className="intro-participant-count" aria-live="polite">
-            🔥 <strong>{formatPlayerCount(totalPlayers)}</strong>명이 참여했어요
+            <strong>{formatPlayerCount(totalPlayers)}</strong>명이 참여했어요
           </p>
         )}
 
-        {/* 9. 면책 고지 */}
+        {/* 면책 고지 */}
         <p className="intro-disclaimer" role="note">
           * 실제 돈이 아닙니다. 재미로만 즐겨주세요!
         </p>
 
-        {/* 10. AdSense 배너 */}
-        <AdBanner className="intro-ad" />
+        {/* 하단 배너 광고 */}
+        <AdBanner className="intro-banner" />
       </div>
     </main>
   );

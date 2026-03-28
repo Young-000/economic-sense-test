@@ -607,7 +607,11 @@ export function getAchievementStatus(): {
  * 업적 초기화 (테스트용)
  */
 export function clearAchievements(): void {
-  localStorage.removeItem(STORAGE_KEY);
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Storage unavailable
+  }
 }
 
 /**
