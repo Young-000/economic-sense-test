@@ -123,15 +123,20 @@ npm run test           # 단위 테스트
 - [x] AIT SDK 연동 (granite.config.ts)
 - [x] 라이트 모드 전환 (다크 -> 라이트)
 - [x] appLogin 인증 인프라 (Edge Function)
-- [x] 코인 이코노미 (적립/교환)
-- [x] 광고 4종 연동 (보상형/전면/배너)
+- [x] 코인 이코노미 (적립/교환 활성화)
+- [x] 광고 4종 연동 (보상형/전면/배너 전 페이지)
 - [x] 미션 시스템 (3트랙 x 4스테이지)
 - [x] 보상 이펙트 (코인 파티클, 카운트업)
 - [x] ErrorBoundary
 - [x] AIT 빌드 스크립트
+- [x] 토스포인트 교환 활성화 (grantPromotionReward)
+- [x] 홈 버튼 이벤트 핸들러 (graniteEvent)
+- [x] 모드 변경 피드백 (인라인 메시지 + 펄스)
+- [x] 시즌 2 문제 세트 (총 40문제)
+- [x] 재도전 유도 UX (최고 기록 카드)
+- [x] PD 리뷰 수정 (배너 스페이싱/접근성/스크롤 힌트)
 - [ ] 광고 그룹 ID 실제 값 교체 (콘솔 발급 후)
 - [ ] user_sessions / promotion_records DB 마이그레이션
-- [ ] E2E 테스트 리뷰
 
 ## Known Issues (프로젝트 고유)
 - 광고 그룹 ID가 아직 placeholder (TODO: 콘솔 발급 후 교체)
