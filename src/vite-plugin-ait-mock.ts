@@ -145,8 +145,11 @@ export const GoogleAdMob = {
 // --- TossAds (Banner) --------------------------------------------------------
 
 export const TossAds = {
-  initialize: _addIsSupported(function initialize() {
+  initialize: _addIsSupported(function initialize(options) {
     console.log('[AIT Mock] TossAds.initialize called');
+    setTimeout(() => {
+      options?.callbacks?.onInitialized?.();
+    }, 100);
   }),
   attach: _addIsSupported(function attach(element, options) {
     console.log('[AIT Mock] TossAds.attach called', options);
@@ -162,18 +165,19 @@ export const TossAds = {
     }
     return { id: 'mock-banner-id' };
   }),
-  attachBanner: _addIsSupported(function attachBanner(element, options) {
-    console.log('[AIT Mock] TossAds.attachBanner called', options);
-    if (element && typeof document !== 'undefined') {
+  attachBanner: _addIsSupported(function attachBanner(adGroupId, target, options) {
+    console.log('[AIT Mock] TossAds.attachBanner called', adGroupId);
+    const el = typeof target === 'string' ? document.querySelector(target) : target;
+    if (el && typeof document !== 'undefined') {
       const placeholder = document.createElement('div');
       placeholder.style.cssText =
         'width:100%;height:50px;background:#f0f0f0;display:flex;align-items:center;' +
         'justify-content:center;font-size:11px;color:#999;font-family:sans-serif;' +
-        'border:1px dashed #ccc;';
+        'border:1px dashed #ccc;border-radius:8px;';
       placeholder.textContent = '[Mock Banner Ad]';
-      element.appendChild(placeholder);
+      el.appendChild(placeholder);
     }
-    return { id: 'mock-banner-id' };
+    return { destroy: _noop };
   }),
   destroy: _addIsSupported(function destroy(id) {
     console.log('[AIT Mock] TossAds.destroy called', id);
@@ -218,13 +222,23 @@ export const grantPromotionRewardForGame = _addIsSupported(async function grantP
 export const grantPromotionReward = _addIsSupported(async function grantPromotionReward(params) {
   console.log('[AIT Mock] grantPromotionReward called:', params);
   await _delay(300);
-  return { success: true };
+  return { key: 'mock-promotion-key-' + Date.now() };
 });
 
 export const submitGameCenterLeaderBoardScore = _addIsSupported(async function submitGameCenterLeaderBoardScore(params) {
   console.log('[AIT Mock] submitGameCenterLeaderBoardScore called:', params);
   await _delay(100);
 });
+
+// --- Events (graniteEvent) ---------------------------------------------------
+
+export const graniteEvent = {
+  addEventListener: function addEventListener(eventName, { onEvent, onError }) {
+    console.log('[AIT Mock] graniteEvent.addEventListener:', eventName);
+    // Return unsubscribe function
+    return _noop;
+  },
+};
 
 // --- Viral -------------------------------------------------------------------
 
@@ -252,6 +266,7 @@ export default {
   grantPromotionReward,
   submitGameCenterLeaderBoardScore,
   contactsViral,
+  graniteEvent,
 };
 `;
 

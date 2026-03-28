@@ -3959,10 +3959,47 @@ body {
   cursor: not-allowed;
 }
 
+.exchange-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .exchange-message {
   margin-top: 8px;
   font-size: 13px;
-  color: var(--text-secondary);
+  font-weight: 600;
+  color: var(--primary);
+  text-align: center;
+}
+
+.exchange-disclaimer {
+  font-size: 10px;
+  color: #999;
+  margin-top: 6px;
+  text-align: center;
+}
+
+/* ==================== AIT: Banner Ad ==================== */
+
+.ad-banner-container {
+  margin-top: 16px;
+  width: 100%;
+  min-height: 50px;
+}
+
+.intro-banner {
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.game-banner {
+  margin-top: 8px;
+}
+
+.result-banner {
+  margin-top: 16px;
 }
 
 /* ==================== AIT: Error Boundary ==================== */

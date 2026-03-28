@@ -7,7 +7,7 @@ import { getCurrentTheme, formatSeasonInfo } from '@lib/seasonUtils';
 import { initializeUserIdentity } from '@infrastructure/userIdentity';
 import { updateStreak, checkMissions, type MissionCompletionResult } from '@domain/services/missionService';
 import { rewardDailyLogin, rewardStreakBonus, COIN_REWARDS } from '@domain/services/coinService';
-import { MissionPanel, MissionToast, CoinBalance, CoinParticle } from '@presentation/components';
+import { MissionPanel, MissionToast, CoinBalance, CoinParticle, AdBanner } from '@presentation/components';
 
 export function IntroPage(): React.JSX.Element {
   const navigate = useNavigate();
@@ -245,6 +245,9 @@ export function IntroPage(): React.JSX.Element {
         <p className="intro-disclaimer" role="note">
           * 실제 돈이 아닙니다. 재미로만 즐겨주세요!
         </p>
+
+        {/* 하단 배너 광고 */}
+        <AdBanner className="intro-banner" />
       </div>
     </main>
   );

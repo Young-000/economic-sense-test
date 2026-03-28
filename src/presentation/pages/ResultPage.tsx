@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useCallback, useEffect, type Ref } from 'react';
-import { Confetti, NewAchievementsPopup, ShareImageCard, CoinBalance, CoinParticle, MissionToast } from '@presentation/components';
-import type { Achievement } from '@data/achievementService';
+import { Confetti, ShareImageCard, CoinBalance, CoinParticle, MissionToast, AdBanner } from '@presentation/components';
 import { useResultData } from '@presentation/hooks/useResultData';
 import { useShareImage } from '@presentation/hooks/useShareImage';
 import { useFullScreenAd } from '@presentation/hooks/useFullScreenAd';
@@ -29,36 +28,29 @@ import {
   ResultHero,
   InvestorTypeCard,
   AssetSummaryCard,
-  ChallengeBanner,
-  ViralCTASection,
   RankingSection,
-  InvestmentAnalysis,
-  AchievementSection,
   ShareModal,
 } from '@presentation/components/result';
 
 export function ResultPage() {
   const navigate = useNavigate();
   const [nickname, setNickname] = useState('');
-  const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
-  const [showAchievementPopup, setShowAchievementPopup] = useState(false);
   const [coinRewardAmount, setCoinRewardAmount] = useState<number | null>(null);
   const [showAdBonus, setShowAdBonus] = useState(false);
   const [missionCompletions, setMissionCompletions] = useState<MissionCompletionResult[]>([]);
-  // Exchange disabled (준비 중) - keeping code for future use
-  const [, setIsExchanging] = useState(false);
-  const [, setExchangeMessage] = useState<string | null>(null);
+  const [isExchanging, setIsExchanging] = useState(false);
+  const [exchangeMessage, setExchangeMessage] = useState<string | null>(null);
   const [hasShared, setHasShared] = useState(false);
 
   const {
-    finalResult, gameResults, bestPerformance,
-    initialBalance, gameMode, isNewRecord,
+    finalResult, gameResults,
+    initialBalance, isNewRecord,
   } = useResultData();
 
   const {
-    shareCardRef, isGeneratingImage, showShareModal,
+    shareCardRef, showShareModal,
     shareImageUrl, shareImageBlob,
-    handleGenerateShareImage, handleShareText, handleCloseShareModal,
+    handleShareText, handleCloseShareModal,
   } = useShareImage(finalResult);
 
   const { isAdSupported, isAdLoading, loadAndShowAd } = useFullScreenAd();
@@ -95,11 +87,6 @@ export function ResultPage() {
       }, 1500);
     }
   }, [finalResult]);
-
-  const handleAchievementsUnlocked = useCallback((achievements: Achievement[]) => {
-    setNewAchievements(achievements);
-    setShowAchievementPopup(true);
-  }, []);
 
   const handleWatchAd = useCallback(() => {
     if (!canShowRewardedAd()) return;
@@ -186,17 +173,10 @@ export function ResultPage() {
 
   return (
     <div className="result-page">
-      <Confetti active={isNewRecord || newAchievements.length > 0} count={60} duration={3500} />
+      <Confetti active={isNewRecord} count={60} duration={3500} />
 
       {missionCompletions.length > 0 && (
         <MissionToast completions={missionCompletions} onDismiss={handleDismissMissionToast} />
-      )}
-
-      {showAchievementPopup && (
-        <NewAchievementsPopup
-          achievements={newAchievements}
-          onClose={() => setShowAchievementPopup(false)}
-        />
       )}
 
       <div className="result-content">
@@ -237,23 +217,28 @@ export function ResultPage() {
           </button>
         )}
 
-        {/* 5. 토스포인트 교환 (활성화) */}
+        {/* 5. 토스포인트 교환 */}
         <div className="exchange-section">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '14px', fontWeight: 700 }}>코인 교환소</span>
-            <span style={{ fontSize: '12px', color: '#888' }}>{EXCHANGE_RATE}코인 = 1P</span>
+          <div className="exchange-header">
+            <span className="exchange-title">코인 교환소</span>
+            <span className="exchange-rate-info">{EXCHANGE_RATE}코인 = 1P</span>
           </div>
           <button
             className="exchange-button"
-            disabled={getBalance() < EXCHANGE_RATE}
+            disabled={getBalance() < EXCHANGE_RATE || isExchanging}
             type="button"
             onClick={handleExchange}
           >
-            {getBalance() >= EXCHANGE_RATE
-              ? `${Math.floor(getBalance() / EXCHANGE_RATE) * EXCHANGE_RATE}코인 → ${Math.floor(getBalance() / EXCHANGE_RATE)}P 교환하기`
-              : `${EXCHANGE_RATE}코인 모으면 교환 가능`}
+            {isExchanging
+              ? '교환 중...'
+              : getBalance() >= EXCHANGE_RATE
+                ? `${Math.floor(getBalance() / EXCHANGE_RATE) * EXCHANGE_RATE}코인 → ${Math.floor(getBalance() / EXCHANGE_RATE)}P 교환하기`
+                : `${EXCHANGE_RATE}코인 모으면 교환 가능`}
           </button>
-          <p style={{ fontSize: '10px', color: '#999', marginTop: '6px', textAlign: 'center' }}>
+          {exchangeMessage && (
+            <p className="exchange-message">{exchangeMessage}</p>
+          )}
+          <p className="exchange-disclaimer">
             본 프로모션은 사전 고지 없이 중단될 수 있습니다
           </p>
         </div>
@@ -279,6 +264,9 @@ export function ResultPage() {
           </button>
           <button className="retry-button" onClick={() => navigate('/')}>다시 도전하기</button>
         </div>
+
+        {/* 8. 하단 배너 광고 */}
+        <AdBanner className="result-banner" />
       </div>
       <div className="share-image-wrapper">
         <ShareImageCard

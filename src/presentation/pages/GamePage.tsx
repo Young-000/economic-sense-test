@@ -4,7 +4,7 @@ import { useGame } from '../hooks/useGame';
 import { useInterstitialAd } from '../hooks/useInterstitialAd';
 import { getGameConfig, type Outcome, type GameMode } from '@domain/entities';
 import { calculateExpectedValue } from '@domain/usecases/gameEngine';
-import { AssetProgressChart } from '@presentation/components';
+import { AssetProgressChart, AdBanner } from '@presentation/components';
 import { formatBalance, formatMoney } from '@lib/formatUtils';
 import { getReactionMessage, getLuckText } from '@data/reactions';
 
@@ -306,6 +306,9 @@ export function GamePage() {
           </div>
         </div>
       )}
+
+      {/* 하단 배너 광고 */}
+      <AdBanner className="game-banner" />
     </div>
   );
 }
