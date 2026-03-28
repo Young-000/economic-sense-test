@@ -127,9 +127,9 @@ export function ResultPage() {
     }
   }, [handleShareText, canEarnShareReward]);
 
-  // @ts-expect-error Exchange disabled (준비 중) - keeping for future use
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _handleExchange = useCallback(async () => {
+  // 
+  
+  const handleExchange = useCallback(async () => {
     const balance = getBalance();
     const pointsToExchange = Math.floor(balance / EXCHANGE_RATE);
     if (pointsToExchange <= 0) {
@@ -200,10 +200,18 @@ export function ResultPage() {
       )}
 
       <div className="result-content">
+        {/* 1. 결과 히어로 + 투자자 타입 */}
         <ResultHero tier={tier} isNewRecord={isNewRecord} />
         <InvestorTypeCard profile={profile} />
 
-        {/* 코인 보상 섹션 */}
+        {/* 2. 자산 변화 (핵심 정보) */}
+        <AssetSummaryCard
+          finalBalance={finalBalance}
+          initialBalance={initialBalance}
+          totalReturn={totalReturn}
+        />
+
+        {/* 3. 코인 보상 (컴팩트) */}
         <div className="coin-reward-section">
           <CoinBalance showExchangeInfo />
           {coinRewardAmount !== null && (
@@ -217,19 +225,40 @@ export function ResultPage() {
           )}
         </div>
 
-        <AssetSummaryCard
-          finalBalance={finalBalance}
-          initialBalance={initialBalance}
-          totalReturn={totalReturn}
-        />
+        {/* 4. 보상형 광고 — 명확한 CTA */}
+        {isAdSupported && canShowRewardedAd() && (
+          <button
+            className="rewarded-ad-button"
+            onClick={handleWatchAd}
+            disabled={isAdLoading}
+            type="button"
+          >
+            {isAdLoading ? '광고 로딩...' : `광고 보고 +${COIN_REWARDS.REWARDED_AD}코인 받기`}
+          </button>
+        )}
 
-        <ChallengeBanner totalReturn={totalReturn} myProfile={profile} />
-        <ViralCTASection
-          finalResult={finalResult}
-          nickname={nickname}
-          onShareImage={handleGenerateShareImage}
-          isGeneratingImage={isGeneratingImage}
-        />
+        {/* 5. 토스포인트 교환 (활성화) */}
+        <div className="exchange-section">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '14px', fontWeight: 700 }}>코인 교환소</span>
+            <span style={{ fontSize: '12px', color: '#888' }}>{EXCHANGE_RATE}코인 = 1P</span>
+          </div>
+          <button
+            className="exchange-button"
+            disabled={getBalance() < EXCHANGE_RATE}
+            type="button"
+            onClick={handleExchange}
+          >
+            {getBalance() >= EXCHANGE_RATE
+              ? `${Math.floor(getBalance() / EXCHANGE_RATE) * EXCHANGE_RATE}코인 → ${Math.floor(getBalance() / EXCHANGE_RATE)}P 교환하기`
+              : `${EXCHANGE_RATE}코인 모으면 교환 가능`}
+          </button>
+          <p style={{ fontSize: '10px', color: '#999', marginTop: '6px', textAlign: 'center' }}>
+            본 프로모션은 사전 고지 없이 중단될 수 있습니다
+          </p>
+        </div>
+
+        {/* 6. 랭킹 (컴팩트) */}
         <RankingSection
           finalBalance={finalBalance}
           totalReturn={totalReturn}
@@ -242,73 +271,11 @@ export function ResultPage() {
           nickname={nickname}
           onNicknameChange={setNickname}
         />
-        <InvestmentAnalysis
-          gameResults={gameResults}
-          finalBalance={finalBalance}
-          bestPerformance={bestPerformance?.history}
-          initialBalance={initialBalance}
-          investorType={investorType}
-          profile={profile}
-          riskScore={riskScore}
-          rationalityScore={rationalityScore}
-          luckScore={luckScore}
-        />
-        <AchievementSection
-          finalResult={finalResult}
-          gameResults={gameResults}
-          initialBalance={initialBalance}
-          gameMode={gameMode}
-          onAchievementsUnlocked={handleAchievementsUnlocked}
-        />
 
-        {/* 보상형 광고 */}
-        {isAdSupported && (
-          <div className="rewarded-ad-section">
-            {canShowRewardedAd() ? (
-              <button
-                className="rewarded-ad-button"
-                onClick={handleWatchAd}
-                disabled={isAdLoading}
-                type="button"
-              >
-                {isAdLoading ? '광고 로딩...' : '광고 보고 결과 기록하기'}
-              </button>
-            ) : (
-              <p className="rewarded-ad-limit-message">
-                오늘의 광고 보상을 모두 받았어요!
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* 교환 섹션 (준비 중) */}
-        <div className="exchange-section">
-          <h3 className="exchange-title">코인 교환소</h3>
-          <p className="exchange-rate-info">{EXCHANGE_RATE}coin = 1P</p>
-          <button
-            className="exchange-button"
-            disabled={true}
-            type="button"
-            style={{ opacity: 0.5, cursor: 'not-allowed' }}
-          >
-            토스 포인트 교환 준비 중
-          </button>
-          <p className="exchange-message" style={{ color: '#888' }}>
-            토스 포인트 교환 기능은 곧 오픈됩니다
-          </p>
-          <p style={{ fontSize: '11px', color: '#888', marginTop: '8px', textAlign: 'center' }}>
-            본 프로모션은 사전 고지 없이 중단될 수 있습니다
-          </p>
-        </div>
-
+        {/* 7. 액션 버튼 */}
         <div className="action-buttons">
-          <div className="share-buttons">
-            <button className="share-image-button" onClick={handleGenerateShareImage} disabled={isGeneratingImage}>
-              {isGeneratingImage ? '생성 중...' : (<>이미지로 공유</>)}
-            </button>
-          </div>
           <button className="share-button" onClick={handleShareWithReward}>
-            텍스트로 공유하기 {canEarnShareReward && `(+${COIN_REWARDS.SHARE_RESULT} coin)`}
+            결과 공유하기 {canEarnShareReward && `(+${COIN_REWARDS.SHARE_RESULT}코인)`}
           </button>
           <button className="retry-button" onClick={() => navigate('/')}>다시 도전하기</button>
         </div>
