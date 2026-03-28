@@ -456,4 +456,281 @@ export const questions: Question[] = [
       ],
     },
   },
+
+  // ===== 시즌 2: 현대 경제 트렌드 =====
+
+  // --- 소액 (1천~5만원) ---
+  {
+    id: 26,
+    situation: '📺 안 보는 구독 서비스 3개 발견! 월 총 3.5만원',
+    optionA: {
+      label: '전부 해지',
+      description: '월 3.5만원 절약 확정',
+      outcomes: [{ probability: 1, value: 35_000 }],
+    },
+    optionB: {
+      label: '번들 요금제로 전환',
+      description: '월 1.8만원으로 2개 유지, 70% 활용',
+      outcomes: [
+        { probability: 0.7, value: 50_000 },
+        { probability: 0.3, value: -18_000 },
+      ],
+    },
+  },
+  {
+    id: 27,
+    situation: '🧾 편의점 도시락 3천원 vs 직접 밀프렙 재료비 2만원(5끼)',
+    optionA: {
+      label: '편의점 도시락 계속',
+      description: '시간 절약, 끼당 3천원',
+      outcomes: [{ probability: 1, value: 0 }],
+    },
+    optionB: {
+      label: '밀프렙 도전',
+      description: '끼당 4천원 절약, 30% 확률 식재료 폐기',
+      outcomes: [
+        { probability: 0.7, value: 20_000 },
+        { probability: 0.3, value: -15_000 },
+      ],
+    },
+  },
+  {
+    id: 28,
+    situation: '📱 중고거래앱에서 에어팟 8만원에 올림, 시세 10만원',
+    optionA: {
+      label: '8만원에 즉시 판매',
+      description: '오늘 안에 확실히 팔림',
+      outcomes: [{ probability: 1, value: 80_000 }],
+    },
+    optionB: {
+      label: '10만원 고수하며 기다리기',
+      description: '55% 제값, 45% 2주 후 7만원',
+      outcomes: [
+        { probability: 0.55, value: 100_000 },
+        { probability: 0.45, value: 70_000 },
+      ],
+    },
+  },
+
+  // --- 중소액 (5만~30만원) ---
+  {
+    id: 29,
+    situation: '💸 물가 폭등! 장바구니 30만원 → 38만원',
+    optionA: {
+      label: 'PB상품 + 대용량으로 전환',
+      description: '월 6만원 절약, 품질 약간 하락',
+      outcomes: [
+        { probability: 0.85, value: 60_000 },
+        { probability: 0.15, value: -10_000 },
+      ],
+    },
+    optionB: {
+      label: '기존 브랜드 유지',
+      description: '만족도 유지, 월 8만원 추가 지출',
+      outcomes: [{ probability: 1, value: -80_000 }],
+    },
+  },
+  {
+    id: 30,
+    situation: '👟 한정판 스니커즈 리셀! 정가 19만원, 리셀가 35만원',
+    optionA: {
+      label: '응모 참여 (당첨 시 리셀)',
+      description: '15% 당첨 확률, 당첨 시 16만원 차익',
+      outcomes: [
+        { probability: 0.15, value: 160_000 },
+        { probability: 0.85, value: 0 },
+      ],
+    },
+    optionB: {
+      label: '응모 안 하고 적금 유지',
+      description: '확실한 월 이자 수익',
+      outcomes: [{ probability: 1, value: 5_000 }],
+    },
+  },
+  {
+    id: 31,
+    situation: '💻 블로그 부업 시작? 호스팅비 월 1.5만원',
+    optionA: {
+      label: '부업 시작',
+      description: '6개월 후 40% 확률 월 20만원 수익',
+      outcomes: [
+        { probability: 0.4, value: 200_000 },
+        { probability: 0.6, value: -90_000 },
+      ],
+    },
+    optionB: {
+      label: '차라리 배달 알바',
+      description: '시간당 1만원 확정, 주 10시간',
+      outcomes: [{ probability: 1, value: 100_000 }],
+    },
+  },
+  {
+    id: 32,
+    situation: '🏥 실손보험 갱신! 월 보험료 3만원 → 5만원 인상',
+    optionA: {
+      label: '인상된 보험료 유지',
+      description: '비쌀 때 보장받을 확률 20%',
+      outcomes: [
+        { probability: 0.2, value: 500_000 },
+        { probability: 0.8, value: -60_000 },
+      ],
+    },
+    optionB: {
+      label: '저렴한 미니보험으로 교체',
+      description: '월 1.5만원, 보장 범위 축소',
+      outcomes: [
+        { probability: 0.9, value: 18_000 },
+        { probability: 0.1, value: -300_000 },
+      ],
+    },
+  },
+
+  // --- 중액 (30만~200만원) ---
+  {
+    id: 33,
+    situation: '📊 금리 인상! 예금 5% vs 주식 투자',
+    optionA: {
+      label: '정기예금 1000만원 (연 5%)',
+      description: '1년 후 50만원 이자 확정',
+      outcomes: [{ probability: 1, value: 500_000 }],
+    },
+    optionB: {
+      label: '배당주 투자',
+      description: '55% 확률 배당+시세차익 15%, 45% 확률 -8%',
+      outcomes: [
+        { probability: 0.55, value: 1_500_000 },
+        { probability: 0.45, value: -800_000 },
+      ],
+    },
+  },
+  {
+    id: 34,
+    situation: '🧾 연말정산 시즌! 절세 전략 고민 중',
+    optionA: {
+      label: 'IRP 추가 납입 300만원',
+      description: '세액공제 약 50만원 확정',
+      outcomes: [{ probability: 1, value: 500_000 }],
+    },
+    optionB: {
+      label: '300만원으로 성장주 투자',
+      description: '60% 확률 +30%, 40% 확률 -15%',
+      outcomes: [
+        { probability: 0.6, value: 900_000 },
+        { probability: 0.4, value: -450_000 },
+      ],
+    },
+  },
+  {
+    id: 35,
+    situation: '🎯 MZ 핫플 팝업스토어 공동 출점 제안! 부스비 150만원',
+    optionA: {
+      label: '참여',
+      description: '45% 확률 300만원 매출, 55% 확률 적자',
+      outcomes: [
+        { probability: 0.45, value: 1_500_000 },
+        { probability: 0.55, value: -1_000_000 },
+      ],
+    },
+    optionB: {
+      label: '온라인 마켓에 집중',
+      description: '확실한 월 30만원 수익 유지',
+      outcomes: [{ probability: 1, value: 300_000 }],
+    },
+  },
+  {
+    id: 36,
+    situation: '🔧 사이드 프로젝트 외주 제안! 200만원 프리랜서 건',
+    optionA: {
+      label: '외주 수락 (퇴근 후 작업)',
+      description: '75% 완수 시 200만원, 25% 번아웃으로 포기',
+      outcomes: [
+        { probability: 0.75, value: 2_000_000 },
+        { probability: 0.25, value: -300_000 },
+      ],
+    },
+    optionB: {
+      label: '거절하고 본업에 집중',
+      description: '다음 분기 인센티브 기대',
+      outcomes: [
+        { probability: 0.6, value: 500_000 },
+        { probability: 0.4, value: 0 },
+      ],
+    },
+  },
+
+  // --- 고액 (200만원+) ---
+  {
+    id: 37,
+    situation: '🏦 금리 하락 전 대출 갈아타기! 잔액 5000만원',
+    optionA: {
+      label: '지금 갈아타기 (중도상환 수수료 80만원)',
+      description: '금리 4.5% → 3.2%로 연 65만원 절약',
+      outcomes: [{ probability: 1, value: 570_000 }],
+    },
+    optionB: {
+      label: '만기까지 기다리기',
+      description: '50% 확률 금리 더 하락, 50% 확률 다시 상승',
+      outcomes: [
+        { probability: 0.5, value: 1_200_000 },
+        { probability: 0.5, value: -400_000 },
+      ],
+    },
+  },
+  {
+    id: 38,
+    situation: '🚙 차 리스 vs 할부 구매 (차량가 3500만원)',
+    optionA: {
+      label: '3년 리스 (월 55만원)',
+      description: '세금 절감, 만기 후 반납 가능',
+      outcomes: [
+        { probability: 0.7, value: 2_000_000 },
+        { probability: 0.3, value: -500_000 },
+      ],
+    },
+    optionB: {
+      label: '5년 할부 구매 (월 65만원)',
+      description: '내 차 소유, 감가상각 리스크',
+      outcomes: [
+        { probability: 0.5, value: 5_000_000 },
+        { probability: 0.5, value: -3_000_000 },
+      ],
+    },
+  },
+  {
+    id: 39,
+    situation: '🛡️ 종합보험 리모델링 제안! 월 보험료 15만원 → 20만원',
+    optionA: {
+      label: '보장 강화 수락',
+      description: '암+치매 특약 추가, 15% 확률 큰 보장',
+      outcomes: [
+        { probability: 0.15, value: 20_000_000 },
+        { probability: 0.85, value: -600_000 },
+      ],
+    },
+    optionB: {
+      label: '기존 보험 유지 + 차액 투자',
+      description: '월 5만원 ETF 적립, 연 8% 기대',
+      outcomes: [
+        { probability: 0.65, value: 650_000 },
+        { probability: 0.35, value: -200_000 },
+      ],
+    },
+  },
+  {
+    id: 40,
+    situation: '💰 퇴직금 중간정산 2000만원, 어디에 쓸까?',
+    optionA: {
+      label: '전세 보증금 올려 월세 절약',
+      description: '월 40만원 절약 확정 (연 480만원)',
+      outcomes: [{ probability: 1, value: 4_800_000 }],
+    },
+    optionB: {
+      label: '미국 S&P500 ETF 투자',
+      description: '60% 확률 연 20%, 40% 확률 -10%',
+      outcomes: [
+        { probability: 0.6, value: 4_000_000 },
+        { probability: 0.4, value: -2_000_000 },
+      ],
+    },
+  },
 ];
