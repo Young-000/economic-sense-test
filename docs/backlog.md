@@ -21,9 +21,9 @@
 - [x] ~~재도전 유도 UX (이전 점수 비교)~~ — Cycle 17
 
 ### P2 — UX 개선 (PD 리뷰 후속)
-- [ ] 듀얼 배너 스페이싱 최적화 (PD Issue #2)
-- [ ] Hook aria-hidden 접근성 개선 (PD Issue #5)
-- [ ] 스크롤 힌트 추가 (PD Issue #7)
+- [x] ~~듀얼 배너 스페이싱 최적화 (PD Issue #2)~~ — Cycle 18
+- [x] ~~Hook aria-hidden 접근성 개선 (PD Issue #5)~~ — Cycle 18
+- [x] ~~스크롤 힌트 추가 (PD Issue #7)~~ — Cycle 18
 - [x] ~~반응형 padding-top clamp() 적용 (PD Issue #8)~~ — Cycle 3 mobile-responsive에서 해결
 
 ### P3 — 기술 개선
