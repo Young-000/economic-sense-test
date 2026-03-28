@@ -8,6 +8,7 @@ import { initializeUserIdentity } from '@infrastructure/userIdentity';
 import { updateStreak, checkMissions, type MissionCompletionResult } from '@domain/services/missionService';
 import { rewardDailyLogin, rewardStreakBonus, COIN_REWARDS } from '@domain/services/coinService';
 import { MissionPanel, MissionToast, CoinBalance, CoinParticle, AdBanner } from '@presentation/components';
+import { getBestRecord, type BestRecord } from '@domain/services/bestRecordService';
 
 type ModeFeedback = { message: string; mode: GameMode } | null;
 
@@ -23,6 +24,7 @@ export function IntroPage(): React.JSX.Element {
   const [dailyLoginReward, setDailyLoginReward] = useState<number | null>(null);
   const [streakBonusReward, setStreakBonusReward] = useState<number | null>(null);
   const [challenge] = useState<ChallengeData | null>(() => extractAndSaveChallenge());
+  const [bestRecord] = useState<BestRecord | null>(() => getBestRecord());
 
   const currentConfig = GAME_MODE_CONFIG[selectedMode];
 
@@ -144,6 +146,24 @@ export function IntroPage(): React.JSX.Element {
             />
           )}
         </div>
+
+        {/* 이전 최고 기록 */}
+        {bestRecord !== null && (
+          <div className="best-record-card" aria-label="이전 최고 기록">
+            <div className="best-record-left">
+              <span className="best-record-grade" style={{ color: bestRecord.tierColor }}>
+                {bestRecord.grade}
+              </span>
+              <span className="best-record-tier-name">{bestRecord.tierName}</span>
+            </div>
+            <div className="best-record-right">
+              <span className={`best-record-return ${bestRecord.totalReturn >= 0 ? 'positive' : 'negative'}`}>
+                {bestRecord.totalReturn >= 0 ? '+' : ''}{bestRecord.totalReturn.toFixed(1)}%
+              </span>
+              <span className="best-record-label">이 기록을 넘어보세요!</span>
+            </div>
+          </div>
+        )}
 
         {/* 친구 도전 배너 */}
         {challenge && challengeProfile && (

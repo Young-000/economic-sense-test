@@ -22,6 +22,7 @@ import {
   checkMissions,
   type MissionCompletionResult,
 } from '@domain/services/missionService';
+import { saveBestRecord } from '@domain/services/bestRecordService';
 import { exchangeForTossPoints } from '@domain/services/exchangeService';
 import { getCachedUserId } from '@infrastructure/userIdentity';
 import {
@@ -64,6 +65,15 @@ export function ResultPage() {
 
     // 티어 업데이트
     updateBestTier(finalResult.tier.grade);
+
+    // 최고 기록 저장
+    saveBestRecord({
+      grade: finalResult.tier.grade,
+      tierName: finalResult.tier.name,
+      tierColor: finalResult.tier.color,
+      totalReturn: finalResult.totalReturn,
+      finalBalance: finalResult.finalBalance,
+    });
 
     // 코인 보상
     let totalReward = 0;
