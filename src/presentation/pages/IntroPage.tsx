@@ -218,7 +218,7 @@ export function IntroPage(): React.JSX.Element {
         </button>
 
         {/* 훅 문구 */}
-        <div className="intro-hook" aria-hidden="true">
+        <div className="intro-hook">
           <span className="hook-text">
             {selectedMode === 'extreme' ? '파산 각오됐어?' : '당신은 금손? 흙손?'}
           </span>
