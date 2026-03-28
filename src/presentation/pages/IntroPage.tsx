@@ -9,9 +9,13 @@ import { updateStreak, checkMissions, type MissionCompletionResult } from '@doma
 import { rewardDailyLogin, rewardStreakBonus, COIN_REWARDS } from '@domain/services/coinService';
 import { MissionPanel, MissionToast, CoinBalance, CoinParticle, AdBanner } from '@presentation/components';
 
+type ModeFeedback = { message: string; mode: GameMode } | null;
+
 export function IntroPage(): React.JSX.Element {
   const navigate = useNavigate();
   const [selectedMode, setSelectedMode] = useState<GameMode>('normal');
+  const [modeFeedback, setModeFeedback] = useState<ModeFeedback>(null);
+  const [pulsingMode, setPulsingMode] = useState<GameMode | null>(null);
   const [totalPlayers, setTotalPlayers] = useState<number>(0);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
@@ -62,7 +66,18 @@ export function IntroPage(): React.JSX.Element {
   }, []);
 
   const handleModeChange = (mode: GameMode): void => {
+    if (mode === selectedMode) return;
+
     setSelectedMode(mode);
+
+    // Pulse animation: apply class briefly then remove
+    setPulsingMode(mode);
+    setTimeout(() => setPulsingMode(null), 80);
+
+    // Inline feedback message with auto-dismiss after 1200ms
+    const message = mode === 'extreme' ? '극한 모드 선택됨' : '일반 모드 선택됨';
+    setModeFeedback({ message, mode });
+    setTimeout(() => setModeFeedback(null), 1200);
   };
 
   const handleStart = useCallback(async (): Promise<void> => {
@@ -192,7 +207,7 @@ export function IntroPage(): React.JSX.Element {
         {/* 모드 선택 */}
         <div className="mode-selector" role="group" aria-label="게임 모드 선택">
           <button
-            className={`mode-btn ${selectedMode === 'normal' ? 'active' : ''}`}
+            className={`mode-btn ${selectedMode === 'normal' ? 'active' : ''} ${pulsingMode === 'normal' ? 'mode-btn--pulse' : ''}`}
             onClick={() => handleModeChange('normal')}
             aria-pressed={selectedMode === 'normal'}
           >
@@ -201,7 +216,7 @@ export function IntroPage(): React.JSX.Element {
             <span className="mode-desc">{GAME_MODE_CONFIG.normal.description}</span>
           </button>
           <button
-            className={`mode-btn extreme ${selectedMode === 'extreme' ? 'active' : ''}`}
+            className={`mode-btn extreme ${selectedMode === 'extreme' ? 'active' : ''} ${pulsingMode === 'extreme' ? 'mode-btn--pulse' : ''}`}
             onClick={() => handleModeChange('extreme')}
             aria-pressed={selectedMode === 'extreme'}
           >
@@ -210,6 +225,14 @@ export function IntroPage(): React.JSX.Element {
             <span className="mode-desc">{GAME_MODE_CONFIG.extreme.description}</span>
           </button>
         </div>
+        {modeFeedback && (
+          <p
+            className={`mode-feedback mode-feedback--${modeFeedback.mode}`}
+            aria-live="polite"
+          >
+            {modeFeedback.message}
+          </p>
+        )}
 
         {/* 미션 패널 */}
         <MissionPanel />

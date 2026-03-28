@@ -206,6 +206,35 @@ body {
   color: var(--negative);
 }
 
+/* 모드 변경 피드백 */
+@keyframes mode-btn-pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+.mode-btn--pulse {
+  animation: mode-btn-pulse 80ms ease-out;
+}
+
+.mode-feedback {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  margin-top: -12px;
+  margin-bottom: 8px;
+  height: 20px;
+  line-height: 20px;
+}
+
+.mode-feedback--normal {
+  color: #2563EB;
+}
+
+.mode-feedback--extreme {
+  color: var(--negative);
+}
+
 .intro-hook {
   display: flex;
   align-items: center;
