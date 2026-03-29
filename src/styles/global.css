@@ -791,14 +791,22 @@ body {
   color: var(--text-secondary);
 }
 
+/* 결과 히어로 행 — 나란히 배치 */
+.result-hero-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
 /* 티어 배지 - 히어로 요소 */
 .tier-badge-hero {
   text-align: center;
-  padding: 32px 24px;
-  margin-bottom: 16px;
+  padding: 20px 12px;
+  margin-bottom: 0;
   background: var(--tier-bg, #FFFFFF);
   border: 2px solid var(--tier-color, #888);
-  border-radius: 28px;
+  border-radius: 20px;
   position: relative;
   overflow: hidden;
 }
@@ -815,20 +823,20 @@ body {
 }
 
 .tier-grade-display {
-  width: 100px;
-  height: 100px;
-  margin: 0 auto 16px;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 8px;
   border-radius: 50%;
   border: 3px solid var(--tier-color, #888);
   display: flex;
   align-items: center;
   justify-content: center;
   background: color-mix(in srgb, var(--tier-color) 10%, var(--bg));
-  box-shadow: 0 0 30px color-mix(in srgb, var(--tier-color) 30%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--tier-color) 30%, transparent);
 }
 
 .tier-grade-letter {
-  font-size: 48px;
+  font-size: 32px;
   font-weight: 900;
   color: var(--tier-color, #888);
   letter-spacing: -2px;
@@ -836,36 +844,36 @@ body {
 
 .tier-name {
   display: block;
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 800;
   color: var(--tier-color, #888);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .tier-description {
   display: block;
-  font-size: 14px;
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
 .investor-type-card {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-  padding: 40px 24px;
-  border-radius: 28px;
+  padding: 20px 12px;
+  border-radius: 20px;
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
 
 .type-emoji {
-  font-size: 64px;
+  font-size: 40px;
   display: block;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .type-name {
-  font-size: 28px;
+  font-size: 18px;
   font-weight: 800;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .type-tag {
