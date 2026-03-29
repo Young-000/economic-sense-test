@@ -980,20 +980,30 @@ export async function generateQuestions(mode: GameMode = 'normal'): Promise<Ques
     return generateQuestionsLocal(mode);
   }
 
+  // 로컬 풀 (템플릿 + 정적)
+  const localQuestions = generateFromMergedPool(mode);
+
   try {
-    // 1. DB에서 가져오기 시도 (동적 import로 테스트 호환성 유지)
+    // DB에서 추가 질문 가져오기
     const { fetchQuestionsFromDB } = await import('./questionService');
     const dbQuestions = await fetchQuestionsFromDB();
 
     if (dbQuestions && dbQuestions.length > 0) {
-      return dbQuestions;
+      // DB + 로컬 전체 합산 후 10개 선택 (중복 id 제거)
+      const seen = new Set<string>();
+      const all = [...dbQuestions, ...localQuestions].filter((q) => {
+        const key = q.situation;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      return shuffle(all).slice(0, 10);
     }
   } catch {
-    // DB fetch failed, fall through to local fallback
+    // DB fetch failed
   }
 
-  // 2. 폴백: 로컬 템플릿 + 정적 문제 합산
-  return generateFromMergedPool(mode);
+  return localQuestions;
 }
 
 /**
