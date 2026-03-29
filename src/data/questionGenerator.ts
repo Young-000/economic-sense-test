@@ -14,6 +14,7 @@
 import type { Question, Option, GameMode } from '@domain/entities';
 import { formatMoney } from '@lib/formatUtils';
 import { shuffle } from '@lib/arrayUtils';
+import { questions as staticQuestions } from './questions';
 
 // 기본 스케일 (금액의 기준 단위)
 // 템플릿의 값은 천원 단위로 작성, 실제 금액은 value * 1,000원
@@ -960,7 +961,17 @@ export function analyzeDistribution(questions: Question[]): {
 }
 
 /**
- * 질문 생성 - DB 우선, 실패시 로컬 폴백
+ * 로컬 템플릿 + questions.ts 정적 문제를 합쳐서 풀 확장
+ * 총 83개 풀에서 10개 선택 → 반복 최소화
+ */
+function generateFromMergedPool(mode: GameMode): Question[] {
+  const templateQuestions = generateQuestionsLocal(mode);
+  const merged = shuffle([...templateQuestions, ...staticQuestions]);
+  return merged.slice(0, 10);
+}
+
+/**
+ * 질문 생성 - DB 우선, 실패시 로컬 폴백 (83개+ 풀)
  * @param mode 게임 모드 (normal | extreme)
  */
 export async function generateQuestions(mode: GameMode = 'normal'): Promise<Question[]> {
@@ -981,14 +992,13 @@ export async function generateQuestions(mode: GameMode = 'normal'): Promise<Ques
     // DB fetch failed, fall through to local fallback
   }
 
-  // 2. 폴백: 로컬 템플릿 사용
-  return generateQuestionsLocal(mode);
+  // 2. 폴백: 로컬 템플릿 + 정적 문제 합산
+  return generateFromMergedPool(mode);
 }
 
 /**
  * 동기 버전 (기존 호환성 유지)
- * @deprecated Use generateQuestions() instead
  */
 export function generateQuestionsSync(mode: GameMode = 'normal'): Question[] {
-  return generateQuestionsLocal(mode);
+  return generateFromMergedPool(mode);
 }

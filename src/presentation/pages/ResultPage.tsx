@@ -190,9 +190,11 @@ export function ResultPage() {
       )}
 
       <div className="result-content">
-        {/* 1. 결과 히어로 + 투자자 타입 */}
-        <ResultHero tier={tier} isNewRecord={isNewRecord} />
-        <InvestorTypeCard profile={profile} />
+        {/* 1. 결과 히어로 + 투자자 타입 (나란히) */}
+        <div className="result-hero-row">
+          <ResultHero tier={tier} isNewRecord={isNewRecord} />
+          <InvestorTypeCard profile={profile} />
+        </div>
 
         {/* 2. 자산 변화 (핵심 정보) */}
         <AssetSummaryCard
