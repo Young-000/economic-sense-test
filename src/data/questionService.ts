@@ -91,15 +91,25 @@ const updateDescription = (opt: Option): Option => {
   return opt;
 };
 
-// DB 시나리오를 Question으로 변환
+// 금액 범위 내 랜덤 스케일 팩터 생성 (같은 시나리오도 매번 다른 금액)
+const getRandomScale = (scenario: DBScenario): number => {
+  const { min_amount, max_amount, typical_amount } = scenario;
+  if (min_amount === max_amount || typical_amount === 0) return 1;
+  const minScale = min_amount / typical_amount;
+  const maxScale = max_amount / typical_amount;
+  return minScale + Math.random() * (maxScale - minScale);
+};
+
+// DB 시나리오를 Question으로 변환 (금액 랜덤 스케일링 적용)
 const convertToQuestion = (scenario: DBScenario, index: number): Question => {
-  // DB에서 가져온 outcomes를 Option으로 변환 (천원 → 원 변환)
+  const scale = getRandomScale(scenario);
+
   const optionA: Option = {
     label: scenario.option_a_label,
     description: scenario.option_a_description,
     outcomes: scenario.option_a_outcomes.map(o => ({
       probability: o.probability,
-      value: o.value * BASE_SCALE, // 천원 → 원
+      value: Math.round(o.value * BASE_SCALE * scale),
     })),
   };
 
@@ -108,7 +118,7 @@ const convertToQuestion = (scenario: DBScenario, index: number): Question => {
     description: scenario.option_b_description,
     outcomes: scenario.option_b_outcomes.map(o => ({
       probability: o.probability,
-      value: o.value * BASE_SCALE, // 천원 → 원
+      value: Math.round(o.value * BASE_SCALE * scale),
     })),
   };
 
@@ -203,12 +213,8 @@ export async function fetchQuestionsFromDB(): Promise<Question[] | null> {
       };
     });
 
-    // 랜덤으로 10개 선택
-    const shuffled = shuffle(scenarios);
-    const selected = shuffled.slice(0, 10);
-
-    // Question으로 변환
-    return selected.map(convertToQuestion);
+    // 전체를 Question으로 변환 (선택은 generateQuestions에서)
+    return shuffle(scenarios).map(convertToQuestion);
   } catch (err) {
     console.error('Failed to fetch questions from DB:', err);
     return null;
