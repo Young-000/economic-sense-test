@@ -885,6 +885,26 @@ body {
   display: inline-block;
 }
 
+.type-tap-hint {
+  display: block;
+  font-size: 11px;
+  opacity: 0.6;
+  margin-top: 6px;
+}
+
+.type-summary {
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: 0.9;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.investor-type-card.expanded {
+  grid-column: 1 / -1;
+}
+
 .final-balance-card {
   background: var(--card);
   padding: 28px;

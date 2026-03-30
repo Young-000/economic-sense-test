@@ -12,7 +12,11 @@ export const formatBalance = (balance: number): string => {
   if (absBalance >= 100_000_000) {
     return `${(balance / 100_000_000).toFixed(1)}억원`;
   }
-  return `${(balance / 10_000).toLocaleString()}만원`;
+  const man = Math.round(balance / 10_000 * 10) / 10; // 소수점 1자리까지
+  if (Number.isInteger(man)) {
+    return `${man.toLocaleString()}만원`;
+  }
+  return `${man.toLocaleString()}만원`;
 };
 
 /**

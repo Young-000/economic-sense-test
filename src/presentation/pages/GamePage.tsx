@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useCallback, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGame } from '../hooks/useGame';
-import { useInterstitialAd } from '../hooks/useInterstitialAd';
+// 전면 광고 제거 — 게임 완료 직후 전면 광고는 다크패턴 (AIT 정책 위반)
 import { getGameConfig, type Outcome, type GameMode } from '@domain/entities';
 import { calculateExpectedValue } from '@domain/usecases/gameEngine';
 import { AssetProgressChart, AdBanner } from '@presentation/components';
@@ -47,8 +47,6 @@ export function GamePage() {
     topPlayerData,
   } = useGame({ mode });
 
-  const { showInterstitialIfNeeded } = useInterstitialAd();
-
   // Balance change feedback
   const previousBalanceRef = useRef<number>(gameState.balance);
   const [balanceChangeClass, setBalanceChangeClass] = useState<'increase' | 'decrease' | ''>('');
@@ -60,12 +58,9 @@ export function GamePage() {
       sessionStorage.setItem('gameQuestions', JSON.stringify(questions));
       sessionStorage.setItem('gameMode', mode);
 
-      // 전면 광고 표시 후 결과 페이지로 이동
-      showInterstitialIfNeeded(() => {
-        navigate('/result', { replace: true });
-      });
+      navigate('/result', { replace: true });
     }
-  }, [gameState.isComplete, gameState.results, questions, navigate, mode, showInterstitialIfNeeded]);
+  }, [gameState.isComplete, gameState.results, questions, navigate, mode]);
 
   // Balance change animation
   useEffect(() => {
