@@ -135,13 +135,12 @@ npm run test           # 단위 테스트
 - [x] 시즌 2 문제 세트 (총 40문제)
 - [x] 재도전 유도 UX (최고 기록 카드)
 - [x] PD 리뷰 수정 (배너 스페이싱/접근성/스크롤 힌트)
-- [ ] 광고 그룹 ID 실제 값 교체 (콘솔 발급 후)
-- [ ] user_sessions / promotion_records DB 마이그레이션
+- [x] 광고 그룹 ID 실제 값 교체 (ait.v2.live.xxx 적용 완료)
+- [x] user_sessions / promotion_records DB 마이그레이션 SQL 작성
 
 ## Known Issues (프로젝트 고유)
-- 광고 그룹 ID가 아직 placeholder (TODO: 콘솔 발급 후 교체)
-- user_sessions, promotion_records 테이블 미생성 (DB 마이그레이션 필요)
 - CoinParticle/ResultPage의 setState-in-effect warning (기능 동작에 영향 없음)
+- DB 마이그레이션 SQL 작성 완료 — Supabase Dashboard에서 실행 필요
 
 ---
 *글로벌 설정은 상위 `CLAUDE.md` 참조*
