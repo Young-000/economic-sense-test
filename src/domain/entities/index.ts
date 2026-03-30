@@ -55,6 +55,25 @@ export type InvestorType =
   | 'balanced_investor'  // 균형잡힌 투자자 (중간)
   | 'wild_card';         // 예측불가 (극단적 결과)
 
+/** MBTI식 투자 성향 코드 (3차원: 공격/분석/운) */
+export const INVESTOR_TYPE_CODES: Record<InvestorType, string> = {
+  lucky_gambler: 'A·F·L',     // 공격-직감-행운
+  unlucky_gambler: 'A·F·U',   // 공격-직감-불운
+  smart_winner: 'A·T·L',      // 공격-분석-행운
+  smart_unlucky: 'A·T·U',     // 공격-분석-불운
+  steady_grower: 'D·T·L',     // 방어-분석-행운
+  careful_realist: 'D·T·U',   // 방어-분석-불운
+  balanced_investor: 'B·T·N', // 균형-분석-중립
+  wild_card: 'W·F·X',         // 와일드-직감-변동
+};
+
+/** 3차원 라벨 */
+export const INVESTOR_DIMENSIONS = [
+  { key: 'risk', left: '방어 D', right: '공격 A', leftEmoji: '🛡️', rightEmoji: '🔥' },
+  { key: 'decision', left: '직감 F', right: '분석 T', leftEmoji: '💡', rightEmoji: '🧠' },
+  { key: 'luck', left: '불운 U', right: '행운 L', leftEmoji: '😢', rightEmoji: '🍀' },
+] as const;
+
 /** 투자자 유형 정보 */
 export interface InvestorProfile {
   type: InvestorType;

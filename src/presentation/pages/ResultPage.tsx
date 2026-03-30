@@ -195,7 +195,13 @@ export function ResultPage() {
         {/* 1. 결과 히어로 + 투자자 타입 (나란히) */}
         <div className="result-hero-row">
           <ResultHero tier={tier} isNewRecord={isNewRecord} />
-          <InvestorTypeCard profile={profile} investorType={investorType} />
+          <InvestorTypeCard
+            profile={profile}
+            investorType={investorType}
+            riskScore={riskScore}
+            rationalityScore={rationalityScore}
+            luckScore={luckScore}
+          />
         </div>
 
         {/* 2. 자산 변화 (핵심 정보) */}
