@@ -6,7 +6,6 @@ import { useShareImage } from '@presentation/hooks/useShareImage';
 import { useFullScreenAd } from '@presentation/hooks/useFullScreenAd';
 import { canShowRewardedAd, recordRewardedAdShown } from '@domain/services/adFrequencyService';
 import {
-  rewardGameComplete,
   rewardHighTier,
   rewardRewardedAd,
   rewardShareResult,
@@ -15,6 +14,8 @@ import {
   EXCHANGE_RATE,
   COIN_REWARDS,
   exchangeCoinsForPoints,
+  getPerformanceReward,
+  addCoins,
 } from '@domain/services/coinService';
 import {
   incrementGameCount,
@@ -75,10 +76,11 @@ export function ResultPage() {
       finalBalance: finalResult.finalBalance,
     });
 
-    // 코인 보상
-    let totalReward = 0;
-    rewardGameComplete();
-    totalReward = totalReward + COIN_REWARDS.GAME_COMPLETE;
+    // 성과 기반 코인 보상
+    const performance = getPerformanceReward(finalResult.totalReturn);
+    addCoins(performance.coins, 'game_complete', `게임 완료 (${performance.label})`);
+
+    let totalReward = performance.coins;
 
     // 고티어 보너스 (S, SS)
     const highTiers = ['S', 'S+', 'SS', 'SS+'];

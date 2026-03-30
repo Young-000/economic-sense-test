@@ -91,13 +91,14 @@ const updateDescription = (opt: Option): Option => {
   return opt;
 };
 
-// 금액 범위 내 랜덤 스케일 팩터 생성 (같은 시나리오도 매번 다른 금액)
+// 금액 범위 내 랜덤 스케일 팩터 (0.6x ~ 1.8x, 같은 시나리오도 매번 다른 금액)
 const getRandomScale = (scenario: DBScenario): number => {
   const { min_amount, max_amount, typical_amount } = scenario;
-  if (min_amount === max_amount || typical_amount === 0) return 1;
-  const minScale = min_amount / typical_amount;
-  const maxScale = max_amount / typical_amount;
-  return minScale + Math.random() * (maxScale - minScale);
+  if (typical_amount === 0) return 1;
+  const rawMin = Math.max(0.6, min_amount / typical_amount);
+  const rawMax = Math.min(1.8, max_amount / typical_amount);
+  if (rawMin >= rawMax) return 1;
+  return rawMin + Math.random() * (rawMax - rawMin);
 };
 
 // DB 시나리오를 Question으로 변환 (금액 랜덤 스케일링 적용)
