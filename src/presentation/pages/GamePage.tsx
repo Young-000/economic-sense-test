@@ -132,10 +132,6 @@ export function GamePage() {
     nextRound();
   }, [nextRound]);
 
-  const handleBack = useCallback(() => {
-    navigate('/');
-  }, [navigate]);
-
   // 로딩 상태 표시
   if (isLoadingQuestions && !currentQuestion) {
     return (
@@ -156,14 +152,7 @@ export function GamePage() {
     <div className="game-page">
       {/* 상단 헤더 */}
       <div className="game-header">
-        {/* 1라운드에서만 뒤로가기 버튼 표시 */}
-        {gameState.currentRound === 0 && !isWaitingResult ? (
-          <button className="back-button" onClick={handleBack} aria-label="뒤로가기">
-            ←
-          </button>
-        ) : (
-          <div className="back-button-placeholder" />
-        )}
+        <div className="back-button-placeholder" />
         <div className={`round-badge ${isFinalRound ? 'final-round' : ''}`}>
           <span>{gameState.currentRound + 1}/{gameConfig.TOTAL_ROUNDS}</span>
           <div
