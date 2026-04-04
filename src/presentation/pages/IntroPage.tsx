@@ -260,16 +260,16 @@ export function IntroPage(): React.JSX.Element {
         {/* 특징 리스트 */}
         <ul className="intro-features" aria-label="게임 특징">
           <li className="feature">
-            <span className="feature-icon" aria-hidden="true">{'\uD83C\uDFB2'}</span>
+            <span className="feature-icon" aria-hidden="true">{'🎲'}</span>
             <span className="feature-text">진짜 확률로 결과 결정</span>
           </li>
           <li className="feature">
-            <span className="feature-icon" aria-hidden="true">{'\uD83E\uDDE0'}</span>
+            <span className="feature-icon" aria-hidden="true">{'🧠'}</span>
             <span className="feature-text">투자 성향 + 운빨 분석</span>
           </li>
           <li className="feature">
             <span className="feature-icon" aria-hidden="true">
-              {selectedMode === 'extreme' ? '\uD83D\uDC80' : '\uD83D\uDD25'}
+              {selectedMode === 'extreme' ? '💀' : '🔥'}
             </span>
             <span className="feature-text">
               {selectedMode === 'extreme' ? '극한의 하이리스크' : '친구랑 수익률 배틀'}

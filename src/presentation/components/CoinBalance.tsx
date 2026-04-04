@@ -52,7 +52,7 @@ export function CoinBalance({ className = '', showExchangeInfo = false }: CoinBa
   return (
     <div className={`coin-balance ${className}`}>
       <div className="coin-balance-main">
-        <span className="coin-icon" aria-hidden="true">{'\uD83E\uDE99'}</span>
+        <span className="coin-icon" aria-hidden="true">{'🪙'}</span>
         <span className="coin-amount">{displayBalance.toLocaleString()}</span>
       </div>
       {showExchangeInfo && exchangeablePoints > 0 && (
