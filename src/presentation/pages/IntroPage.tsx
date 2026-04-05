@@ -220,8 +220,13 @@ export function IntroPage(): React.JSX.Element {
           disabled={isAuthLoading}
           aria-label={`${currentConfig.name}로 게임 시작하기`}
         >
-          {isAuthLoading ? '준비 중...' : selectedMode === 'extreme' ? '극한 도전!' : '시작하기'}
+          {isAuthLoading ? '준비 중...' : '토스 로그인으로 시작하기'}
         </button>
+
+        {/* 약관 동의 안내 */}
+        <p className="intro-terms" style={{ fontSize: '11px', color: '#999', textAlign: 'center', marginTop: '8px' }}>
+          시작하면 이용약관 및 개인정보처리방침에 동의하게 됩니다
+        </p>
 
         {/* 훅 문구 */}
         <div className="intro-hook">
