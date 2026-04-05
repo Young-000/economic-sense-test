@@ -49,14 +49,14 @@ export function MissionToast({ completions, onDismiss }: MissionToastProps): JSX
               {item.trackName} Lv.{item.level} 달성!
             </span>
             <span className="mission-toast-reward">
-              +{item.reward} coin
+              +{item.reward} 코인
             </span>
           </div>
         </div>
       ))}
       {showSummary && (
         <div className="mission-toast-summary">
-          외 {remainingCount}개 미션 달성! 총 +{totalReward} coin
+          외 {remainingCount}개 미션 달성! 총 +{totalReward} 코인
         </div>
       )}
     </div>

@@ -13,9 +13,12 @@ export interface UseShareImageReturn {
   showShareModal: boolean;
   shareImageUrl: string | null;
   shareImageBlob: Blob | null;
+  feedbackMessage: string | null;
+  feedbackType: 'success' | 'error' | null;
   handleGenerateShareImage: () => Promise<void>;
   handleShareText: () => Promise<void>;
   handleCloseShareModal: () => void;
+  dismissFeedback: () => void;
 }
 
 export function useShareImage(finalResult: FinalResult | null): UseShareImageReturn {
@@ -23,7 +26,26 @@ export function useShareImage(finalResult: FinalResult | null): UseShareImageRet
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareImageUrl, setShareImageUrl] = useState<string | null>(null);
   const [shareImageBlob, setShareImageBlob] = useState<Blob | null>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [feedbackType, setFeedbackType] = useState<'success' | 'error' | null>(null);
+  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const shareCardRef = useRef<HTMLDivElement>(null);
+
+  const showFeedback = useCallback((message: string, type: 'success' | 'error') => {
+    setFeedbackMessage(message);
+    setFeedbackType(type);
+    clearTimeout(feedbackTimerRef.current);
+    feedbackTimerRef.current = setTimeout(() => {
+      setFeedbackMessage(null);
+      setFeedbackType(null);
+    }, 3000);
+  }, []);
+
+  const dismissFeedback = useCallback(() => {
+    setFeedbackMessage(null);
+    setFeedbackType(null);
+    clearTimeout(feedbackTimerRef.current);
+  }, []);
 
   const getShareText = useCallback(
     (platform: 'default' | 'kakao' | 'twitter' | 'instagram' = 'default') => {
@@ -59,7 +81,7 @@ export function useShareImage(finalResult: FinalResult | null): UseShareImageRet
       setShowShareModal(true);
     } catch (error) {
       console.error('이미지 생성 실패:', error);
-      alert('이미지 생성에 실패했습니다.');
+      showFeedback('이미지 생성에 실패했어요. 다시 시도해 주세요.', 'error');
     } finally {
       setIsGeneratingImage(false);
     }
@@ -84,9 +106,9 @@ export function useShareImage(finalResult: FinalResult | null): UseShareImageRet
     const clipboardText = getClipboardText();
     try {
       await navigator.clipboard.writeText(clipboardText);
-      alert('결과가 복사되었습니다!');
+      showFeedback('결과가 복사되었어요!', 'success');
     } catch {
-      alert(clipboardText);
+      showFeedback('복사에 실패했어요. 텍스트를 직접 선택해 주세요.', 'error');
     }
   }, [getShareText, getClipboardText]);
 
@@ -104,8 +126,11 @@ export function useShareImage(finalResult: FinalResult | null): UseShareImageRet
     showShareModal,
     shareImageUrl,
     shareImageBlob,
+    feedbackMessage,
+    feedbackType,
     handleGenerateShareImage,
     handleShareText,
     handleCloseShareModal,
+    dismissFeedback,
   };
 }

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import type { InvestorProfile, FinalResult } from '@domain/entities';
 import {
   shareImage,
@@ -26,6 +26,13 @@ export function ShareModal({
   shareImageUrl,
   shareImageBlob,
 }: ShareModalProps) {
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = useCallback((message: string) => {
+    setToastMessage(message);
+    setTimeout(() => setToastMessage(null), 2500);
+  }, []);
+
   const getShareText = useCallback(
     (platform: 'default' | 'kakao' | 'twitter' | 'instagram' = 'default') => {
       return generateShareText(finalResult.investorType, finalResult.totalReturn, platform);
@@ -39,8 +46,8 @@ export function ShareModal({
 
     const filename = `돈감각테스트_${profile.name.replace(/\s/g, '_')}.png`;
     downloadBlob(shareImageBlob, filename);
-    alert('이미지가 저장되었습니다!');
-  }, [shareImageBlob, profile.name]);
+    showToast('이미지가 저장되었어요!');
+  }, [shareImageBlob, profile.name, showToast]);
 
   // 이미지 공유
   const handleShareImageAction = useCallback(async () => {
@@ -67,9 +74,9 @@ export function ShareModal({
     const shareText = getShareText('kakao');
     try {
       await navigator.clipboard.writeText(shareText);
-      alert('카카오톡용 문구가 복사되었습니다!\n카카오톡에 붙여넣기 해주세요 📱');
+      showToast('카카오톡용 문구가 복사되었어요!');
     } catch {
-      alert(shareText);
+      showToast('복사에 실패했어요.');
     }
   };
 
@@ -85,9 +92,9 @@ export function ShareModal({
     const shareText = getShareText('instagram');
     try {
       await navigator.clipboard.writeText(shareText);
-      alert('인스타그램 캡션이 복사되었습니다!\n스토리나 피드에 이미지와 함께 붙여넣기 해주세요 📸');
+      showToast('인스타그램 캡션이 복사되었어요!');
     } catch {
-      alert(shareText);
+      showToast('복사에 실패했어요.');
     }
   };
 
@@ -148,6 +155,12 @@ export function ShareModal({
         >
           닫기
         </button>
+
+        {toastMessage && (
+          <div className="share-modal-toast" role="status" aria-live="polite">
+            {toastMessage}
+          </div>
+        )}
       </div>
     </div>
   );

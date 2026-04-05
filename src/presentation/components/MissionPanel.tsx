@@ -35,7 +35,7 @@ function MissionCard({ mission }: { mission: MissionDisplayData }): JSX.Element 
             <span className="mission-progress-text">
               {mission.progress}/{mission.target}
             </span>
-            <span className="mission-reward">+{mission.reward} coin</span>
+            <span className="mission-reward">+{mission.reward} 코인</span>
           </div>
         </>
       )}

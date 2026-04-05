@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { FinalResult } from '@domain/entities';
 import { getPlayersAboveReturn } from '@data/rankingService';
 import { createChallengeUrl, getSavedChallenge, compareResults } from '@lib/challengeUtils';
@@ -17,6 +17,12 @@ export function ViralCTASection({
   isGeneratingImage,
 }: ViralCTASectionProps) {
   const [percentile, setPercentile] = useState<number | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = useCallback((message: string) => {
+    setToastMessage(message);
+    setTimeout(() => setToastMessage(null), 2500);
+  }, []);
 
   const { totalReturn, investorType } = finalResult;
 
@@ -57,11 +63,11 @@ export function ViralCTASection({
     );
     try {
       await navigator.clipboard.writeText(
-        `💸 돈 감각 테스트에서 ${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}% 달성!\n\n이 기록 이길 수 있어? 😏\n\n👉 ${challengeUrl}`
+        `\u{1F4B8} 돈 감각 테스트에서 ${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}% 달성!\n\n이 기록 이길 수 있어? \u{1F60F}\n\n\u{1F449} ${challengeUrl}`
       );
-      alert('도전장 링크가 복사되었습니다!\n친구에게 보내보세요 🔥');
+      showToast('도전장 링크가 복사되었어요!');
     } catch {
-      alert(`도전장 링크:\n${challengeUrl}`);
+      showToast('복사에 실패했어요.');
     }
   };
 
@@ -91,8 +97,13 @@ export function ViralCTASection({
         onClick={onShareImage}
         disabled={isGeneratingImage}
       >
-        {isGeneratingImage ? '이미지 생성 중...' : '🖼️ 결과 이미지로 공유'}
+        {isGeneratingImage ? '이미지 생성 중...' : '\u{1F5BC}\uFE0F 결과 이미지로 공유'}
       </button>
+      {toastMessage && (
+        <div className="viral-toast" role="status" aria-live="polite">
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 }
