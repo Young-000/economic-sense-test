@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import type { RefObject } from 'react';
+import { share } from '@apps-in-toss/web-framework';
 import type { FinalResult } from '@domain/entities';
 import { elementToBlob } from '@lib/shareUtils';
 import {
@@ -90,17 +91,11 @@ export function useShareImage(finalResult: FinalResult | null): UseShareImageRet
   const handleShareText = useCallback(async (): Promise<void> => {
     const shareText = getShareText('default');
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: '돈 감각 테스트',
-          text: shareText,
-          url: window.location.origin,
-        });
-        return;
-      } catch {
-        // 무시
-      }
+    try {
+      await share({ message: `${shareText}\n${window.location.origin}` });
+      return;
+    } catch {
+      // AIT share 실패 시 클립보드 fallback
     }
 
     const clipboardText = getClipboardText();

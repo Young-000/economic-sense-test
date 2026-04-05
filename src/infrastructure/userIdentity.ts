@@ -257,6 +257,7 @@ export async function initializeUserIdentity(): Promise<string> {
       : String(err);
     console.warn('[userIdentity] appLogin flow failed:', errorMsg);
     lastAuthError = errorMsg;
+    closeView();
     return fallbackToLocalId();
   }
 }
