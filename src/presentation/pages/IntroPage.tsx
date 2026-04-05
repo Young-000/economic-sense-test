@@ -4,8 +4,9 @@ import { GAME_MODE_CONFIG, type GameMode, investorProfiles } from '@domain/entit
 import { getTotalPlayers } from '@data/rankingService';
 import { extractAndSaveChallenge, type ChallengeData } from '@lib/challengeUtils';
 import { getCurrentTheme, formatSeasonInfo } from '@lib/seasonUtils';
-import { initializeUserIdentity } from '@infrastructure/userIdentity';
+import { initializeUserIdentity, getCachedUserId } from '@infrastructure/userIdentity';
 import { updateStreak, checkMissions, type MissionCompletionResult } from '@domain/services/missionService';
+import { NotificationToggle } from '@presentation/components/notification-toggle';
 import { rewardDailyLogin, rewardStreakBonus, COIN_REWARDS } from '@domain/services/coinService';
 import { MissionPanel, MissionToast, CoinBalance, CoinParticle, AdBanner } from '@presentation/components';
 import { getBestRecord, type BestRecord } from '@domain/services/bestRecordService';
@@ -120,6 +121,11 @@ export function IntroPage(): React.JSX.Element {
 
   return (
     <main className="intro-page" role="main" aria-labelledby="intro-title">
+      {/* Notification toggle */}
+      <div style={{ position: 'fixed', top: '12px', right: '12px', zIndex: 100 }}>
+        <NotificationToggle appId="economic-sense-test" userKey={getCachedUserId()} />
+      </div>
+
       {missionCompletions.length > 0 && (
         <MissionToast
           completions={missionCompletions}
