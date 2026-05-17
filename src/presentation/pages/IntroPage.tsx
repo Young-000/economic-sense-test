@@ -5,6 +5,7 @@ import { getTotalPlayers } from '@data/rankingService';
 import { extractAndSaveChallenge, type ChallengeData } from '@lib/challengeUtils';
 import { getCurrentTheme, formatSeasonInfo } from '@lib/seasonUtils';
 import { initializeUserIdentity, getCachedUserId } from '@infrastructure/userIdentity';
+import { hasConsented, saveConsent, LEGAL_URLS } from '@infrastructure/consent';
 import { updateStreak, checkMissions, type MissionCompletionResult } from '@domain/services/missionService';
 import { NotificationToggle } from '@presentation/components/notification-toggle';
 import { rewardDailyLogin, rewardStreakBonus, COIN_REWARDS } from '@domain/services/coinService';
@@ -26,6 +27,10 @@ export function IntroPage(): React.JSX.Element {
   const [streakBonusReward, setStreakBonusReward] = useState<number | null>(null);
   const [challenge] = useState<ChallengeData | null>(() => extractAndSaveChallenge());
   const [bestRecord] = useState<BestRecord | null>(() => getBestRecord());
+  const [termsChecked, setTermsChecked] = useState<boolean>(() => hasConsented());
+  const [privacyChecked, setPrivacyChecked] = useState<boolean>(() => hasConsented());
+  const [consentError, setConsentError] = useState<string>('');
+  const bothConsented = termsChecked && privacyChecked;
 
   const currentConfig = GAME_MODE_CONFIG[selectedMode];
 
@@ -86,6 +91,13 @@ export function IntroPage(): React.JSX.Element {
   const handleStart = useCallback(async (): Promise<void> => {
     if (isAuthLoading) return;
 
+    if (!bothConsented) {
+      setConsentError('이용약관과 개인정보 처리방침에 동의해 주세요.');
+      return;
+    }
+    setConsentError('');
+    saveConsent();
+
     if (!isAuthReady) {
       setIsAuthLoading(true);
       try {
@@ -100,7 +112,7 @@ export function IntroPage(): React.JSX.Element {
     }
 
     navigate(`/game?mode=${selectedMode}`);
-  }, [isAuthReady, isAuthLoading, selectedMode, navigate]);
+  }, [isAuthReady, isAuthLoading, selectedMode, navigate, bothConsented]);
 
   const handleDismissMissionToast = useCallback((): void => {
     setMissionCompletions([]);
@@ -213,20 +225,68 @@ export function IntroPage(): React.JSX.Element {
           <strong>{currentConfig.totalRounds}번 선택</strong> 후 얼마 남을까?
         </p>
 
+        {/* 약관 동의 영역 (체크박스 게이트) */}
+        <div
+          className="intro-consent"
+          style={{
+            margin: '12px auto',
+            padding: '14px 16px',
+            background: '#FFFFFF',
+            border: '1px solid #E5E8EB',
+            borderRadius: 12,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10,
+            maxWidth: 360,
+            width: '100%',
+          }}
+        >
+          <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 13, color: '#191F28' }}>
+            <input
+              type="checkbox"
+              checked={termsChecked}
+              onChange={(e) => setTermsChecked(e.target.checked)}
+              aria-label="이용약관 동의"
+              style={{ width: 18, height: 18 }}
+            />
+            <span>
+              <a href={LEGAL_URLS.terms} target="_blank" rel="noopener noreferrer" style={{ color: '#10B981', textDecoration: 'underline' }}>
+                이용약관
+              </a>
+              에 동의합니다 (필수)
+            </span>
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 13, color: '#191F28' }}>
+            <input
+              type="checkbox"
+              checked={privacyChecked}
+              onChange={(e) => setPrivacyChecked(e.target.checked)}
+              aria-label="개인정보 처리방침 동의"
+              style={{ width: 18, height: 18 }}
+            />
+            <span>
+              <a href={LEGAL_URLS.privacy} target="_blank" rel="noopener noreferrer" style={{ color: '#10B981', textDecoration: 'underline' }}>
+                개인정보 처리방침
+              </a>
+              에 동의합니다 (필수)
+            </span>
+          </label>
+        </div>
+
         {/* CTA 버튼 */}
         <button
           className={`start-button ${selectedMode === 'extreme' ? 'extreme' : ''}`}
           onClick={handleStart}
-          disabled={isAuthLoading}
+          disabled={isAuthLoading || !bothConsented}
           aria-label={`${currentConfig.name}로 게임 시작하기`}
+          style={!bothConsented && !isAuthLoading ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
         >
           {isAuthLoading ? '준비 중...' : '토스 로그인으로 시작하기'}
         </button>
 
-        {/* 약관 동의 안내 */}
-        <p className="intro-terms" style={{ fontSize: '11px', color: '#999', textAlign: 'center', marginTop: '8px' }}>
-          시작하면 이용약관 및 개인정보처리방침에 동의하게 됩니다
-        </p>
+        {consentError && (
+          <p style={{ fontSize: 12, color: '#EF4444', textAlign: 'center', marginTop: 6 }}>{consentError}</p>
+        )}
 
         {/* 훅 문구 */}
         <div className="intro-hook">
