@@ -1,6 +1,33 @@
 # Economic Sense Test - 진행 기록
 
 ## 현재 상태
+
+- 2026-05-18 `7dd0613` chore: apply Track-1 standardization (SDK 2.5.1, consent gate, AD_IDS, legal/)
+- 2026-04-06 `10ba0ed` fix: 인트로 CTA 로그인 안내 + 약관 동의 문구 추가
+- 2026-04-06 `01be824` fix: remove isAppsInTossEnvironment gate from appLogin
+- 2026-04-06 `5c0a54b` fix: 비게임 출시가이드 체크리스트 수정
+- 2026-04-05 `1ebc6a0` fix: full review issues — ads, currency, auth, UX fixes
+- 2026-04-05 `b0b4407` fix: replace unicode escapes with actual Korean/emoji characters
+- 2026-04-05 `09d014d` fix: add backEvent + closeView, remove custom back button for console review compliance
+- 2026-03-31 `46f1bde` feat(db): add user_sessions + promotion_records migration
+- 2026-03-30 `f7668e8` feat: MBTI식 투자 성향 카드 — 3차원 코드 + 차원 바
+- 2026-03-30 `f31868b` fix: 전면광고 다크패턴 제거 + 금액 포맷 + 투자자 카드 설명
+- 2026-03-30 `5976265` feat: 성과 기반 코인 보상 + 실제 광고 ID 반영
+- 2026-03-29 `770963d` fix: DB 질문 금액 랜덤 스케일링 + 전체 풀 합산
+- 2026-03-29 `f582374` fix: DB+로컬 질문 풀 합산 — 118개에서 10개 선택
+- 2026-03-29 `25fa1c4` fix: 광고 ID/질문 반복/결과 카드 크기 수정 (#20)
+- 2026-03-29 `774eff9` docs: cycle 20 final report + CLAUDE.md 진행상황 업데이트
+- 2026-03-29 `334f12d` docs: cycle 19 report — AIT release deploy (019d35f0)
+- 2026-03-29 `2cca90d` docs: cycle 18 report + backlog update
+- 2026-03-29 `f860e2a` fix(ux): PD 리뷰 3건 일괄 수정 — 배너 스페이싱/접근성/스크롤 힌트 (#19)
+- 2026-03-29 `95d7cf7` docs: cycle 17 report + backlog update
+- 2026-03-29 `090b369` feat(intro): 재도전 유도 UX — 이전 최고 기록 카드 표시 (#18)
+- 2026-03-29 `c3d2488` docs: cycle 16 report + backlog update
+- 2026-03-29 `30f5a0e` feat(questions): 시즌 2 문제 15개 추가 (총 40문제) (#17)
+- 2026-03-29 `8acbcba` docs: cycle 15 report + backlog update
+- 2026-03-29 `5330364` feat(intro): 모드 변경 피드백 개선 — 인라인 확인 메시지 + 펄스 애니메이션 (#16)
+- 2026-03-29 `ffc3ec0` fix: ISSUES.md 전체 수정 — 빌드에러/교환활성화/광고CTA/배너/홈이벤트 (#15)
+
 - 완성도: 90%
 - 상태: 활성 (active)
 
