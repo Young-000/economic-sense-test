@@ -8,6 +8,9 @@
 
 ## Next
 
+### P0 — VERIFY 수복 (fleet-sync 온보딩 차단 중)
+- [ ] verify.sh GREEN 복구: lint FAIL(ESLint 에러 4건) + test FAIL(Vitest `@infrastructure` alias 미해석·questionService 기대값 불일치 2건) 수정 (근거: bash scripts/verify.sh → VERIFY: RED, 야간 사이클 머지 게이트 차단)
+
 ### P1 — UI/UX 개선
 - [x] ~~모드 변경 피드백 개선 (PD Issue #1 — 모드 선택 시 로컬 확인 메시지)~~ — Cycle 15
 
