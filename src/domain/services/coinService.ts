@@ -20,25 +20,31 @@ const DAILY_STREAK_KEY = 'economic-sense-daily-streak';
 
 // --- 적립 상수 ---
 
+/**
+ * 코인 지급량 (v3 리밸런스, 2026-08-04)
+ *
+ * 보상형 광고 실단가가 0.2원까지 하락해 v2(3원 가정)는 광고 1회당 0.8원 역마진이었다.
+ * 환원율 목표 = 광고 수익의 25%. 광고 1회 = 5코인(0.05원), 무료 경로 일 총합 ≈ 10코인.
+ */
 export const COIN_REWARDS = {
-  GAME_COMPLETE: 10,   // 기본 (손실이어도 지급)
-  HIGH_TIER: 20,
-  REWARDED_AD: 100,
-  SHARE_RESULT: 15,
-  DAILY_LOGIN: 30,
-  STREAK_3: 5,
-  STREAK_7: 10,
-  STREAK_14: 20,
-  STREAK_30: 30,
+  GAME_COMPLETE: 1,    // 기본 (손실이어도 지급)
+  HIGH_TIER: 2,
+  REWARDED_AD: 5,
+  SHARE_RESULT: 1,
+  DAILY_LOGIN: 3,
+  STREAK_3: 1,
+  STREAK_7: 1,
+  STREAK_14: 2,
+  STREAK_30: 3,
 } as const;
 
 /** 수익률 기반 성과 보상 (레인지 구간) */
 export const PERFORMANCE_REWARDS = [
-  { minReturn: 30,  coins: 60, label: '대박' },
-  { minReturn: 10,  coins: 40, label: '고수익' },
-  { minReturn: 0,   coins: 25, label: '수익' },
-  { minReturn: -10, coins: 15, label: '선방' },
-  { minReturn: -Infinity, coins: 10, label: '기본' },
+  { minReturn: 30,  coins: 5, label: '대박' },
+  { minReturn: 10,  coins: 4, label: '고수익' },
+  { minReturn: 0,   coins: 2, label: '수익' },
+  { minReturn: -10, coins: 1, label: '선방' },
+  { minReturn: -Infinity, coins: 1, label: '기본' },
 ] as const;
 
 /** 수익률에 따른 성과 코인 계산 */
@@ -48,7 +54,7 @@ export function getPerformanceReward(totalReturn: number): { coins: number; labe
       return { coins: tier.coins, label: tier.label };
     }
   }
-  return { coins: 10, label: '기본' };
+  return { coins: 1, label: '기본' };
 }
 
 export const EXCHANGE_RATE = 100; // 100코인 = 1P
