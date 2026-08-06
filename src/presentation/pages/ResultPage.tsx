@@ -145,7 +145,7 @@ export function ResultPage() {
     setIsExchanging(true);
     setExchangeMessage(null);
 
-    const PROD_CODE = '01KMATK7D77QHW1PKD9B8DCZK2';
+    const PROD_CODE = '01KZ6ACVTPM8QPE23H8JCY5SWA';
     const promotionCode = import.meta.env.DEV ? `TEST_${PROD_CODE}` : PROD_CODE;
     const result = await exchangeForTossPoints(
       promotionCode,

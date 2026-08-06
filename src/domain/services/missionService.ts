@@ -50,10 +50,10 @@ export const MISSION_TRACKS: MissionTrack[] = [
     name: '투자자',
     emoji: '🏦',
     stages: [
-      { level: 1, target: 1, reward: 5, description: '씨앗 투자자: 첫 게임 완료' },
-      { level: 2, target: 5, reward: 6, description: '개미 투자자: 5회 게임 완료' },
-      { level: 3, target: 20, reward: 8, description: '큰손 투자자: 20회 게임 완료' },
-      { level: 4, target: 50, reward: 10, description: '슈퍼개미: 50회 게임 완료' },
+      { level: 1, target: 1, reward: 15, description: '씨앗 투자자: 첫 게임 완료' },
+      { level: 2, target: 5, reward: 18, description: '개미 투자자: 5회 게임 완료' },
+      { level: 3, target: 20, reward: 24, description: '큰손 투자자: 20회 게임 완료' },
+      { level: 4, target: 50, reward: 30, description: '슈퍼개미: 50회 게임 완료' },
     ],
   },
   {
@@ -61,10 +61,10 @@ export const MISSION_TRACKS: MissionTrack[] = [
     name: '연속 도전',
     emoji: '🔥',
     stages: [
-      { level: 1, target: 3, reward: 5, description: '초보 도전자: 3일 연속' },
-      { level: 2, target: 7, reward: 6, description: '습관 투자자: 7일 연속' },
-      { level: 3, target: 14, reward: 8, description: '프로 투자자: 14일 연속' },
-      { level: 4, target: 30, reward: 10, description: '전설의 투자자: 30일 연속' },
+      { level: 1, target: 3, reward: 15, description: '초보 도전자: 3일 연속' },
+      { level: 2, target: 7, reward: 18, description: '습관 투자자: 7일 연속' },
+      { level: 3, target: 14, reward: 24, description: '프로 투자자: 14일 연속' },
+      { level: 4, target: 30, reward: 30, description: '전설의 투자자: 30일 연속' },
     ],
   },
   {
@@ -72,10 +72,10 @@ export const MISSION_TRACKS: MissionTrack[] = [
     name: '수익왕',
     emoji: '💰',
     stages: [
-      { level: 1, target: 1, reward: 5, description: '인턴: B티어 이상 달성' },
-      { level: 2, target: 2, reward: 6, description: '매니저: A티어 이상 달성' },
-      { level: 3, target: 3, reward: 8, description: '임원: S티어 이상 달성' },
-      { level: 4, target: 4, reward: 10, description: 'CEO: SS티어 달성' },
+      { level: 1, target: 1, reward: 15, description: '인턴: B티어 이상 달성' },
+      { level: 2, target: 2, reward: 18, description: '매니저: A티어 이상 달성' },
+      { level: 3, target: 3, reward: 24, description: '임원: S티어 이상 달성' },
+      { level: 4, target: 4, reward: 30, description: 'CEO: SS티어 달성' },
     ],
   },
 ];

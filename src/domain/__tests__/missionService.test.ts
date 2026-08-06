@@ -50,39 +50,39 @@ describe('missionService', () => {
       const investor = MISSION_TRACKS.find(t => t.id === 'investor');
       expect(investor).toBeDefined();
       expect(investor!.stages).toHaveLength(4);
-      expect(investor!.stages[0].reward).toBe(5);
-      expect(investor!.stages[1].reward).toBe(6);
-      expect(investor!.stages[2].reward).toBe(8);
-      expect(investor!.stages[3].reward).toBe(10);
+      expect(investor!.stages[0].reward).toBe(15);
+      expect(investor!.stages[1].reward).toBe(18);
+      expect(investor!.stages[2].reward).toBe(24);
+      expect(investor!.stages[3].reward).toBe(30);
     });
 
     it('should have streak track with tier-themed stages', () => {
       const streak = MISSION_TRACKS.find(t => t.id === 'streak');
       expect(streak).toBeDefined();
       expect(streak!.stages).toHaveLength(4);
-      expect(streak!.stages[0].reward).toBe(5);
-      expect(streak!.stages[1].reward).toBe(6);
-      expect(streak!.stages[2].reward).toBe(8);
-      expect(streak!.stages[3].reward).toBe(10);
+      expect(streak!.stages[0].reward).toBe(15);
+      expect(streak!.stages[1].reward).toBe(18);
+      expect(streak!.stages[2].reward).toBe(24);
+      expect(streak!.stages[3].reward).toBe(30);
     });
 
     it('should have tier_master track with tier-themed stages', () => {
       const tierMaster = MISSION_TRACKS.find(t => t.id === 'tier_master');
       expect(tierMaster).toBeDefined();
       expect(tierMaster!.stages).toHaveLength(4);
-      expect(tierMaster!.stages[0].reward).toBe(5);
-      expect(tierMaster!.stages[1].reward).toBe(6);
-      expect(tierMaster!.stages[2].reward).toBe(8);
-      expect(tierMaster!.stages[3].reward).toBe(10);
+      expect(tierMaster!.stages[0].reward).toBe(15);
+      expect(tierMaster!.stages[1].reward).toBe(18);
+      expect(tierMaster!.stages[2].reward).toBe(24);
+      expect(tierMaster!.stages[3].reward).toBe(30);
     });
 
-    it('should have total mission rewards of 87 coins across all tracks', () => {
+    it('should have total mission rewards of 261 coins across all tracks', () => {
       const totalRewards = MISSION_TRACKS.reduce(
         (sum, track) => sum + track.stages.reduce((s, stage) => s + stage.reward, 0),
         0
       );
-      // 3 tracks x (5 + 6 + 8 + 10) = 3 x 29 = 87
-      expect(totalRewards).toBe(87);
+      // 3 tracks x (15 + 18 + 24 + 30) = 3 x 87 = 261
+      expect(totalRewards).toBe(261);
     });
 
     it('should have investor-themed descriptions', () => {
@@ -153,7 +153,7 @@ describe('missionService', () => {
       const investor = results.find(r => r.trackId === 'investor');
       expect(investor).toBeDefined();
       expect(investor!.level).toBe(1);
-      expect(investor!.reward).toBe(5);
+      expect(investor!.reward).toBe(15);
     });
 
     it('should complete tier_master Lv.1 after reaching B tier', () => {
@@ -162,7 +162,7 @@ describe('missionService', () => {
       const tier = results.find(r => r.trackId === 'tier_master');
       expect(tier).toBeDefined();
       expect(tier!.level).toBe(1);
-      expect(tier!.reward).toBe(5);
+      expect(tier!.reward).toBe(15);
     });
   });
 
