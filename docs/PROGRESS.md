@@ -2,6 +2,19 @@
 
 ## 현재 상태
 
+- 2026-08-09 `d39048c` chore(pm): weekly cycle 2026-08-09
+
+
+- 2026-08-06 `a1e6867` chore(release): v0.1.1 — v3.1 이코노미 + 신규 프로모션 코드 반영 빌드
+- 2026-08-06 `9b8e63c` fix(economy): v3.1 리워드 재조정 + 신규 프로모션 코드 교체
+
+
+- 2026-08-05 `fec6dbd` chore(venture): fleet-sync 자동 온보딩
+
+
+- 2026-08-04 `9713776` fix(economy): v3 리워드 하향 — 보상형 광고 실단가 0.2원 대응
+
+
 - 2026-05-18 `7dd0613` chore: apply Track-1 standardization (SDK 2.5.1, consent gate, AD_IDS, legal/)
 - 2026-04-06 `10ba0ed` fix: 인트로 CTA 로그인 안내 + 약관 동의 문구 추가
 - 2026-04-06 `01be824` fix: remove isAppsInTossEnvironment gate from appLogin
