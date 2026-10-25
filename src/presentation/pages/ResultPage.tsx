@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useCallback, useEffect, type Ref } from 'react';
+import { trackAmplitude } from '../../infrastructure/analytics/amplitude';
 import { Confetti, ShareImageCard, CoinBalance, CoinParticle, MissionToast, AdBanner } from '@presentation/components';
 import { useResultData } from '@presentation/hooks/useResultData';
 import { useShareImage } from '@presentation/hooks/useShareImage';
@@ -107,6 +108,7 @@ export function ResultPage() {
       onRewarded: () => {
         recordRewardedAdShown();
         rewardRewardedAd();
+        trackAmplitude('reward_ad_completed', { placement: 'result' });
         setShowAdBonus(true);
         setTimeout(() => setShowAdBonus(false), 1500);
       },
@@ -120,6 +122,7 @@ export function ResultPage() {
 
   const handleShareWithReward = useCallback(() => {
     handleShareText();
+    trackAmplitude('result_shared');
     if (canEarnShareReward) {
       rewardShareResult();
       setHasShared(true);
@@ -158,6 +161,7 @@ export function ResultPage() {
     if (result.success) {
       // 교환 성공 시 코인 차감
       exchangeCoinsForPoints(pointsToExchange);
+      trackAmplitude('points_exchanged', { toss_points: pointsToExchange });
       setExchangeMessage(result.message);
     } else {
       setExchangeMessage(result.error);
