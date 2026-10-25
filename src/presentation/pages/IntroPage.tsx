@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { trackAmplitude } from '../../infrastructure/analytics/amplitude';
 import { useNavigate } from 'react-router-dom';
 import { GAME_MODE_CONFIG, type GameMode, investorProfiles } from '@domain/entities';
 import { getTotalPlayers } from '@data/rankingService';
@@ -111,6 +112,7 @@ export function IntroPage(): React.JSX.Element {
       }
     }
 
+    trackAmplitude('game_started', { mode: selectedMode });
     navigate(`/game?mode=${selectedMode}`);
   }, [isAuthReady, isAuthLoading, selectedMode, navigate, bothConsented]);
 

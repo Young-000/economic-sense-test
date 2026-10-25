@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useCallback, useRef, useState } from 'react';
+import { trackAmplitude } from '../../infrastructure/analytics/amplitude';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGame } from '../hooks/useGame';
 // 전면 광고 제거 — 게임 완료 직후 전면 광고는 다크패턴 (AIT 정책 위반)
@@ -58,6 +59,7 @@ export function GamePage() {
       sessionStorage.setItem('gameQuestions', JSON.stringify(questions));
       sessionStorage.setItem('gameMode', mode);
 
+      trackAmplitude('game_completed', { mode, rounds: gameState.results.length });
       navigate('/result', { replace: true });
     }
   }, [gameState.isComplete, gameState.results, questions, navigate, mode]);

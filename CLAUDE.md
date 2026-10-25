@@ -18,6 +18,7 @@
 - react-router-dom (라우팅)
 - html2canvas (공유 이미지 생성)
 - Vitest + Playwright (테스트)
+- Amplitude (`src/infrastructure/analytics/` - `VITE_AMPLITUDE_API_KEY` 빌드 시 주입, 키 없으면 전송 없음. 이벤트: game_started, game_completed, reward_ad_completed, result_shared, points_exchanged)
 
 ## 앱인토스 규칙
 
